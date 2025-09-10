@@ -539,6 +539,9 @@
             // Initialize data
             DataService.initAll();
             
+            // Force reinitialize deals with correct structure for four-square compatibility
+            DataService.deals.forceInit();
+            
             // Load deals into selector
             loadDealsIntoSelector();
             

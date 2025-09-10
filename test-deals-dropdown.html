@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Deals Dropdown</title>
+</head>
+<body>
+    <h1>Test Deals Dropdown</h1>
+    
+    <h2>Deals in localStorage:</h2>
+    <div id="deals-list"></div>
+    
+    <h2>Dropdown Test:</h2>
+    <select id="deal-selector">
+        <option value="">Select an existing deal or create a new one</option>
+    </select>
+    
+    <h2>Selected Deal Info:</h2>
+    <div id="deal-info"></div>
+
+    <script src="js/data-service.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            DataService.initAll();
+            DataService.deals.forceInit();
+            
+            // Display all deals
+            const deals = DataService.deals.getAll();
+            const dealsList = document.getElementById('deals-list');
+            dealsList.innerHTML = '<pre>' + JSON.stringify(deals, null, 2) + '</pre>';
+            
+            // Populate dropdown
+            const selector = document.getElementById('deal-selector');
+            deals.forEach(deal => {
+                const option = document.createElement('option');
+                option.value = deal.id;
+                option.textContent = `${deal.customer.name} - ${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model}`;
+                selector.appendChild(option);
+            });
+            
+            // Handle selection
+            selector.addEventListener('change', function() {
+                const dealId = this.value;
+                const dealInfo = document.getElementById('deal-info');
+                
+                if (!dealId) {
+                    dealInfo.innerHTML = 'No deal selected';
+                    return;
+                }
+                
+                const deal = DataService.deals.get(dealId);
+                if (deal) {
+                    dealInfo.innerHTML = `
+                        <h3>Deal Details:</h3>
+                        <p><strong>Customer:</strong> ${deal.customer.name}</p>
+                        <p><strong>Email:</strong> ${deal.customer.email}</p>
+                        <p><strong>Phone:</strong> ${deal.customer.phone}</p>
+                        <p><strong>Vehicle:</strong> ${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model}</p>
+                        <p><strong>Price:</strong> $${deal.vehicle.price.toLocaleString()}</p>
+                        <p><strong>Status:</strong> ${deal.status}</p>
+                        <p><strong>Salesperson:</strong> ${deal.salesperson}</p>
+                    `;
+                } else {
+                    dealInfo.innerHTML = 'Deal not found';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
