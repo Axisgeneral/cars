@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Management - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li class="active">
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="four-square.html"><i class="fas fa-calculator"></i> Four Square</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search deals...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" id="new-deal-btn"><i class="fas fa-plus"></i> New Deal</button>
+                        <button class="btn btn-secondary" id="new-lead-btn"><i class="fas fa-user-plus"></i> New Lead</button>
+                        <button class="btn btn-secondary" id="new-customer-btn"><i class="fas fa-users"></i> New Customer</button>
+                        <button class="btn btn-secondary" id="new-task-btn"><i class="fas fa-tasks"></i> New Task</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='four-square.html'"><i class="fas fa-calculator"></i> Four Square</button>
+                        <button class="btn btn-secondary"><i class="fas fa-filter"></i> Filter</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Deals Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Deal Management</h1>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option>Today</option>
+                            <option>Yesterday</option>
+                            <option>Last 7 Days</option>
+                            <option selected>This Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Deal Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-deals">0</h3>
+                            <p>Total Deals</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pending-deals">0</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="closed-deals">0</h3>
+                            <p>Closed</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-value">$0</h3>
+                            <p>Total Value</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deal Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Deal List</h2>
+                        <div class="table-actions">
+                            <div class="search-container-enhanced">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="deal-search" placeholder="Search deals...">
+                                </div>
+                                <select id="search-criteria" class="search-criteria-dropdown">
+                                    <option value="all">All Fields</option>
+                                    <option value="customer">Customer</option>
+                                    <option value="vehicle">Vehicle</option>
+                                    <option value="salesperson">Salesperson</option>
+                                    <option value="value">Value</option>
+                                </select>
+                            </div>
+                            <select id="deal-filter">
+                                <option value="">All Deals</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Closed Won">Closed Won</option>
+                                <option value="Closed Lost">Closed Lost</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="data-table" id="deals-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Vehicle</th>
+                                    <th>Status</th>
+                                    <th>Value</th>
+                                    <th>Salesperson</th>
+                                    <th>Date Created</th>
+                                    <th>Expected Close</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deals-tbody">
+                                <!-- Deal rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="no-deals" class="no-data" style="display: none;">
+                        <i class="fas fa-handshake"></i>
+                        <h3>No Deals Found</h3>
+                        <p>Start by adding your first deal to the system.</p>
+                        <button class="btn btn-primary" id="add-first-deal">
+                            <i class="fas fa-plus"></i> Add Deal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+        <script src="js/modal-functions.js"></script>
+        <script src="js/deals-data.js"></script>
+    <script src="js/mobile-nav.js"></script>
+    <script>
+        // Deal Management functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            DataService.initAll();
+            
+            // Load deals
+            loadDeals();
+            updateStats();
+            
+            // Event listeners
+            setupEventListeners();
+            // Add modal event listeners for new lead/customer/task
+            document.getElementById('new-lead-btn')?.addEventListener('click', function() {
+                if (typeof openAddLeadModal === 'function') {
+                    openAddLeadModal();
+                } else if (window.openAddLeadModal) {
+                    window.openAddLeadModal();
+                } else {
+                    console.error('Lead modal function not found.');
+                    alert('Lead modal function not found. Please check that js/modal-functions.js is loaded and openAddLeadModal is defined.');
+                }
+            });
+            document.getElementById('new-customer-btn')?.addEventListener('click', function() {
+                if (typeof openAddCustomerModal === 'function') {
+                    openAddCustomerModal();
+                } else if (window.openAddCustomerModal) {
+                    window.openAddCustomerModal();
+                } else {
+                    alert('Customer modal function not found.');
+                }
+            });
+            document.getElementById('new-task-btn')?.addEventListener('click', function() {
+                if (typeof openAddTaskModal === 'function') {
+                    openAddTaskModal();
+                } else if (window.openAddTaskModal) {
+                    window.openAddTaskModal();
+                } else {
+                    alert('Task modal function not found.');
+                }
+            });
+        });
+
+        function setupEventListeners() {
+            console.log('Setting up deal event listeners...');
+            
+            // New Deal Button (in top nav)
+            const newDealBtn = document.querySelector('.top-nav-actions .btn-primary');
+            console.log('New Deal Button:', newDealBtn);
+            if (newDealBtn) {
+                newDealBtn.addEventListener('click', function(e) {
+                    console.log('New Deal button clicked');
+                    openAddDealModal();
+                });
+            }
+            
+            // Add First Deal Button
+            const addFirstDealBtn = document.getElementById('add-first-deal');
+            console.log('Add First Deal Button:', addFirstDealBtn);
+            if (addFirstDealBtn) {
+                addFirstDealBtn.addEventListener('click', function(e) {
+                    console.log('Add First Deal button clicked');
+                    openAddDealModal();
+                });
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('deal-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterDeals);
+            }
+            
+            // Search criteria dropdown functionality
+            const searchCriteriaSelect = document.getElementById('search-criteria');
+            if (searchCriteriaSelect) {
+                searchCriteriaSelect.addEventListener('change', function() {
+                    // Update placeholder text based on selected criteria
+                    const searchInput = document.getElementById('deal-search');
+                    const selectedCriteria = this.value;
+                    
+                    switch (selectedCriteria) {
+                        case 'customer':
+                            searchInput.placeholder = 'Search by customer...';
+                            break;
+                        case 'vehicle':
+                            searchInput.placeholder = 'Search by vehicle...';
+                            break;
+                        case 'salesperson':
+                            searchInput.placeholder = 'Search by salesperson...';
+                            break;
+                        case 'value':
+                            searchInput.placeholder = 'Search by value...';
+                            break;
+                        case 'all':
+                        default:
+                            searchInput.placeholder = 'Search deals...';
+                            break;
+                    }
+                    
+                    // Re-run filter if there's already a search term
+                    if (searchInput.value.trim()) {
+                        filterDeals();
+                    }
+                });
+            }
+            
+            // Filter functionality
+            const filterSelect = document.getElementById('deal-filter');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', filterDeals);
+            }
+            
+            // Notification Bell
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', function() {
+                    alert('Notifications feature coming soon!');
+                });
+            }
+        }
+        
+        // New Deal Modal
+        function openAddDealModal() {
+            console.log('Opening Add Deal Modal...');
+            
+            // Get customers and vehicles for dropdowns
+            const customers = DataService.customers.getAll();
+            const vehicles = DataService.inventory.getAll();
+            
+            // Create customer options
+            const customerOptions = customers.map(customer => 
+                `<option value="${customer.id}">${customer.firstName} ${customer.lastName}</option>`
+            ).join('');
+            
+            // Create vehicle options
+            const vehicleOptions = vehicles.map(vehicle => 
+                `<option value="${vehicle.id}">${vehicle.year} ${vehicle.make} ${vehicle.model} - $${vehicle.price}</option>`
+            ).join('');
+            
+            // Create modal content
+            const modalContent = `
+                <form id="add-deal-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Deal Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerId">Customer *</label>
+                                <select id="customerId" name="customerId" required>
+                                    <option value="">Select Customer</option>
+                                    ${customerOptions}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleId">Vehicle *</label>
+                                <select id="vehicleId" name="vehicleId" required>
+                                    <option value="">Select Vehicle</option>
+                                    ${vehicleOptions}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dealType">Deal Type *</label>
+                                <select id="dealType" name="dealType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Lease">Lease</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status *</label>
+                                <select id="status" name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="New">New</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Pending Approval">Pending Approval</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Financial Details</h4>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label for="salePrice">Sale Price *</label>
+                                <input type="number" id="salePrice" name="salePrice" required min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="downPayment">Down Payment</label>
+                                <input type="number" id="downPayment" name="downPayment" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeInValue">Trade-In Value</label>
+                                <input type="number" id="tradeInValue" name="tradeInValue" min="0" step="1">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="financingTerm">Financing Term (months)</label>
+                                <select id="financingTerm" name="financingTerm">
+                                    <option value="">Select Term</option>
+                                    <option value="12">12 months</option>
+                                    <option value="24">24 months</option>
+                                    <option value="36">36 months</option>
+                                    <option value="48">48 months</option>
+                                    <option value="60">60 months</option>
+                                    <option value="72">72 months</option>
+                                    <option value="84">84 months</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="interestRate">Interest Rate (%)</label>
+                                <input type="number" id="interestRate" name="interestRate" min="0" max="30" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Additional Information</h4>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="salesperson">Salesperson *</label>
+                                <select id="salesperson" name="salesperson" required>
+                                    <option value="">Select Salesperson</option>
+                                    <option value="Thomas Morales">Thomas Morales</option>
+                                    <option value="Sales Rep 1">Sales Rep 1</option>
+                                    <option value="Sales Rep 2">Sales Rep 2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dealDate">Deal Date *</label>
+                                <input type="date" id="dealDate" name="dealDate" required>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            // Create modal with ModalUtils
+            const modal = ModalUtils.createModal('add-deal-modal', 'Add New Deal', modalContent, [
+                { text: 'Cancel', class: 'btn-secondary', attributes: 'data-modal-close' },
+                { text: 'Save Deal', class: 'btn-primary', attributes: 'id="save-deal-btn"' }
+            ]);
+            
+            // Open the modal
+            ModalUtils.openModal('add-deal-modal');
+            
+            // Add event listener for save button
+            const saveBtn = document.getElementById('save-deal-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveNewDeal);
+            }
+            
+            // Set today's date as default for deal date
+            const dealDateInput = document.getElementById('dealDate');
+            if (dealDateInput) {
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                dealDateInput.value = formattedDate;
+            }
+        }
+
+        function saveNewDeal() {
+            
+            // Add First Deal Button
+            const addFirstDealBtn = document.getElementById('add-first-deal');
+            if (addFirstDealBtn) {
+                addFirstDealBtn.addEventListener('click', openAddDealModal);
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('deal-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterDeals);
+            }
+            
+            // Filter functionality
+            const filterSelect = document.getElementById('deal-filter');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', filterDeals);
+            }
+            
+            // Notification Bell
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', function() {
+                    alert('Notifications feature coming soon!');
+                });
+            }
+        }
+
+        function loadDeals() {
+            const deals = DataService.deals.getAll();
+            const tbody = document.getElementById('deals-tbody');
+            const noDealsDiv = document.getElementById('no-deals');
+            
+            if (deals.length === 0) {
+                tbody.innerHTML = '';
+                noDealsDiv.style.display = 'block';
+                return;
+            }
+            
+            noDealsDiv.style.display = 'none';
+            
+            tbody.innerHTML = deals.map(deal => `
+                <tr>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-name">${deal.customerName}</div>
+                            <div class="customer-email">${deal.customerEmail}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="vehicle-info">
+                            <div class="vehicle-name">${deal.vehicleMake} ${deal.vehicleModel}</div>
+                            <div class="vehicle-year">${deal.vehicleYear}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-${deal.status.toLowerCase().replace(' ', '-')}">${deal.status}</span>
+                    </td>
+                    <td>
+                        <span class="deal-value">$${formatNumber(deal.value)}</span>
+                    </td>
+                    <td>${deal.salesperson}</td>
+                    <td>${formatDate(deal.dateCreated)}</td>
+                    <td>${formatDate(deal.expectedCloseDate)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="viewDeal('${deal.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editDeal('${deal.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="openFourSquare('${deal.id}')" title="Four Square">
+                                <i class="fas fa-calculator"></i>
+                            </button>
+                            <button class="btn-icon btn-danger" onclick="deleteDeal('${deal.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const deals = DataService.deals.getAll();
+            
+            // Total deals
+            document.getElementById('total-deals').textContent = deals.length;
+            
+            // Pending deals
+            const pendingDeals = deals.filter(deal => deal.status === 'Pending').length;
+            document.getElementById('pending-deals').textContent = pendingDeals;
+            
+            // Closed deals
+            const closedDeals = deals.filter(deal => deal.status === 'Closed Won' || deal.status === 'Closed Lost').length;
+            document.getElementById('closed-deals').textContent = closedDeals;
+            
+            // Total value
+            const totalValue = deals.reduce((sum, deal) => sum + (deal.value || 0), 0);
+            document.getElementById('total-value').textContent = '$' + formatNumber(totalValue);
+        }
+
+        function filterDeals() {
+            const searchTerm = document.getElementById('deal-search').value.toLowerCase();
+            const searchCriteria = document.getElementById('search-criteria').value;
+            const filterStatus = document.getElementById('deal-filter').value;
+            const deals = DataService.deals.getAll();
+            
+            let filteredDeals = deals;
+            
+            // Apply search filter based on selected criteria
+            if (searchTerm) {
+                filteredDeals = filteredDeals.filter(deal => {
+                    switch (searchCriteria) {
+                        case 'customer':
+                            return deal.customerName.toLowerCase().includes(searchTerm) ||
+                                   deal.customerEmail.toLowerCase().includes(searchTerm);
+                        case 'vehicle':
+                            return deal.vehicleMake.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleModel.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleYear.toString().includes(searchTerm);
+                        case 'salesperson':
+                            return deal.salesperson.toLowerCase().includes(searchTerm);
+                        case 'value':
+                            // Remove currency symbols and commas for value search
+                            const dealValue = deal.value.toString().replace(/[$,]/g, '');
+                            const searchValue = searchTerm.replace(/[$,]/g, '');
+                            return dealValue.includes(searchValue);
+                        case 'all':
+                        default:
+                            return deal.customerName.toLowerCase().includes(searchTerm) ||
+                                   deal.customerEmail.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleMake.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleModel.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleYear.toString().includes(searchTerm) ||
+                                   deal.salesperson.toLowerCase().includes(searchTerm) ||
+                                   deal.value.toString().replace(/[$,]/g, '').includes(searchTerm.replace(/[$,]/g, ''));
+                    }
+                });
+            }
+            
+            // Apply status filter
+            if (filterStatus) {
+                filteredDeals = filteredDeals.filter(deal => deal.status === filterStatus);
+            }
+            
+            // Update table
+            const tbody = document.getElementById('deals-tbody');
+            const noDealsDiv = document.getElementById('no-deals');
+            
+            if (filteredDeals.length === 0) {
+                tbody.innerHTML = '';
+                noDealsDiv.style.display = 'block';
+                noDealsDiv.querySelector('h3').textContent = 'No Deals Found';
+                noDealsDiv.querySelector('p').textContent = 'Try adjusting your search or filter criteria.';
+            } else {
+                noDealsDiv.style.display = 'none';
+                tbody.innerHTML = filteredDeals.map(deal => `
+                    <tr>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name">${deal.customerName}</div>
+                                <div class="customer-email">${deal.customerEmail}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vehicle-info">
+                                <div class="vehicle-name">${deal.vehicleMake} ${deal.vehicleModel}</div>
+                                <div class="vehicle-year">${deal.vehicleYear}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${deal.status.toLowerCase().replace(' ', '-')}">${deal.status}</span>
+                        </td>
+                        <td>
+                            <span class="deal-value">$${formatNumber(deal.value)}</span>
+                        </td>
+                        <td>${deal.salesperson}</td>
+                        <td>${formatDate(deal.dateCreated)}</td>
+                        <td>${formatDate(deal.expectedCloseDate)}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewDeal('${deal.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editDeal('${deal.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteDeal('${deal.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function openAddDealModal() {
+            // Get customers and inventory for dropdowns
+            const customers = DataService.customers.getAll();
+            const inventory = DataService.inventory.getAll();
+            
+            const modalContent = `
+                <form id="add-deal-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Customer Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerId">Customer *</label>
+                                <select id="customerId" name="customerId" required>
+                                    <option value="">Select Customer</option>
+                                    ${customers.map(customer => `
+                                        <option value="${customer.id}">${customer.firstName} ${customer.lastName} - ${customer.email}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerName">Customer Name *</label>
+                                <input type="text" id="customerName" name="customerName" required readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">Customer Email</label>
+                            <input type="email" id="customerEmail" name="customerEmail" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Vehicle Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicleId">Vehicle *</label>
+                                <select id="vehicleId" name="vehicleId" required>
+                                    <option value="">Select Vehicle</option>
+                                    ${inventory.map(vehicle => `
+                                        <option value="${vehicle.id}" data-make="${vehicle.make}" data-model="${vehicle.model}" data-year="${vehicle.year}" data-price="${vehicle.price}">
+                                            ${vehicle.year} ${vehicle.make} ${vehicle.model} - $${formatNumber(vehicle.price)}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleYear">Year</label>
+                                <input type="text" id="vehicleYear" name="vehicleYear" readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicleMake">Make</label>
+                                <input type="text" id="vehicleMake" name="vehicleMake" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleModel">Model</label>
+                                <input type="text" id="vehicleModel" name="vehicleModel" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Deal Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="value">Deal Value *</label>
+                                <input type="number" id="value" name="value" required min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select id="status" name="status">
+                                    <option value="Pending" selected>Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Closed Won">Closed Won</option>
+                                    <option value="Closed Lost">Closed Lost</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="salesperson">Salesperson *</label>
+                                <input type="text" id="salesperson" name="salesperson" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expectedCloseDate">Expected Close Date</label>
+                                <input type="date" id="expectedCloseDate" name="expectedCloseDate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3" placeholder="Additional notes about the deal..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Add Deal',
+                    class: 'btn-primary',
+                    icon: 'fas fa-plus',
+                    attributes: 'onclick="saveDeal()"'
+                }
+            ];
+            
+            ModalUtils.createModal('add-deal-modal', 'Add New Deal', modalContent, footerButtons);
+            ModalUtils.openModal('add-deal-modal');
+            
+            // Setup form interactions
+            setupDealFormInteractions();
+        }
+
+        function setupDealFormInteractions() {
+            // Customer selection
+            const customerSelect = document.getElementById('customerId');
+            const customerNameInput = document.getElementById('customerName');
+            const customerEmailInput = document.getElementById('customerEmail');
+            
+            customerSelect.addEventListener('change', function() {
+                const customerId = this.value;
+                if (customerId) {
+                    const customer = DataService.customers.get(customerId);
+                    if (customer) {
+                        customerNameInput.value = `${customer.firstName} ${customer.lastName}`;
+                        customerEmailInput.value = customer.email;
+                    }
+                } else {
+                    customerNameInput.value = '';
+                    customerEmailInput.value = '';
+                }
+            });
+            
+            // Vehicle selection
+            const vehicleSelect = document.getElementById('vehicleId');
+            const vehicleYearInput = document.getElementById('vehicleYear');
+            const vehicleMakeInput = document.getElementById('vehicleMake');
+            const vehicleModelInput = document.getElementById('vehicleModel');
+            const valueInput = document.getElementById('value');
+            
+            vehicleSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    vehicleYearInput.value = selectedOption.dataset.year;
+                    vehicleMakeInput.value = selectedOption.dataset.make;
+                    vehicleModelInput.value = selectedOption.dataset.model;
+                    valueInput.value = selectedOption.dataset.price;
+                } else {
+                    vehicleYearInput.value = '';
+                    vehicleMakeInput.value = '';
+                    vehicleModelInput.value = '';
+                    valueInput.value = '';
+                }
+            });
+        }
+
+        function saveDeal() {
+            const form = document.getElementById('add-deal-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            
+            // Create deal object
+            const deal = {
+                customerId: formData.customerId,
+                customerName: formData.customerName,
+                customerEmail: formData.customerEmail,
+                vehicleId: formData.vehicleId,
+                vehicleYear: formData.vehicleYear,
+                vehicleMake: formData.vehicleMake,
+                vehicleModel: formData.vehicleModel,
+                value: parseFloat(formData.value),
+                status: formData.status || 'Pending',
+                salesperson: formData.salesperson,
+                expectedCloseDate: formData.expectedCloseDate || '',
+                notes: formData.notes || ''
+            };
+            
+            // Save deal
+            DataService.deals.add(deal);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-deal-modal');
+            ModalUtils.removeModal('add-deal-modal');
+            ModalUtils.showSuccessMessage('Deal added successfully!');
+            
+            // Refresh the page data
+            loadDeals();
+            updateStats();
+        }
+
+        function editDeal(dealId) {
+            const deal = DataService.deals.get(dealId);
+            if (!deal) return;
+            
+            // Similar to add modal but pre-populated with deal data
+            openAddDealModal();
+            
+            // Change modal title and button
+            document.querySelector('#add-deal-modal .modal-title').textContent = 'Edit Deal';
+            document.querySelector('#add-deal-modal .btn-primary').textContent = 'Update Deal';
+            document.querySelector('#add-deal-modal .btn-primary').setAttribute('onclick', `updateDeal('${dealId}')`);
+            
+            // Populate form with deal data
+            const form = document.getElementById('add-deal-form');
+            ModalUtils.populateForm(form, deal);
+            
+            // Trigger change events to populate related fields
+            document.getElementById('customerId').dispatchEvent(new Event('change'));
+            document.getElementById('vehicleId').dispatchEvent(new Event('change'));
+        }
+
+        function updateDeal(dealId) {
+            const form = document.getElementById('add-deal-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            const deal = DataService.deals.get(dealId);
+            
+            // Update deal object
+            Object.assign(deal, {
+                customerId: formData.customerId,
+                customerName: formData.customerName,
+                customerEmail: formData.customerEmail,
+                vehicleId: formData.vehicleId,
+                vehicleYear: formData.vehicleYear,
+                vehicleMake: formData.vehicleMake,
+                vehicleModel: formData.vehicleModel,
+                value: parseFloat(formData.value),
+                status: formData.status || 'Pending',
+                salesperson: formData.salesperson,
+                expectedCloseDate: formData.expectedCloseDate || '',
+                notes: formData.notes || ''
+            });
+            
+            // Save updated deal
+            DataService.deals.update(deal);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-deal-modal');
+            ModalUtils.removeModal('add-deal-modal');
+            ModalUtils.showSuccessMessage('Deal updated successfully!');
+            
+            // Refresh the page data
+            loadDeals();
+            updateStats();
+        }
+
+        function viewDeal(dealId) {
+            const deal = DataService.deals.get(dealId);
+            if (!deal) return;
+            
+            const modalContent = `
+                <div class="deal-details">
+                    <div class="deal-header">
+                        <div class="deal-info">
+                            <h3>Deal #${deal.id}</h3>
+                            <p>${deal.customerName}</p>
+                            <span class="badge badge-${deal.status.toLowerCase().replace(' ', '-')}">${deal.status}</span>
+                        </div>
+                        <div class="deal-value">
+                            <h2>$${formatNumber(deal.value)}</h2>
+                        </div>
+                    </div>
+                    
+                    <div class="deal-sections">
+                        <div class="info-section">
+                            <h4>Customer Information</h4>
+                            <div class="info-grid">
+                                <div><strong>Name:</strong> ${deal.customerName}</div>
+                                <div><strong>Email:</strong> ${deal.customerEmail}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>Vehicle Information</h4>
+                            <div class="info-grid">
+                                <div><strong>Vehicle:</strong> ${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}</div>
+                                <div><strong>Year:</strong> ${deal.vehicleYear}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>Deal Details</h4>
+                            <div class="info-grid">
+                                <div><strong>Salesperson:</strong> ${deal.salesperson}</div>
+                                <div><strong>Date Created:</strong> ${formatDate(deal.dateCreated)}</div>
+                                <div><strong>Expected Close:</strong> ${formatDate(deal.expectedCloseDate) || 'Not set'}</div>
+                                <div><strong>Status:</strong> ${deal.status}</div>
+                            </div>
+                        </div>
+                        
+                        ${deal.notes ? `
+                            <div class="info-section">
+                                <h4>Notes</h4>
+                                <p>${deal.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Edit Deal',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('view-deal-modal'); ModalUtils.removeModal('view-deal-modal'); editDeal('${dealId}')"`
+                },
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                }
+            ];
+            
+            ModalUtils.createModal('view-deal-modal', 'Deal Details', modalContent, footerButtons);
+            ModalUtils.openModal('view-deal-modal');
+        }
+
+        function deleteDeal(dealId) {
+            const deal = DataService.deals.get(dealId);
+            if (!deal) return;
+            
+            if (confirm(`Are you sure you want to delete the deal for ${deal.customerName}? This action cannot be undone.`)) {
+                DataService.deals.remove(dealId);
+                ModalUtils.showSuccessMessage('Deal deleted successfully!');
+                loadDeals();
+                updateStats();
+            }
+        }
+
+        function openFourSquare(dealId) {
+            // Redirect to Four Square page with the deal ID as a parameter
+            window.location.href = `four-square.html?dealId=${dealId}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function formatNumber(number) {
+            return new Intl.NumberFormat('en-US').format(number);
+        }
+    </script>
+</body>
+</html>

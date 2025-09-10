@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Management - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li class="active">
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="four-square.html"><i class="fas fa-calculator"></i> Four Square</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search leads...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary"><i class="fas fa-plus"></i> New Lead</button>
+                        <button class="btn btn-secondary"><i class="fas fa-filter"></i> Filter</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Leads Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Lead Management</h1>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option>Today</option>
+                            <option>Yesterday</option>
+                            <option>Last 7 Days</option>
+                            <option selected>This Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Lead Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-funnel-dollar"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-leads">0</h3>
+                            <p>Total Leads</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="hot-leads">0</h3>
+                            <p>Hot Leads</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pending-leads">0</h3>
+                            <p>Pending Follow-up</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="converted-leads">0</h3>
+                            <p>Converted</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lead Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Lead List</h2>
+                        <div class="table-actions">
+                            <div class="search-container-enhanced">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="lead-search" placeholder="Search leads...">
+                                </div>
+                                <select id="search-criteria" class="search-criteria-dropdown">
+                                    <option value="all">All Fields</option>
+                                    <option value="name">Name</option>
+                                    <option value="phone">Phone Number</option>
+                                    <option value="email">Email</option>
+                                    <option value="company">Company</option>
+                                    <option value="interest">Interest</option>
+                                    <option value="source">Source</option>
+                                </select>
+                            </div>
+                            <select id="lead-filter">
+                                <option value="">All Leads</option>
+                                <option value="Hot">Hot</option>
+                                <option value="Warm">Warm</option>
+                                <option value="Cold">Cold</option>
+                                <option value="Converted">Converted</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="data-table" id="leads-table">
+                            <thead>
+                                <tr>
+                                    <th>Lead</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Source</th>
+                                    <th>Interest</th>
+                                    <th>Date Created</th>
+                                    <th>Last Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leads-tbody">
+                                <!-- Lead rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="no-leads" class="no-data" style="display: none;">
+                        <i class="fas fa-funnel-dollar"></i>
+                        <h3>No Leads Found</h3>
+                        <p>Start by adding your first lead to the system.</p>
+                        <button class="btn btn-primary" id="add-first-lead">
+                            <i class="fas fa-plus"></i> Add Lead
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/leads-data.js"></script>
+    <script src="js/mobile-nav.js"></script>
+    <script>
+        // Lead Management functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            DataService.initAll();
+            
+            // Load leads
+            loadLeads();
+            updateStats();
+            
+            // Event listeners
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            console.log('Setting up lead event listeners...');
+            
+            // New Lead Button (in top nav)
+            const newLeadBtn = document.querySelector('.top-nav-actions .btn-primary');
+            console.log('New Lead Button:', newLeadBtn);
+            if (newLeadBtn) {
+                newLeadBtn.addEventListener('click', function(e) {
+                    console.log('New Lead button clicked');
+                    openAddLeadModal();
+                });
+            }
+            
+            // Add First Lead Button
+            const addFirstLeadBtn = document.getElementById('add-first-lead');
+            console.log('Add First Lead Button:', addFirstLeadBtn);
+            if (addFirstLeadBtn) {
+                addFirstLeadBtn.addEventListener('click', function(e) {
+                    console.log('Add First Lead button clicked');
+                    openAddLeadModal();
+                });
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('lead-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterLeads);
+            }
+            
+            // Search criteria dropdown functionality
+            const searchCriteriaSelect = document.getElementById('search-criteria');
+            if (searchCriteriaSelect) {
+                searchCriteriaSelect.addEventListener('change', function() {
+                    // Update placeholder text based on selected criteria
+                    const searchInput = document.getElementById('lead-search');
+                    const selectedCriteria = this.value;
+                    
+                    switch (selectedCriteria) {
+                        case 'name':
+                            searchInput.placeholder = 'Search by name...';
+                            break;
+                        case 'phone':
+                            searchInput.placeholder = 'Search by phone number...';
+                            break;
+                        case 'email':
+                            searchInput.placeholder = 'Search by email...';
+                            break;
+                        case 'company':
+                            searchInput.placeholder = 'Search by company...';
+                            break;
+                        case 'interest':
+                            searchInput.placeholder = 'Search by interest...';
+                            break;
+                        case 'source':
+                            searchInput.placeholder = 'Search by source...';
+                            break;
+                        case 'all':
+                        default:
+                            searchInput.placeholder = 'Search leads...';
+                            break;
+                    }
+                    
+                    // Re-run filter if there's already a search term
+                    if (searchInput.value.trim()) {
+                        filterLeads();
+                    }
+                });
+            }
+            
+            // Filter functionality
+            const filterSelect = document.getElementById('lead-filter');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', filterLeads);
+            }
+            
+            // Notification Bell
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', function() {
+                    alert('Notifications feature coming soon!');
+                });
+            }
+        }
+        
+        // New Lead Modal
+        function openAddLeadModal() {
+            console.log('Opening Add Lead Modal...');
+            
+            // Create modal content
+            const modalContent = `
+                <form id="add-lead-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Lead Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" name="company">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Lead Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select id="status" name="status">
+                                    <option value="Cold">Cold</option>
+                                    <option value="Warm" selected>Warm</option>
+                                    <option value="Hot">Hot</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="source">Source</label>
+                                <select id="source" name="source">
+                                    <option value="">Select Source</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Walk-in">Walk-in</option>
+                                    <option value="Referral">Referral</option>
+                                    <option value="Phone Call">Phone Call</option>
+                                    <option value="Social Media">Social Media</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="interest">Interest</label>
+                            <input type="text" id="interest" name="interest" placeholder="e.g., 2023 Honda Civic">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            // Create modal with ModalUtils
+            const modal = ModalUtils.createModal('add-lead-modal', 'Add New Lead', modalContent, [
+                { text: 'Cancel', class: 'btn-secondary', attributes: 'data-modal-close' },
+                { text: 'Save Lead', class: 'btn-primary', attributes: 'id="save-lead-btn"' }
+            ]);
+            
+            // Open the modal
+            ModalUtils.openModal('add-lead-modal');
+            
+            // Add event listener for save button
+            const saveBtn = document.getElementById('save-lead-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveNewLead);
+            }
+        }
+
+        function saveNewLead() {
+            const form = document.getElementById('add-lead-form');
+            const formData = new FormData(form);
+            
+            // Create lead object
+            const lead = {
+                id: Date.now().toString(),
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                company: formData.get('company') || '',
+                status: formData.get('status') || 'Warm',
+                source: formData.get('source') || '',
+                interest: formData.get('interest') || '',
+                notes: formData.get('notes') || '',
+                dateCreated: new Date().toISOString(),
+                lastContact: new Date().toISOString()
+            };
+            
+            // Validate required fields
+            if (!lead.firstName || !lead.lastName || !lead.email || !lead.phone) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Save lead
+            DataService.leads.add(lead);
+            
+            // Close modal
+            ModalUtils.closeModal('add-lead-modal');
+            
+            // Refresh the lead list
+            loadLeads();
+            updateStats();
+            
+            // Show success message
+            alert('Lead added successfully!');
+        }
+
+        function loadLeads() {
+            const leads = DataService.leads.getAll();
+            const tbody = document.getElementById('leads-tbody');
+            const noLeadsDiv = document.getElementById('no-leads');
+            
+            if (leads.length === 0) {
+                tbody.innerHTML = '';
+                noLeadsDiv.style.display = 'block';
+                return;
+            }
+            
+            noLeadsDiv.style.display = 'none';
+            
+            tbody.innerHTML = leads.map(lead => `
+                <tr>
+                    <td>
+                        <div class="lead-info">
+                            <div class="lead-avatar">
+                                ${lead.firstName.charAt(0)}${lead.lastName.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="lead-name">${lead.firstName} ${lead.lastName}</div>
+                                <div class="lead-company">${lead.company || 'Individual'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-info">
+                            <div><i class="fas fa-phone"></i> ${lead.phone}</div>
+                            <div><i class="fas fa-envelope"></i> ${lead.email}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-${lead.status.toLowerCase()}">${lead.status}</span>
+                    </td>
+                    <td>${lead.source}</td>
+                    <td>${lead.interest}</td>
+                    <td>${formatDate(lead.dateCreated)}</td>
+                    <td>${formatDate(lead.lastContact)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="viewLead('${lead.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editLead('${lead.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon btn-success" onclick="convertLead('${lead.id}')" title="Convert to Customer">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                            <button class="btn-icon btn-danger" onclick="deleteLead('${lead.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const leads = DataService.leads.getAll();
+            
+            // Total leads
+            document.getElementById('total-leads').textContent = leads.length;
+            
+            // Hot leads
+            const hotLeads = leads.filter(lead => lead.status === 'Hot').length;
+            document.getElementById('hot-leads').textContent = hotLeads;
+            
+            // Pending follow-up (leads not contacted in last 7 days)
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const pendingLeads = leads.filter(lead => {
+                const lastContact = new Date(lead.lastContact);
+                return lastContact < sevenDaysAgo && lead.status !== 'Converted';
+            }).length;
+            document.getElementById('pending-leads').textContent = pendingLeads;
+            
+            // Converted leads
+            const convertedLeads = leads.filter(lead => lead.status === 'Converted').length;
+            document.getElementById('converted-leads').textContent = convertedLeads;
+        }
+
+        function filterLeads() {
+            const searchTerm = document.getElementById('lead-search').value.toLowerCase();
+            const searchCriteria = document.getElementById('search-criteria').value;
+            const filterStatus = document.getElementById('lead-filter').value;
+            const leads = DataService.leads.getAll();
+            
+            let filteredLeads = leads;
+            
+            // Apply search filter based on selected criteria
+            if (searchTerm) {
+                filteredLeads = filteredLeads.filter(lead => {
+                    switch (searchCriteria) {
+                        case 'name':
+                            return lead.firstName.toLowerCase().includes(searchTerm) ||
+                                   lead.lastName.toLowerCase().includes(searchTerm);
+                        case 'phone':
+                            // Normalize both phone and searchTerm to digits only for matching
+                            const leadPhoneDigits = lead.phone.replace(/\D/g, '');
+                            const searchDigits = searchTerm.replace(/\D/g, '');
+                            return leadPhoneDigits.includes(searchDigits);
+                        case 'email':
+                            return lead.email.toLowerCase().includes(searchTerm);
+                        case 'company':
+                            return lead.company && lead.company.toLowerCase().includes(searchTerm);
+                        case 'interest':
+                            return lead.interest && lead.interest.toLowerCase().includes(searchTerm);
+                        case 'source':
+                            return lead.source && lead.source.toLowerCase().includes(searchTerm);
+                        case 'all':
+                        default:
+                            return lead.firstName.toLowerCase().includes(searchTerm) ||
+                                   lead.lastName.toLowerCase().includes(searchTerm) ||
+                                   lead.email.toLowerCase().includes(searchTerm) ||
+                                   lead.phone.includes(searchTerm) ||
+                                   (lead.company && lead.company.toLowerCase().includes(searchTerm)) ||
+                                   (lead.interest && lead.interest.toLowerCase().includes(searchTerm)) ||
+                                   (lead.source && lead.source.toLowerCase().includes(searchTerm));
+                    }
+                });
+            }
+            
+            // Apply status filter
+            if (filterStatus) {
+                filteredLeads = filteredLeads.filter(lead => lead.status === filterStatus);
+            }
+            
+            // Update table
+            const tbody = document.getElementById('leads-tbody');
+            const noLeadsDiv = document.getElementById('no-leads');
+            
+            if (filteredLeads.length === 0) {
+                tbody.innerHTML = '';
+                noLeadsDiv.style.display = 'block';
+                noLeadsDiv.querySelector('h3').textContent = 'No Leads Found';
+                noLeadsDiv.querySelector('p').textContent = 'Try adjusting your search or filter criteria.';
+            } else {
+                noLeadsDiv.style.display = 'none';
+                tbody.innerHTML = filteredLeads.map(lead => `
+                    <tr>
+                        <td>
+                            <div class="lead-info">
+                                <div class="lead-avatar">
+                                    ${lead.firstName.charAt(0)}${lead.lastName.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="lead-name">${lead.firstName} ${lead.lastName}</div>
+                                    <div class="lead-company">${lead.company || 'Individual'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <div><i class="fas fa-phone"></i> ${lead.phone}</div>
+                                <div><i class="fas fa-envelope"></i> ${lead.email}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${lead.status.toLowerCase()}">${lead.status}</span>
+                        </td>
+                        <td>${lead.source}</td>
+                        <td>${lead.interest}</td>
+                        <td>${formatDate(lead.dateCreated)}</td>
+                        <td>${formatDate(lead.lastContact)}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewLead('${lead.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editLead('${lead.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-success" onclick="convertLead('${lead.id}')" title="Convert to Customer">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteLead('${lead.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function openAddLeadModal() {
+            const modalContent = `
+                <form id="add-lead-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Personal Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" name="company">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Lead Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="status">Lead Status</label>
+                                <select id="status" name="status">
+                                    <option value="Cold">Cold</option>
+                                    <option value="Warm" selected>Warm</option>
+                                    <option value="Hot">Hot</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="source">Lead Source</label>
+                                <select id="source" name="source">
+                                    <option value="Website">Website</option>
+                                    <option value="Referral">Referral</option>
+                                    <option value="Walk-in">Walk-in</option>
+                                    <option value="Phone">Phone</option>
+                                    <option value="Social Media">Social Media</option>
+                                    <option value="Advertisement">Advertisement</option>
+                                    <option value="Trade Show">Trade Show</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="interest">Vehicle Interest</label>
+                                <input type="text" id="interest" name="interest" placeholder="e.g., SUV, Sedan, Truck">
+                            </div>
+                            <div class="form-group">
+                                <label for="budget">Budget Range</label>
+                                <select id="budget" name="budget">
+                                    <option value="">Select Budget</option>
+                                    <option value="Under $20k">Under $20k</option>
+                                    <option value="$20k - $30k">$20k - $30k</option>
+                                    <option value="$30k - $50k">$30k - $50k</option>
+                                    <option value="$50k - $75k">$50k - $75k</option>
+                                    <option value="Over $75k">Over $75k</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3" placeholder="Additional notes about the lead..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Add Lead',
+                    class: 'btn-primary',
+                    icon: 'fas fa-plus',
+                    attributes: 'onclick="saveLead()"'
+                }
+            ];
+            
+            ModalUtils.createModal('add-lead-modal', 'Add New Lead', modalContent, footerButtons);
+            ModalUtils.openModal('add-lead-modal');
+        }
+
+        function saveLead() {
+            const form = document.getElementById('add-lead-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            
+            // Create lead object
+            const lead = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                company: formData.company || '',
+                status: formData.status || 'Warm',
+                source: formData.source || 'Website',
+                interest: formData.interest || '',
+                budget: formData.budget || '',
+                notes: formData.notes || ''
+            };
+            
+            // Save lead
+            DataService.leads.add(lead);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-lead-modal');
+            ModalUtils.removeModal('add-lead-modal');
+            ModalUtils.showSuccessMessage('Lead added successfully!');
+            
+            // Refresh the page data
+            loadLeads();
+            updateStats();
+        }
+
+        function editLead(leadId) {
+            const lead = DataService.leads.get(leadId);
+            if (!lead) return;
+            
+            // Similar to add modal but pre-populated with lead data
+            openAddLeadModal();
+            
+            // Change modal title and button
+            document.querySelector('#add-lead-modal .modal-title').textContent = 'Edit Lead';
+            document.querySelector('#add-lead-modal .btn-primary').textContent = 'Update Lead';
+            document.querySelector('#add-lead-modal .btn-primary').setAttribute('onclick', `updateLead('${leadId}')`);
+            
+            // Populate form with lead data
+            const form = document.getElementById('add-lead-form');
+            ModalUtils.populateForm(form, lead);
+        }
+
+        function updateLead(leadId) {
+            const form = document.getElementById('add-lead-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            const lead = DataService.leads.get(leadId);
+            
+            // Update lead object
+            Object.assign(lead, {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                company: formData.company || '',
+                status: formData.status || 'Warm',
+                source: formData.source || 'Website',
+                interest: formData.interest || '',
+                budget: formData.budget || '',
+                notes: formData.notes || '',
+                lastContact: new Date().toISOString().split('T')[0]
+            });
+            
+            // Save updated lead
+            DataService.leads.update(lead);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-lead-modal');
+            ModalUtils.removeModal('add-lead-modal');
+            ModalUtils.showSuccessMessage('Lead updated successfully!');
+            
+            // Refresh the page data
+            loadLeads();
+            updateStats();
+        }
+
+        function viewLead(leadId) {
+            const lead = DataService.leads.get(leadId);
+            if (!lead) return;
+            
+            const modalContent = `
+                <div class="lead-details">
+                    <div class="lead-header">
+                        <div class="lead-avatar-large">
+                            ${lead.firstName.charAt(0)}${lead.lastName.charAt(0)}
+                        </div>
+                        <div class="lead-info">
+                            <h3>${lead.firstName} ${lead.lastName}</h3>
+                            <p>${lead.company || 'Individual Lead'}</p>
+                            <span class="badge badge-${lead.status.toLowerCase()}">${lead.status}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="lead-sections">
+                        <div class="info-section">
+                            <h4>Contact Information</h4>
+                            <div class="info-grid">
+                                <div><strong>Email:</strong> ${lead.email}</div>
+                                <div><strong>Phone:</strong> ${lead.phone}</div>
+                                <div><strong>Source:</strong> ${lead.source}</div>
+                                <div><strong>Interest:</strong> ${lead.interest || 'Not specified'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>Lead Details</h4>
+                            <div class="info-grid">
+                                <div><strong>Date Created:</strong> ${formatDate(lead.dateCreated)}</div>
+                                <div><strong>Last Contact:</strong> ${formatDate(lead.lastContact)}</div>
+                                <div><strong>Budget:</strong> ${lead.budget || 'Not specified'}</div>
+                                <div><strong>Status:</strong> ${lead.status}</div>
+                            </div>
+                        </div>
+                        
+                        ${lead.notes ? `
+                            <div class="info-section">
+                                <h4>Notes</h4>
+                                <p>${lead.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Convert to Customer',
+                    class: 'btn-success',
+                    icon: 'fas fa-user-plus',
+                    attributes: `onclick="ModalUtils.closeModal('view-lead-modal'); ModalUtils.removeModal('view-lead-modal'); convertLead('${leadId}')"`
+                },
+                {
+                    text: 'Edit Lead',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('view-lead-modal'); ModalUtils.removeModal('view-lead-modal'); editLead('${leadId}')"`
+                },
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                }
+            ];
+            
+            ModalUtils.createModal('view-lead-modal', 'Lead Details', modalContent, footerButtons);
+            ModalUtils.openModal('view-lead-modal');
+        }
+
+        function convertLead(leadId) {
+            const lead = DataService.leads.get(leadId);
+            if (!lead) return;
+            
+            if (confirm(`Convert ${lead.firstName} ${lead.lastName} to a customer?`)) {
+                // Create customer from lead
+                const customer = {
+                    firstName: lead.firstName,
+                    lastName: lead.lastName,
+                    email: lead.email,
+                    phone: lead.phone,
+                    company: lead.company || '',
+                    type: 'New',
+                    source: lead.source,
+                    notes: lead.notes || '',
+                    purchaseHistory: []
+                };
+                
+                // Add customer
+                DataService.customers.add(customer);
+                
+                // Update lead status
+                lead.status = 'Converted';
+                DataService.leads.update(lead);
+                
+                ModalUtils.showSuccessMessage('Lead converted to customer successfully!');
+                
+                // Refresh the page data
+                loadLeads();
+                updateStats();
+            }
+        }
+
+        function deleteLead(leadId) {
+            const lead = DataService.leads.get(leadId);
+            if (!lead) return;
+            
+            if (confirm(`Are you sure you want to delete ${lead.firstName} ${lead.lastName}? This action cannot be undone.`)) {
+                DataService.leads.remove(leadId);
+                ModalUtils.showSuccessMessage('Lead deleted successfully!');
+                loadLeads();
+                updateStats();
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>

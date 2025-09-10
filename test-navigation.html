@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test - AutoConnect</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e40af;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .nav-link {
+            display: block;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .nav-link:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .new-pages {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .new-pages:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        .status {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .status h3 {
+            color: #0369a1;
+            margin-top: 0;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 5px 0;
+            color: #374151;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 AutoConnect CRM - Navigation Test</h1>
+        
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+            <a href="inventory.html" class="nav-link">🚗 Inventory</a>
+            <a href="leads.html" class="nav-link">🎯 Leads</a>
+            <a href="customers.html" class="nav-link">👥 Customers</a>
+            <a href="deals.html" class="nav-link">🤝 Deals</a>
+            <a href="tasks.html" class="nav-link">📋 Tasks</a>
+            <a href="reports.html" class="nav-link">📈 Reports</a>
+            <a href="service-parts.html" class="nav-link new-pages">🔧 Service/Parts</a>
+            <a href="payroll-scheduling.html" class="nav-link new-pages">📅 Payroll & Scheduling</a>
+            <a href="settings.html" class="nav-link">⚙️ Settings</a>
+        </div>
+
+        <div class="status">
+            <h3>✅ Implementation Status</h3>
+            <p><strong>New Categories Successfully Added:</strong></p>
+            <ul class="feature-list">
+                <li><strong>Service/Parts Management</strong> - Complete service order tracking, parts inventory, and service history</li>
+                <li><strong>Payroll & Scheduling</strong> - Employee management, work scheduling, timesheet tracking, and payroll processing</li>
+            </ul>
+            
+            <h4>Service/Parts Features:</h4>
+            <ul class="feature-list">
+                <li>Service order management with status tracking</li>
+                <li>Parts inventory with stock level monitoring</li>
+                <li>Service history and completed work tracking</li>
+                <li>Technician assignment and scheduling</li>
+                <li>Cost estimation and billing integration</li>
+            </ul>
+            
+            <h4>Payroll & Scheduling Features:</h4>
+            <ul class="feature-list">
+                <li>Employee profile management</li>
+                <li>Weekly schedule planning and visualization</li>
+                <li>Timesheet tracking and approval</li>
+                <li>Payroll calculation and processing</li>
+                <li>Department-based organization</li>
+                <li>Overtime tracking and management</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

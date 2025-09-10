@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Four Square (Pencil) - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .four-square-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .four-square-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .four-square-header h1 {
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .four-square-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .customer-vehicle-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section h3 {
+            color: #1e40af;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-value {
+            color: #1f2937;
+        }
+
+        .four-square-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .square {
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .square:hover {
+            border-color: #1e40af;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .square h3 {
+            color: #1e40af;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .square-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #059669;
+            margin-bottom: 1rem;
+        }
+
+        .square-input {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            background: #f9fafb;
+            transition: all 0.3s ease;
+        }
+
+        .square-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .square-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .calculation-summary {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .calculation-summary h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+        }
+
+        .deal-selector {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .deal-selector h3 {
+            color: #1e40af;
+            margin-bottom: 1rem;
+        }
+
+        .deal-selector select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .deal-selector select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .four-square-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .customer-vehicle-info {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .square {
+                padding: 1.5rem;
+                min-height: 150px;
+            }
+
+            .square-value {
+                font-size: 2rem;
+            }
+
+            .square-input {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li class="active">
+                        <a href="four-square.html"><i class="fas fa-calculator"></i> Four Square</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search deals...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" id="new-four-square-btn"><i class="fas fa-plus"></i> New Four Square</button>
+                        <button class="btn btn-secondary" id="print-btn"><i class="fas fa-print"></i> Print</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Four Square Content -->
+            <div class="four-square-container">
+                <div class="four-square-header">
+                    <h1><i class="fas fa-calculator"></i> Four Square (Pencil) Tool</h1>
+                    <p>Professional vehicle negotiation worksheet for transparent deal structuring</p>
+                </div>
+
+                <!-- Deal Selector -->
+                <div class="deal-selector">
+                    <h3><i class="fas fa-handshake"></i> Select Deal</h3>
+                    <select id="deal-selector">
+                        <option value="">Select an existing deal or create a new one</option>
+                    </select>
+                </div>
+
+                <!-- Customer and Vehicle Information -->
+                <div class="customer-vehicle-info">
+                    <div class="info-section">
+                        <h3><i class="fas fa-user"></i> Customer Information</h3>
+                        <div class="info-item">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value" id="customer-name">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="customer-email">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone:</span>
+                            <span class="info-value" id="customer-phone">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Credit Score:</span>
+                            <span class="info-value" id="customer-credit">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3><i class="fas fa-car"></i> Vehicle Information</h3>
+                        <div class="info-item">
+                            <span class="info-label">Vehicle:</span>
+                            <span class="info-value" id="vehicle-info">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Stock #:</span>
+                            <span class="info-value" id="vehicle-stock">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">MSRP:</span>
+                            <span class="info-value" id="vehicle-msrp">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Invoice:</span>
+                            <span class="info-value" id="vehicle-invoice">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Four Square Grid -->
+                <div class="four-square-grid">
+                    <!-- Vehicle Selling Price -->
+                    <div class="square" id="selling-price-square">
+                        <h3><i class="fas fa-tag"></i> Vehicle Selling Price</h3>
+                        <input type="number" class="square-input" id="selling-price" placeholder="0" min="0" step="100">
+                        <p class="square-description">The final negotiated price for the vehicle before trade-in and financing</p>
+                    </div>
+
+                    <!-- Trade-In Value -->
+                    <div class="square" id="trade-in-square">
+                        <h3><i class="fas fa-exchange-alt"></i> Trade-In Value</h3>
+                        <input type="number" class="square-input" id="trade-in-value" placeholder="0" min="0" step="100">
+                        <p class="square-description">The amount credited for the customer's trade-in vehicle</p>
+                    </div>
+
+                    <!-- Down Payment -->
+                    <div class="square" id="down-payment-square">
+                        <h3><i class="fas fa-money-bill-wave"></i> Down Payment</h3>
+                        <input type="number" class="square-input" id="down-payment" placeholder="0" min="0" step="100">
+                        <p class="square-description">Cash down payment plus trade-in value applied to the purchase</p>
+                    </div>
+
+                    <!-- Monthly Payment -->
+                    <div class="square" id="monthly-payment-square">
+                        <h3><i class="fas fa-calendar-alt"></i> Monthly Payment</h3>
+                        <div class="square-value" id="monthly-payment-display">$0</div>
+                        <p class="square-description">Calculated monthly payment based on financing terms</p>
+                    </div>
+                </div>
+
+                <!-- Calculation Summary -->
+                <div class="calculation-summary">
+                    <h3><i class="fas fa-calculator"></i> Deal Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-label">Vehicle Price</div>
+                            <div class="summary-value" id="summary-vehicle-price">$0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Trade-In Credit</div>
+                            <div class="summary-value" id="summary-trade-credit">$0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Cash Down</div>
+                            <div class="summary-value" id="summary-cash-down">$0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Amount Financed</div>
+                            <div class="summary-value" id="summary-financed">$0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Monthly Payment</div>
+                            <div class="summary-value" id="summary-monthly">$0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Total Interest</div>
+                            <div class="summary-value" id="summary-interest">$0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financing Options -->
+                <div class="deal-selector">
+                    <h3><i class="fas fa-percentage"></i> Financing Options</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <label for="loan-term">Loan Term (months):</label>
+                            <select id="loan-term">
+                                <option value="36">36 months</option>
+                                <option value="48">48 months</option>
+                                <option value="60" selected>60 months</option>
+                                <option value="72">72 months</option>
+                                <option value="84">84 months</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="interest-rate">Interest Rate (%):</label>
+                            <input type="number" id="interest-rate" step="0.1" min="0" max="30" value="3.9" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-success" id="save-deal-btn">
+                        <i class="fas fa-save"></i> Save Deal
+                    </button>
+                    <button class="btn btn-primary" id="create-contract-btn">
+                        <i class="fas fa-file-contract"></i> Create Contract
+                    </button>
+                    <button class="btn btn-secondary" id="email-customer-btn">
+                        <i class="fas fa-envelope"></i> Email Customer
+                    </button>
+                    <button class="btn btn-secondary" id="clear-form-btn">
+                        <i class="fas fa-eraser"></i> Clear Form
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/mobile-nav.js"></script>
+    <script>
+        // Four Square functionality
+        let currentDeal = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            DataService.initAll();
+            
+            // Load deals into selector
+            loadDealsIntoSelector();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Check for URL parameter to auto-load a deal
+            const urlParams = new URLSearchParams(window.location.search);
+            const dealId = urlParams.get('dealId');
+            if (dealId) {
+                document.getElementById('deal-selector').value = dealId;
+                loadSelectedDeal();
+            }
+            
+            // Initialize calculations
+            updateCalculations();
+        });
+
+        function setupEventListeners() {
+            // Deal selector
+            document.getElementById('deal-selector').addEventListener('change', loadSelectedDeal);
+            
+            // Input fields
+            document.getElementById('selling-price').addEventListener('input', updateCalculations);
+            document.getElementById('trade-in-value').addEventListener('input', updateCalculations);
+            document.getElementById('down-payment').addEventListener('input', updateCalculations);
+            document.getElementById('loan-term').addEventListener('change', updateCalculations);
+            document.getElementById('interest-rate').addEventListener('input', updateCalculations);
+            
+            // Action buttons
+            document.getElementById('save-deal-btn').addEventListener('click', saveDeal);
+            document.getElementById('create-contract-btn').addEventListener('click', createContract);
+            document.getElementById('email-customer-btn').addEventListener('click', emailCustomer);
+            document.getElementById('clear-form-btn').addEventListener('click', clearForm);
+            document.getElementById('new-four-square-btn').addEventListener('click', createNewFourSquare);
+            document.getElementById('print-btn').addEventListener('click', printFourSquare);
+            
+            // Notification Bell
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', function() {
+                    alert('Notifications feature coming soon!');
+                });
+            }
+        }
+
+        function loadDealsIntoSelector() {
+            const deals = DataService.deals.getAll();
+            const selector = document.getElementById('deal-selector');
+            
+            // Clear existing options except the first one
+            selector.innerHTML = '<option value="">Select an existing deal or create a new one</option>';
+            
+            deals.forEach(deal => {
+                const option = document.createElement('option');
+                option.value = deal.id;
+                option.textContent = `${deal.customer.name} - ${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model}`;
+                selector.appendChild(option);
+            });
+        }
+
+        function loadSelectedDeal() {
+            const dealId = document.getElementById('deal-selector').value;
+            
+            if (!dealId) {
+                clearForm();
+                return;
+            }
+            
+            const deal = DataService.deals.get(dealId);
+            if (!deal) {
+                alert('Deal not found');
+                return;
+            }
+            
+            currentDeal = deal;
+            
+            // Load customer information
+            document.getElementById('customer-name').textContent = (deal.customer && deal.customer.name) || deal.customerName || '-';
+            document.getElementById('customer-email').textContent = (deal.customer && deal.customer.email) || deal.customerEmail || '-';
+            document.getElementById('customer-phone').textContent = (deal.customer && deal.customer.phone) || deal.customerPhone || '-';
+            document.getElementById('customer-credit').textContent = (deal.customer && deal.customer.creditScore) || '-';
+            
+            // Load vehicle information
+            const vehicleYear = deal.vehicle?.year || deal.vehicleYear || '';
+            const vehicleMake = deal.vehicle?.make || deal.vehicleMake || '';
+            const vehicleModel = deal.vehicle?.model || deal.vehicleModel || '';
+            document.getElementById('vehicle-info').textContent = `${vehicleYear} ${vehicleMake} ${vehicleModel}`.trim() || '-';
+            document.getElementById('vehicle-stock').textContent = deal.vehicle?.stockNumber || '-';
+            document.getElementById('vehicle-msrp').textContent = deal.vehicle?.price ? `$${deal.vehicle.price.toLocaleString()}` : (deal.value ? `$${deal.value.toLocaleString()}` : '-');
+            document.getElementById('vehicle-invoice').textContent = deal.vehicle?.invoice ? `$${deal.vehicle.invoice.toLocaleString()}` : '-';
+            
+            // Load existing four square data if available
+            if (deal.fourSquare) {
+                document.getElementById('selling-price').value = deal.fourSquare.sellingPrice || deal.vehicle?.price || deal.value || '';
+                document.getElementById('trade-in-value').value = deal.fourSquare.tradeInValue || deal.tradeIn?.value || '';
+                document.getElementById('down-payment').value = deal.fourSquare.downPayment || deal.financeDetails?.downPayment || '';
+                
+                if (deal.fourSquare.loanTerm) {
+                    document.getElementById('loan-term').value = deal.fourSquare.loanTerm;
+                }
+                if (deal.fourSquare.interestRate) {
+                    document.getElementById('interest-rate').value = deal.fourSquare.interestRate;
+                }
+            } else {
+                // Load from existing deal data
+                document.getElementById('selling-price').value = deal.vehicle?.price || deal.value || '';
+                document.getElementById('trade-in-value').value = deal.tradeIn?.value || '';
+                document.getElementById('down-payment').value = deal.financeDetails?.downPayment || '';
+                
+                if (deal.financeDetails) {
+                    if (deal.financeDetails.term) {
+                        document.getElementById('loan-term').value = deal.financeDetails.term;
+                    }
+                    if (deal.financeDetails.rate) {
+                        document.getElementById('interest-rate').value = deal.financeDetails.rate;
+                    }
+                }
+            }
+            
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            const sellingPrice = parseFloat(document.getElementById('selling-price').value) || 0;
+            const tradeInValue = parseFloat(document.getElementById('trade-in-value').value) || 0;
+            const downPayment = parseFloat(document.getElementById('down-payment').value) || 0;
+            const loanTerm = parseInt(document.getElementById('loan-term').value) || 60;
+            const interestRate = parseFloat(document.getElementById('interest-rate').value) || 0;
+            
+            // Calculate amount financed
+            const totalDownPayment = downPayment + tradeInValue;
+            const amountFinanced = Math.max(0, sellingPrice - totalDownPayment);
+            
+            // Calculate monthly payment
+            let monthlyPayment = 0;
+            let totalInterest = 0;
+            
+            if (amountFinanced > 0 && interestRate > 0) {
+                const monthlyRate = interestRate / 100 / 12;
+                const numPayments = loanTerm;
+                
+                monthlyPayment = amountFinanced * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                                (Math.pow(1 + monthlyRate, numPayments) - 1);
+                
+                totalInterest = (monthlyPayment * numPayments) - amountFinanced;
+            } else if (amountFinanced > 0) {
+                monthlyPayment = amountFinanced / loanTerm;
+            }
+            
+            // Update displays
+            document.getElementById('monthly-payment-display').textContent = `$${monthlyPayment.toFixed(2)}`;
+            
+            // Update summary
+            document.getElementById('summary-vehicle-price').textContent = `$${sellingPrice.toLocaleString()}`;
+            document.getElementById('summary-trade-credit').textContent = `$${tradeInValue.toLocaleString()}`;
+            document.getElementById('summary-cash-down').textContent = `$${downPayment.toLocaleString()}`;
+            document.getElementById('summary-financed').textContent = `$${amountFinanced.toLocaleString()}`;
+            document.getElementById('summary-monthly').textContent = `$${monthlyPayment.toFixed(2)}`;
+            document.getElementById('summary-interest').textContent = `$${totalInterest.toFixed(2)}`;
+        }
+
+        function saveDeal() {
+            if (!currentDeal) {
+                alert('Please select a deal first');
+                return;
+            }
+            
+            const sellingPrice = parseFloat(document.getElementById('selling-price').value) || 0;
+            const tradeInValue = parseFloat(document.getElementById('trade-in-value').value) || 0;
+            const downPayment = parseFloat(document.getElementById('down-payment').value) || 0;
+            const loanTerm = parseInt(document.getElementById('loan-term').value) || 60;
+            const interestRate = parseFloat(document.getElementById('interest-rate').value) || 0;
+            
+            // Calculate monthly payment
+            const totalDownPayment = downPayment + tradeInValue;
+            const amountFinanced = Math.max(0, sellingPrice - totalDownPayment);
+            let monthlyPayment = 0;
+            
+            if (amountFinanced > 0 && interestRate > 0) {
+                const monthlyRate = interestRate / 100 / 12;
+                const numPayments = loanTerm;
+                
+                monthlyPayment = amountFinanced * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                                (Math.pow(1 + monthlyRate, numPayments) - 1);
+            } else if (amountFinanced > 0) {
+                monthlyPayment = amountFinanced / loanTerm;
+            }
+            
+            // Update deal with four square data
+            currentDeal.fourSquare = {
+                sellingPrice: sellingPrice,
+                tradeInValue: tradeInValue,
+                downPayment: downPayment,
+                monthlyPayment: monthlyPayment,
+                loanTerm: loanTerm,
+                interestRate: interestRate,
+                amountFinanced: amountFinanced,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            // Update finance details
+            currentDeal.financeDetails = {
+                amount: amountFinanced,
+                term: loanTerm,
+                rate: interestRate,
+                monthly: monthlyPayment,
+                downPayment: downPayment
+            };
+            
+            // Update trade-in if applicable
+            if (tradeInValue > 0) {
+                if (!currentDeal.tradeIn) {
+                    currentDeal.tradeIn = {};
+                }
+                currentDeal.tradeIn.value = tradeInValue;
+            }
+            
+            // Update vehicle price
+            currentDeal.vehicle.price = sellingPrice;
+            currentDeal.value = sellingPrice;
+            
+            // Save to data service
+            if (DataService.deals.update(currentDeal)) {
+                alert('Deal saved successfully!');
+            } else {
+                alert('Error saving deal');
+            }
+        }
+
+        function createContract() {
+            if (!currentDeal) {
+                alert('Please select and save a deal first');
+                return;
+            }
+            
+            alert('Contract creation feature coming soon! This will generate a purchase agreement with the four square details.');
+        }
+
+        function emailCustomer() {
+            if (!currentDeal) {
+                alert('Please select a deal first');
+                return;
+            }
+            
+            const customerEmail = currentDeal.customer.email;
+            if (!customerEmail) {
+                alert('Customer email not available');
+                return;
+            }
+            
+            const subject = `Vehicle Purchase Details - ${currentDeal.vehicle.year} ${currentDeal.vehicle.make} ${currentDeal.vehicle.model}`;
+            const body = `Dear ${currentDeal.customer.name},\n\nHere are the details for your vehicle purchase:\n\nVehicle: ${currentDeal.vehicle.year} ${currentDeal.vehicle.make} ${currentDeal.vehicle.model}\nSelling Price: $${document.getElementById('selling-price').value}\nTrade-In Value: $${document.getElementById('trade-in-value').value}\nDown Payment: $${document.getElementById('down-payment').value}\nMonthly Payment: ${document.getElementById('monthly-payment-display').textContent}\n\nThank you for your business!\n\nBest regards,\nAutoConnect Team`;
+            
+            window.location.href = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        function clearForm() {
+            currentDeal = null;
+            
+            // Clear customer info
+            document.getElementById('customer-name').textContent = '-';
+            document.getElementById('customer-email').textContent = '-';
+            document.getElementById('customer-phone').textContent = '-';
+            document.getElementById('customer-credit').textContent = '-';
+            
+            // Clear vehicle info
+            document.getElementById('vehicle-info').textContent = '-';
+            document.getElementById('vehicle-stock').textContent = '-';
+            document.getElementById('vehicle-msrp').textContent = '-';
+            document.getElementById('vehicle-invoice').textContent = '-';
+            
+            // Clear inputs
+            document.getElementById('selling-price').value = '';
+            document.getElementById('trade-in-value').value = '';
+            document.getElementById('down-payment').value = '';
+            document.getElementById('loan-term').value = '60';
+            document.getElementById('interest-rate').value = '3.9';
+            
+            // Clear selector
+            document.getElementById('deal-selector').value = '';
+            
+            updateCalculations();
+        }
+
+        function createNewFourSquare() {
+            // Redirect to deals page to create a new deal first
+            if (confirm('To create a new Four Square, you need to create a deal first. Would you like to go to the Deals page?')) {
+                window.location.href = 'deals.html';
+            }
+        }
+
+        function printFourSquare() {
+            window.print();
+        }
+
+        // Utility functions
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+    </script>
+</body>
+</html>

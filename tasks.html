@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="four-square.html"><i class="fas fa-calculator"></i> Four Square</a>
+                    </li>
+                    <li class="active">
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">JS</div>
+                    <div class="user-details">
+                        <p class="user-name">John Smith</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search tasks...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary"><i class="fas fa-plus"></i> New Task</button>
+                        <button class="btn btn-secondary"><i class="fas fa-filter"></i> Filter</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tasks Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Task Management</h1>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option>Today</option>
+                            <option>Yesterday</option>
+                            <option>Last 7 Days</option>
+                            <option selected>This Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Task Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-tasks">0</h3>
+                            <p>Total Tasks</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pending-tasks">0</h3>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="overdue-tasks">0</h3>
+                            <p>Overdue</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="completed-tasks">0</h3>
+                            <p>Completed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Task List</h2>
+                        <div class="table-actions">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="task-search" placeholder="Search tasks...">
+                            </div>
+                            <select id="task-filter">
+                                <option value="">All Tasks</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Overdue">Overdue</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="data-table" id="tasks-table">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Assigned To</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Related To</th>
+                                    <th>Date Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasks-tbody">
+                                <!-- Task rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="no-tasks" class="no-data" style="display: none;">
+                        <i class="fas fa-tasks"></i>
+                        <h3>No Tasks Found</h3>
+                        <p>Start by adding your first task to the system.</p>
+                        <button class="btn btn-primary" id="add-first-task">
+                            <i class="fas fa-plus"></i> Add Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/tasks-data.js"></script>
+    <script src="js/mobile-nav.js"></script>
+    <script>
+        // Task Management functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            DataService.initAll();
+            
+            // Load tasks
+            loadTasks();
+            updateStats();
+            
+            // Event listeners
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            console.log('Setting up task event listeners...');
+            
+            // New Task Button (in top nav)
+            const newTaskBtn = document.querySelector('.top-nav-actions .btn-primary');
+            console.log('New Task Button:', newTaskBtn);
+            if (newTaskBtn) {
+                newTaskBtn.addEventListener('click', function(e) {
+                    console.log('New Task button clicked');
+                    openAddTaskModal();
+                });
+            }
+            
+            // Add First Task Button
+            const addFirstTaskBtn = document.getElementById('add-first-task');
+            console.log('Add First Task Button:', addFirstTaskBtn);
+            if (addFirstTaskBtn) {
+                addFirstTaskBtn.addEventListener('click', function(e) {
+                    console.log('Add First Task button clicked');
+                    openAddTaskModal();
+                });
+            }
+        }
+        
+        // New Task Modal
+        function openAddTaskModal() {
+            console.log('Opening Add Task Modal...');
+            
+            // Create modal content
+            const modalContent = `
+                <form id="add-task-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Task Information</h4>
+                        <div class="form-group">
+                            <label for="title">Task Title *</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="priority">Priority *</label>
+                                <select id="priority" name="priority" required>
+                                    <option value="">Select Priority</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Urgent">Urgent</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status *</label>
+                                <select id="status" name="status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="New">New</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Deferred">Deferred</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Assignment & Dates</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="assignedTo">Assigned To *</label>
+                                <select id="assignedTo" name="assignedTo" required>
+                                    <option value="">Select Assignee</option>
+                                    <option value="Thomas Morales">Thomas Morales</option>
+                                    <option value="Sales Rep 1">Sales Rep 1</option>
+                                    <option value="Sales Rep 2">Sales Rep 2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dueDate">Due Date *</label>
+                                <input type="date" id="dueDate" name="dueDate" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskType">Task Type</label>
+                                <select id="taskType" name="taskType">
+                                    <option value="">Select Type</option>
+                                    <option value="Follow-up">Follow-up</option>
+                                    <option value="Meeting">Meeting</option>
+                                    <option value="Call">Call</option>
+                                    <option value="Email">Email</option>
+                                    <option value="Paperwork">Paperwork</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reminderDate">Reminder Date</label>
+                                <input type="date" id="reminderDate" name="reminderDate">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Related Items</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="relatedTo">Related To</label>
+                                <select id="relatedTo" name="relatedTo">
+                                    <option value="">Select Related Item</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Lead">Lead</option>
+                                    <option value="Deal">Deal</option>
+                                    <option value="Vehicle">Vehicle</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="relatedId">Related ID</label>
+                                <input type="text" id="relatedId" name="relatedId" placeholder="ID of related item">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            // Create modal with ModalUtils
+            const modal = ModalUtils.createModal('add-task-modal', 'Add New Task', modalContent, [
+                { text: 'Cancel', class: 'btn-secondary', attributes: 'data-modal-close' },
+                { text: 'Save Task', class: 'btn-primary', attributes: 'id="save-task-btn"' }
+            ]);
+            
+            // Open the modal
+            ModalUtils.openModal('add-task-modal');
+            
+            // Add event listener for save button
+            const saveBtn = document.getElementById('save-task-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveNewTask);
+            }
+            
+            // Set today's date as default for due date
+            const dueDateInput = document.getElementById('dueDate');
+            if (dueDateInput) {
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const formattedDate = tomorrow.toISOString().split('T')[0];
+                dueDateInput.value = formattedDate;
+            }
+        }
+
+        function saveNewTask() {
+            
+            // Add First Task Button
+            const addFirstTaskBtn = document.getElementById('add-first-task');
+            if (addFirstTaskBtn) {
+                addFirstTaskBtn.addEventListener('click', openAddTaskModal);
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('task-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTasks);
+            }
+            
+            // Filter functionality
+            const filterSelect = document.getElementById('task-filter');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', filterTasks);
+            }
+            
+            // Notification Bell
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', function() {
+                    alert('Notifications feature coming soon!');
+                });
+            }
+        }
+
+        function loadTasks() {
+            const tasks = DataService.tasks.getAll();
+            const tbody = document.getElementById('tasks-tbody');
+            const noTasksDiv = document.getElementById('no-tasks');
+            
+            if (tasks.length === 0) {
+                tbody.innerHTML = '';
+                noTasksDiv.style.display = 'block';
+                return;
+            }
+            
+            noTasksDiv.style.display = 'none';
+            
+            tbody.innerHTML = tasks.map(task => {
+                const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Completed';
+                const statusClass = isOverdue ? 'overdue' : task.status.toLowerCase().replace(' ', '-');
+                const displayStatus = isOverdue ? 'Overdue' : task.status;
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="task-info">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-description">${task.description || 'No description'}</div>
+                            </div>
+                        </td>
+                        <td>${task.assignedTo}</td>
+                        <td>
+                            <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-${statusClass}">${displayStatus}</span>
+                        </td>
+                        <td>${formatDate(task.dueDate)}</td>
+                        <td>
+                            <div class="related-info">
+                                <div class="related-type">${task.relatedType || 'General'}</div>
+                                <div class="related-name">${task.relatedName || 'N/A'}</div>
+                            </div>
+                        </td>
+                        <td>${formatDate(task.dateCreated)}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewTask('${task.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editTask('${task.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-success" onclick="toggleTaskStatus('${task.id}')" title="${task.status === 'Completed' ? 'Mark Pending' : 'Mark Complete'}">
+                                    <i class="fas fa-${task.status === 'Completed' ? 'undo' : 'check'}"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteTask('${task.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            const tasks = DataService.tasks.getAll();
+            const today = new Date();
+            
+            // Total tasks
+            document.getElementById('total-tasks').textContent = tasks.length;
+            
+            // Pending tasks
+            const pendingTasks = tasks.filter(task => task.status === 'Pending').length;
+            document.getElementById('pending-tasks').textContent = pendingTasks;
+            
+            // Overdue tasks
+            const overdueTasks = tasks.filter(task => {
+                return new Date(task.dueDate) < today && task.status !== 'Completed';
+            }).length;
+            document.getElementById('overdue-tasks').textContent = overdueTasks;
+            
+            // Completed tasks
+            const completedTasks = tasks.filter(task => task.status === 'Completed').length;
+            document.getElementById('completed-tasks').textContent = completedTasks;
+        }
+
+        function filterTasks() {
+            const searchTerm = document.getElementById('task-search').value.toLowerCase();
+            const filterStatus = document.getElementById('task-filter').value;
+            const tasks = DataService.tasks.getAll();
+            
+            let filteredTasks = tasks;
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredTasks = filteredTasks.filter(task => 
+                    task.title.toLowerCase().includes(searchTerm) ||
+                    (task.description && task.description.toLowerCase().includes(searchTerm)) ||
+                    task.assignedTo.toLowerCase().includes(searchTerm) ||
+                    (task.relatedName && task.relatedName.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Apply status filter
+            if (filterStatus) {
+                if (filterStatus === 'Overdue') {
+                    const today = new Date();
+                    filteredTasks = filteredTasks.filter(task => 
+                        new Date(task.dueDate) < today && task.status !== 'Completed'
+                    );
+                } else {
+                    filteredTasks = filteredTasks.filter(task => task.status === filterStatus);
+                }
+            }
+            
+            // Update table
+            const tbody = document.getElementById('tasks-tbody');
+            const noTasksDiv = document.getElementById('no-tasks');
+            
+            if (filteredTasks.length === 0) {
+                tbody.innerHTML = '';
+                noTasksDiv.style.display = 'block';
+                noTasksDiv.querySelector('h3').textContent = 'No Tasks Found';
+                noTasksDiv.querySelector('p').textContent = 'Try adjusting your search or filter criteria.';
+            } else {
+                noTasksDiv.style.display = 'none';
+                tbody.innerHTML = filteredTasks.map(task => {
+                    const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Completed';
+                    const statusClass = isOverdue ? 'overdue' : task.status.toLowerCase().replace(' ', '-');
+                    const displayStatus = isOverdue ? 'Overdue' : task.status;
+                    
+                    return `
+                        <tr>
+                            <td>
+                                <div class="task-info">
+                                    <div class="task-title">${task.title}</div>
+                                    <div class="task-description">${task.description || 'No description'}</div>
+                                </div>
+                            </td>
+                            <td>${task.assignedTo}</td>
+                            <td>
+                                <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-${statusClass}">${displayStatus}</span>
+                            </td>
+                            <td>${formatDate(task.dueDate)}</td>
+                            <td>
+                                <div class="related-info">
+                                    <div class="related-type">${task.relatedType || 'General'}</div>
+                                    <div class="related-name">${task.relatedName || 'N/A'}</div>
+                                </div>
+                            </td>
+                            <td>${formatDate(task.dateCreated)}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-icon" onclick="viewTask('${task.id}')" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="editTask('${task.id}')" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon btn-success" onclick="toggleTaskStatus('${task.id}')" title="${task.status === 'Completed' ? 'Mark Pending' : 'Mark Complete'}">
+                                        <i class="fas fa-${task.status === 'Completed' ? 'undo' : 'check'}"></i>
+                                    </button>
+                                    <button class="btn-icon btn-danger" onclick="deleteTask('${task.id}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function openAddTaskModal() {
+            // Get customers and leads for related dropdowns
+            const customers = DataService.customers.getAll();
+            const leads = DataService.leads.getAll();
+            
+            const modalContent = `
+                <form id="add-task-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Task Information</h4>
+                        <div class="form-group">
+                            <label for="title">Task Title *</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3" placeholder="Task description..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="assignedTo">Assigned To *</label>
+                                <input type="text" id="assignedTo" name="assignedTo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="priority">Priority</label>
+                                <select id="priority" name="priority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select id="status" name="status">
+                                    <option value="Pending" selected>Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dueDate">Due Date *</label>
+                                <input type="date" id="dueDate" name="dueDate" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Related To (Optional)</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="relatedType">Related Type</label>
+                                <select id="relatedType" name="relatedType">
+                                    <option value="">Select Type</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Lead">Lead</option>
+                                    <option value="General">General</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="relatedId">Related To</label>
+                                <select id="relatedId" name="relatedId">
+                                    <option value="">Select Item</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Add Task',
+                    class: 'btn-primary',
+                    icon: 'fas fa-plus',
+                    attributes: 'onclick="saveTask()"'
+                }
+            ];
+            
+            ModalUtils.createModal('add-task-modal', 'Add New Task', modalContent, footerButtons);
+            ModalUtils.openModal('add-task-modal');
+            
+            // Setup form interactions
+            setupTaskFormInteractions();
+        }
+
+        function setupTaskFormInteractions() {
+            const relatedTypeSelect = document.getElementById('relatedType');
+            const relatedIdSelect = document.getElementById('relatedId');
+            
+            relatedTypeSelect.addEventListener('change', function() {
+                const selectedType = this.value;
+                relatedIdSelect.innerHTML = '<option value="">Select Item</option>';
+                
+                if (selectedType === 'Customer') {
+                    const customers = DataService.customers.getAll();
+                    customers.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer.id;
+                        option.textContent = `${customer.firstName} ${customer.lastName}`;
+                        option.dataset.name = `${customer.firstName} ${customer.lastName}`;
+                        relatedIdSelect.appendChild(option);
+                    });
+                } else if (selectedType === 'Lead') {
+                    const leads = DataService.leads.getAll();
+                    leads.forEach(lead => {
+                        const option = document.createElement('option');
+                        option.value = lead.id;
+                        option.textContent = `${lead.firstName} ${lead.lastName}`;
+                        option.dataset.name = `${lead.firstName} ${lead.lastName}`;
+                        relatedIdSelect.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function saveTask() {
+            const form = document.getElementById('add-task-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            const relatedIdSelect = document.getElementById('relatedId');
+            const selectedOption = relatedIdSelect.options[relatedIdSelect.selectedIndex];
+            
+            // Create task object
+            const task = {
+                title: formData.title,
+                description: formData.description || '',
+                assignedTo: formData.assignedTo,
+                priority: formData.priority || 'Medium',
+                status: formData.status || 'Pending',
+                dueDate: formData.dueDate,
+                relatedType: formData.relatedType || '',
+                relatedId: formData.relatedId || '',
+                relatedName: selectedOption && selectedOption.dataset.name ? selectedOption.dataset.name : ''
+            };
+            
+            // Save task
+            DataService.tasks.add(task);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-task-modal');
+            ModalUtils.removeModal('add-task-modal');
+            ModalUtils.showSuccessMessage('Task added successfully!');
+            
+            // Refresh the page data
+            loadTasks();
+            updateStats();
+        }
+
+        function editTask(taskId) {
+            const task = DataService.tasks.get(taskId);
+            if (!task) return;
+            
+            // Similar to add modal but pre-populated with task data
+            openAddTaskModal();
+            
+            // Change modal title and button
+            document.querySelector('#add-task-modal .modal-title').textContent = 'Edit Task';
+            document.querySelector('#add-task-modal .btn-primary').textContent = 'Update Task';
+            document.querySelector('#add-task-modal .btn-primary').setAttribute('onclick', `updateTask('${taskId}')`);
+            
+            // Populate form with task data
+            const form = document.getElementById('add-task-form');
+            ModalUtils.populateForm(form, task);
+            
+            // Trigger change event to populate related dropdown
+            if (task.relatedType) {
+                document.getElementById('relatedType').dispatchEvent(new Event('change'));
+                setTimeout(() => {
+                    document.getElementById('relatedId').value = task.relatedId;
+                }, 100);
+            }
+        }
+
+        function updateTask(taskId) {
+            const form = document.getElementById('add-task-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            const task = DataService.tasks.get(taskId);
+            const relatedIdSelect = document.getElementById('relatedId');
+            const selectedOption = relatedIdSelect.options[relatedIdSelect.selectedIndex];
+            
+            // Update task object
+            Object.assign(task, {
+                title: formData.title,
+                description: formData.description || '',
+                assignedTo: formData.assignedTo,
+                priority: formData.priority || 'Medium',
+                status: formData.status || 'Pending',
+                dueDate: formData.dueDate,
+                relatedType: formData.relatedType || '',
+                relatedId: formData.relatedId || '',
+                relatedName: selectedOption && selectedOption.dataset.name ? selectedOption.dataset.name : ''
+            });
+            
+            // Save updated task
+            DataService.tasks.update(task);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-task-modal');
+            ModalUtils.removeModal('add-task-modal');
+            ModalUtils.showSuccessMessage('Task updated successfully!');
+            
+            // Refresh the page data
+            loadTasks();
+            updateStats();
+        }
+
+        function viewTask(taskId) {
+            const task = DataService.tasks.get(taskId);
+            if (!task) return;
+            
+            const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Completed';
+            const displayStatus = isOverdue ? 'Overdue' : task.status;
+            const statusClass = isOverdue ? 'overdue' : task.status.toLowerCase().replace(' ', '-');
+            
+            const modalContent = `
+                <div class="task-details">
+                    <div class="task-header">
+                        <div class="task-info">
+                            <h3>${task.title}</h3>
+                            <p>Assigned to: ${task.assignedTo}</p>
+                            <div class="task-badges">
+                                <span class="badge badge-${task.priority.toLowerCase()}">${task.priority}</span>
+                                <span class="badge badge-${statusClass}">${displayStatus}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="task-sections">
+                        <div class="info-section">
+                            <h4>Task Details</h4>
+                            <div class="info-grid">
+                                <div><strong>Due Date:</strong> ${formatDate(task.dueDate)}</div>
+                                <div><strong>Date Created:</strong> ${formatDate(task.dateCreated)}</div>
+                                <div><strong>Priority:</strong> ${task.priority}</div>
+                                <div><strong>Status:</strong> ${displayStatus}</div>
+                            </div>
+                        </div>
+                        
+                        ${task.description ? `
+                            <div class="info-section">
+                                <h4>Description</h4>
+                                <p>${task.description}</p>
+                            </div>
+                        ` : ''}
+                        
+                        ${task.relatedType ? `
+                            <div class="info-section">
+                                <h4>Related To</h4>
+                                <div class="info-grid">
+                                    <div><strong>Type:</strong> ${task.relatedType}</div>
+                                    <div><strong>Name:</strong> ${task.relatedName || 'N/A'}</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: task.status === 'Completed' ? 'Mark Pending' : 'Mark Complete',
+                    class: 'btn-success',
+                    icon: `fas fa-${task.status === 'Completed' ? 'undo' : 'check'}`,
+                    attributes: `onclick="ModalUtils.closeModal('view-task-modal'); ModalUtils.removeModal('view-task-modal'); toggleTaskStatus('${taskId}')"`
+                },
+                {
+                    text: 'Edit Task',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('view-task-modal'); ModalUtils.removeModal('view-task-modal'); editTask('${taskId}')"`
+                },
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                }
+            ];
+            
+            ModalUtils.createModal('view-task-modal', 'Task Details', modalContent, footerButtons);
+            ModalUtils.openModal('view-task-modal');
+        }
+
+        function toggleTaskStatus(taskId) {
+            const task = DataService.tasks.get(taskId);
+            if (!task) return;
+            
+            // Toggle between Completed and Pending
+            task.status = task.status === 'Completed' ? 'Pending' : 'Completed';
+            
+            // Save updated task
+            DataService.tasks.update(task);
+            
+            ModalUtils.showSuccessMessage(`Task marked as ${task.status.toLowerCase()}!`);
+            
+            // Refresh the page data
+            loadTasks();
+            updateStats();
+        }
+
+        function deleteTask(taskId) {
+            const task = DataService.tasks.get(taskId);
+            if (!task) return;
+            
+            if (confirm(`Are you sure you want to delete the task "${task.title}"? This action cannot be undone.`)) {
+                DataService.tasks.remove(taskId);
+                ModalUtils.showSuccessMessage('Task deleted successfully!');
+                loadTasks();
+                updateStats();
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>

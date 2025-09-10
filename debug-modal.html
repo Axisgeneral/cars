@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Modal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        /* Simple modal styles for debugging */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.7);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-outline:hover {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modal Debug Test</h1>
+    <button id="open-modal" class="btn">Open Add Vehicle Modal</button>
+    
+    <div id="debug-info">
+        <h3>Debug Info:</h3>
+        <div id="status">Ready</div>
+    </div>
+
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            console.log('DEBUG:', message);
+        }
+        
+        function openModal() {
+            updateStatus('Opening modal...');
+            
+            // Remove existing modal if it exists
+            const existingModal = document.getElementById('add-vehicle-modal');
+            if (existingModal) {
+                existingModal.remove();
+                updateStatus('Removed existing modal');
+            }
+            
+            // Create modal
+            const modalHTML = `
+                <div id="add-vehicle-modal" class="modal-overlay">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Add New Vehicle</h3>
+                            <button type="button" class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-vehicle-form">
+                                <div class="form-group">
+                                    <label for="stockNumber">Stock Number *</label>
+                                    <input type="text" id="stockNumber" name="stockNumber" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="make">Make *</label>
+                                        <select id="make" name="make" required>
+                                            <option value="">Select Make</option>
+                                            <option value="Toyota">Toyota</option>
+                                            <option value="Honda">Honda</option>
+                                            <option value="Ford">Ford</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="model">Model *</label>
+                                        <input type="text" id="model" name="model" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="price">Price *</label>
+                                    <input type="number" id="price" name="price" required min="0">
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-outline" id="cancel-btn">Cancel</button>
+                                    <button type="submit" class="btn">Add Vehicle</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            updateStatus('Modal HTML inserted');
+            
+            // Get modal elements
+            const modal = document.getElementById('add-vehicle-modal');
+            const closeBtn = modal.querySelector('.modal-close');
+            const cancelBtn = modal.querySelector('#cancel-btn');
+            
+            if (!modal) {
+                updateStatus('ERROR: Modal not found after insertion!');
+                return;
+            }
+            
+            updateStatus('Modal found, setting up events...');
+            
+            // Add event handlers
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            
+            // Click outside to close
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Show the modal
+            updateStatus('Showing modal...');
+            setTimeout(() => {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                updateStatus('Modal should now be visible');
+            }, 10);
+        }
+        
+        function closeModal() {
+            updateStatus('Closing modal...');
+            const modal = document.getElementById('add-vehicle-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                setTimeout(() => {
+                    modal.remove();
+                    updateStatus('Modal closed and removed');
+                }, 300);
+            }
+        }
+        
+        // Set up open button
+        document.getElementById('open-modal').addEventListener('click', openModal);
+        
+        updateStatus('Debug page loaded');
+    </script>
+</body>
+</html>

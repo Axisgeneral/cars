@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoConnect Dashboard</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="four-square.html"><i class="fas fa-calculator"></i> Four Square</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search customers, vehicles, deals...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary"><i class="fas fa-plus"></i> New Lead</button>
+                        <button class="btn btn-secondary"><i class="fas fa-phone"></i> Log Call</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option>Today</option>
+                            <option>Yesterday</option>
+                            <option>Last 7 Days</option>
+                            <option selected>This Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-cards">
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-blue">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Vehicles Sold</h3>
+                            <p class="kpi-value">42</p>
+                            <p class="kpi-trend positive"><i class="fas fa-arrow-up"></i> 12% vs last month</p>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-green">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Revenue</h3>
+                            <p class="kpi-value">$1.2M</p>
+                            <p class="kpi-trend positive"><i class="fas fa-arrow-up"></i> 8% vs last month</p>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-orange">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>New Leads</h3>
+                            <p class="kpi-value">128</p>
+                            <p class="kpi-trend negative"><i class="fas fa-arrow-down"></i> 3% vs last month</p>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon bg-purple">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3>Conversion Rate</h3>
+                            <p class="kpi-value">24%</p>
+                            <p class="kpi-trend positive"><i class="fas fa-arrow-up"></i> 5% vs last month</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Sales Performance</h3>
+                            <div class="chart-actions">
+                                <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Lead Sources</h3>
+                            <div class="chart-actions">
+                                <button class="btn-icon"><i class="fas fa-download"></i></button>
+                                <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </div>
+                        <canvas id="leadSourceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity and Tasks -->
+                <div class="dashboard-bottom-row">
+                    <div class="recent-activity">
+                        <div class="section-header">
+                            <h3>Recent Activity</h3>
+                            <a href="activity.html" class="view-all">View All</a>
+                        </div>
+                        
+                        <ul class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon bg-blue">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Deal Closed:</strong> Sarah Johnson purchased a 2023 Honda Accord</p>
+                                    <span class="activity-time">2 hours ago</span>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon bg-green">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>New Lead:</strong> Michael Brown interested in 2022 Toyota Camry</p>
+                                    <span class="activity-time">4 hours ago</span>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon bg-orange">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Call Logged:</strong> Follow-up with David Wilson about financing options</p>
+                                    <span class="activity-time">Yesterday</span>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon bg-purple">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Inventory Update:</strong> 5 new vehicles added to inventory</p>
+                                    <span class="activity-time">Yesterday</span>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon bg-red">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <p><strong>Appointment Scheduled:</strong> Test drive with Emily Parker</p>
+                                    <span class="activity-time">2 days ago</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="upcoming-tasks">
+                        <div class="section-header">
+                            <h3>Upcoming Tasks</h3>
+                            <a href="tasks.html" class="view-all">View All</a>
+                        </div>
+                        
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task1">
+                                    <label for="task1"></label>
+                                </div>
+                                <div class="task-details">
+                                    <p class="task-title">Call James Wilson about trade-in options</p>
+                                    <p class="task-due">Due Today, 2:00 PM</p>
+                                </div>
+                                <div class="task-priority high">High</div>
+                            </li>
+                            
+                            <li class="task-item">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task2">
+                                    <label for="task2"></label>
+                                </div>
+                                <div class="task-details">
+                                    <p class="task-title">Send follow-up email to Sarah Johnson</p>
+                                    <p class="task-due">Due Today, 4:00 PM</p>
+                                </div>
+                                <div class="task-priority medium">Medium</div>
+                            </li>
+                            
+                            <li class="task-item">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task3">
+                                    <label for="task3"></label>
+                                </div>
+                                <div class="task-details">
+                                    <p class="task-title">Prepare financing options for Michael Brown</p>
+                                    <p class="task-due">Due Tomorrow, 10:00 AM</p>
+                                </div>
+                                <div class="task-priority high">High</div>
+                            </li>
+                            
+                            <li class="task-item">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task4">
+                                    <label for="task4"></label>
+                                </div>
+                                <div class="task-details">
+                                    <p class="task-title">Update inventory with new arrivals</p>
+                                    <p class="task-due">Due Tomorrow, 2:00 PM</p>
+                                </div>
+                                <div class="task-priority low">Low</div>
+                            </li>
+                            
+                            <li class="task-item">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task5">
+                                    <label for="task5"></label>
+                                </div>
+                                <div class="task-details">
+                                    <p class="task-title">Schedule test drive with Emily Parker</p>
+                                    <p class="task-due">Due in 2 days</p>
+                                </div>
+                                <div class="task-priority medium">Medium</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data-service.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/leads-data.js"></script>
+    <script src="js/dashboard-data.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/mobile-nav.js"></script>
+</body>
+</html>

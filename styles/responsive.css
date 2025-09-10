@@ -1,0 +1,546 @@
+/* Responsive Styles for Auto Dealer CRM */
+
+/* Desktop Styles - Hide mobile elements */
+@media (min-width: 768px) {
+    .mobile-inventory-cards {
+        display: none;
+    }
+    
+    .mobile-menu-toggle {
+        display: none;
+    }
+    
+    .inventory-table {
+        display: table !important;
+    }
+}
+
+/* Base Mobile Styles */
+@media (max-width: 767px) {
+    /* Layout */
+    .container {
+        padding: 0.5rem;
+    }
+    
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        top: 0;
+        height: 100%;
+        width: 250px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+    
+    .sidebar.active {
+        left: 0;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    /* Header */
+    .header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .header-title {
+        font-size: 1.25rem;
+    }
+    
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 1.25rem;
+        cursor: pointer;
+        margin-right: 0.5rem;
+    }
+    
+    /* Main Content */
+    .main-content {
+        margin-left: 0;
+        padding: 0.5rem;
+        min-height: 100vh;
+        max-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Top Navigation Mobile */
+    .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    .search-container {
+        width: 100%;
+        order: 2;
+    }
+    
+    .top-nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        order: 1;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .quick-actions .btn {
+        width: 100%;
+        font-size: 0.875rem;
+        padding: 0.5rem;
+    }
+    
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+        display: block;
+        position: fixed; /* keep above scrolling content and sticky elements */
+        top: 1rem;
+        left: 1rem;
+        z-index: 2001; /* above sidebar (1000) and overlay (999) */
+        background: var(--bg-white);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-md);
+        padding: 0.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    /* Improve spacing between icons and labels in hamburger menu */
+    .sidebar-nav ul li a {
+        gap: 0.75rem; /* extra space between icon and text */
+    }
+    .sidebar-nav ul li a i {
+        width: 24px;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    /* Page Header Mobile */
+    .page-header {
+        margin-bottom: 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Inventory Stats Mobile */
+    .inventory-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-item {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.5rem;
+        background: var(--bg-white);
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--border-color);
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-value {
+        font-size: 1.25rem;
+    }
+    
+    /* Dashboard Cards */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .kpi-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    /* Inventory Filters Mobile */
+    .inventory-filters {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .filter-group {
+        margin-bottom: 1rem;
+        min-width: 100%;
+    }
+    
+    .filter-group label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .filter-group select {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border-radius: var(--border-radius-md);
+    }
+    
+    .filter-btn, .reset-btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+    
+    /* Mobile Inventory Table */
+    .inventory-table-container {
+        margin-bottom: 1rem;
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+    }
+    
+    .inventory-table {
+        display: none; /* Hide desktop table on mobile */
+    }
+    
+    /* Inventory Container Mobile */
+    .inventory-container {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Mobile Card View */
+    .mobile-inventory-cards {
+        display: block;
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 1rem;
+    }
+    
+    .mobile-vehicle-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-md);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .mobile-card-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .mobile-card-checkbox {
+        margin-right: 1rem;
+    }
+    
+    .mobile-card-photo {
+        width: 80px;
+        height: 60px;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        margin-right: 1rem;
+    }
+    
+    .mobile-card-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .mobile-card-title {
+        flex: 1;
+    }
+    
+    .mobile-card-title h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-dark);
+    }
+    
+    .mobile-card-title p {
+        font-size: 0.875rem;
+        color: var(--text-medium);
+    }
+    
+    .mobile-card-body {
+        padding: 1rem;
+    }
+    
+    .mobile-card-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .mobile-detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .mobile-detail-label {
+        font-size: 0.75rem;
+        color: var(--text-medium);
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .mobile-detail-value {
+        font-size: 0.875rem;
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+    
+    .mobile-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .mobile-card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .mobile-card-actions .btn-icon {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-md);
+        background: var(--bg-white);
+        color: var(--text-medium);
+        transition: all 0.2s ease;
+    }
+    
+    .mobile-card-actions .btn-icon:hover {
+        background: var(--bg-gray);
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* Tables - Desktop fallback */
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .inventory-table th,
+    .inventory-table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Forms */
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    /* Enhanced Search Container */
+    .search-container-enhanced {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .search-criteria-dropdown {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    /* Table Actions */
+    .table-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+
+    /* Filters */
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    .filter-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filter-buttons button {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Modals */
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        padding: 1rem;
+    }
+    
+    /* Login Page */
+    .login-container {
+        width: 90%;
+        padding: 1.5rem;
+    }
+}
+
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Layout */
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+        width: 200px;
+    }
+    
+    .main-content {
+        margin-left: 200px;
+    }
+    
+    /* Tables */
+    .inventory-table th,
+    .inventory-table td {
+        padding: 0.75rem;
+    }
+    
+    /* Forms */
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile Menu Toggle JavaScript */
+document.addEventListener('DOMContentLoaded', function() {
+    // Add menu toggle button to header
+    const header = document.querySelector('.header');
+    if (header) {
+        const menuToggle = document.createElement('button');
+        menuToggle.className = 'menu-toggle';
+        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        header.insertBefore(menuToggle, header.firstChild);
+        
+        // Add sidebar overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+        
+        // Toggle sidebar on menu button click
+        menuToggle.addEventListener('click', function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        });
+        
+        // Close sidebar when clicking overlay
+        overlay.addEventListener('click', function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        });
+        
+        // Close sidebar when clicking a menu item
+        const menuItems = document.querySelectorAll('.sidebar-menu a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar && window.innerWidth < 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    }
+    
+    // Make tables responsive
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-responsive';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+});

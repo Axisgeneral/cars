@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll & Scheduling - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li class="active">
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search employees, schedules...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" onclick="openEmployeeModal()"><i class="fas fa-plus"></i> Add Employee</button>
+                        <button class="btn btn-secondary" onclick="openScheduleModal()"><i class="fas fa-calendar-plus"></i> Schedule Shift</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Payroll & Scheduling Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Payroll & Scheduling</h1>
+                    <div class="date-filter">
+                        <label for="pay-period">Pay Period:</label>
+                        <select id="pay-period">
+                            <option>Current Week</option>
+                            <option>Last Week</option>
+                            <option selected>Current Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Payroll & Scheduling Tabs -->
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="showTab('employees')">Employees</button>
+                        <button class="tab-btn" onclick="showTab('schedule')">Schedule</button>
+                        <button class="tab-btn" onclick="showTab('timesheet')">Timesheet</button>
+                        <button class="tab-btn" onclick="showTab('payroll')">Payroll</button>
+                    </div>
+
+                    <!-- Employees Tab -->
+                    <div id="employees" class="tab-content active">
+                        <div class="section-header">
+                            <h3>Employee Management</h3>
+                            <div class="filter-controls">
+                                <select id="department-filter">
+                                    <option value="">All Departments</option>
+                                    <option value="sales">Sales</option>
+                                    <option value="service">Service</option>
+                                    <option value="parts">Parts</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="management">Management</option>
+                                </select>
+                                <select id="status-filter">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="on-leave">On Leave</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="employees-list" id="employees-list">
+                            <!-- Employees will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Schedule Tab -->
+                    <div id="schedule" class="tab-content">
+                        <div class="section-header">
+                            <h3>Work Schedule</h3>
+                            <div class="schedule-controls">
+                                <button class="btn btn-secondary" onclick="previousWeek()"><i class="fas fa-chevron-left"></i></button>
+                                <span id="current-week">Week of March 4, 2024</span>
+                                <button class="btn btn-secondary" onclick="nextWeek()"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="schedule-grid" id="schedule-grid">
+                            <!-- Schedule grid will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Timesheet Tab -->
+                    <div id="timesheet" class="tab-content">
+                        <div class="section-header">
+                            <h3>Employee Timesheets</h3>
+                            <div class="filter-controls">
+                                <select id="employee-filter">
+                                    <option value="">All Employees</option>
+                                    <!-- Employees will be populated here -->
+                                </select>
+                                <input type="week" id="week-filter">
+                            </div>
+                        </div>
+                        
+                        <div class="timesheet-list" id="timesheet-list">
+                            <!-- Timesheets will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Payroll Tab -->
+                    <div id="payroll" class="tab-content">
+                        <div class="section-header">
+                            <h3>Payroll Management</h3>
+                            <div class="payroll-controls">
+                                <select id="payroll-period">
+                                    <option>Current Pay Period</option>
+                                    <option>Previous Pay Period</option>
+                                    <option>Custom Period</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="processPayroll()">Process Payroll</button>
+                                <select id="w2-employee-select">
+                                    <option value="">Select Employee</option>
+                                </select>
+                                <button class="btn btn-secondary" onclick="printW2s()">Print W2</button>
+                            </div>
+                        </div>
+                        
+                        <div class="payroll-summary">
+                            <div class="payroll-card">
+                                <h4>Total Payroll</h4>
+                                <p class="amount">$45,280.00</p>
+                            </div>
+                            <div class="payroll-card">
+                                <h4>Total Hours</h4>
+                                <p class="amount">1,264</p>
+                            </div>
+                            <div class="payroll-card">
+                                <h4>Employees Paid</h4>
+                                <p class="amount">18</p>
+                            </div>
+                            <div class="payroll-card">
+                                <h4>Overtime Hours</h4>
+                                <p class="amount">84</p>
+                            </div>
+                        </div>
+                        
+                        <div class="payroll-list" id="payroll-list">
+                            <!-- Payroll details will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Employee Modal -->
+    <div id="employee-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Employee</h3>
+                <button class="modal-close" onclick="closeEmployeeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">First Name:</label>
+                        <input type="text" id="first-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Last Name:</label>
+                        <input type="text" id="last-name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="department">Department:</label>
+                        <select id="department" required>
+                            <option value="">Select Department</option>
+                            <option value="sales">Sales</option>
+                            <option value="service">Service</option>
+                            <option value="parts">Parts</option>
+                            <option value="finance">Finance</option>
+                            <option value="management">Management</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Position:</label>
+                        <input type="text" id="position" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hire-date">Hire Date:</label>
+                        <input type="date" id="hire-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-id">Employee ID:</label>
+                        <input type="text" id="employee-id" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hourly-rate">Hourly Rate:</label>
+                        <input type="number" id="hourly-rate" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employment-type">Employment Type:</label>
+                        <select id="employment-type" required>
+                            <option value="">Select Type</option>
+                            <option value="full-time">Full Time</option>
+                            <option value="part-time">Part Time</option>
+                            <option value="contract">Contract</option>
+                        </select>
+                    </div>
+                </div>
+                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="employee-form">Add Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div id="schedule-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Schedule Shift</h3>
+                <button class="modal-close" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="schedule-form">
+                <div class="form-group">
+                    <label for="schedule-employee">Employee:</label>
+                    <select id="schedule-employee" required>
+                        <option value="">Select Employee</option>
+                        <!-- Employees will be populated here -->
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="shift-date">Date:</label>
+                        <input type="date" id="shift-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="shift-type">Shift Type:</label>
+                        <select id="shift-type" required>
+                            <option value="">Select Shift</option>
+                            <option value="morning">Morning (8:00 AM - 4:00 PM)</option>
+                            <option value="afternoon">Afternoon (12:00 PM - 8:00 PM)</option>
+                            <option value="evening">Evening (4:00 PM - 12:00 AM)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row" id="custom-time-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="start-time">Start Time:</label>
+                        <input type="time" id="start-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="end-time">End Time:</label>
+                        <input type="time" id="end-time">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="shift-notes">Notes:</label>
+                    <textarea id="shift-notes" rows="3"></textarea>
+                </div>
+                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeScheduleModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="schedule-form">Schedule Shift</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mobile-nav.js"></script>
+    <script src="js/payroll-scheduling.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const select = document.getElementById('w2-employee-select');
+            if (select && window.PayrollSchedulingData) {
+                const employees = PayrollSchedulingData.employees.getAll();
+                select.innerHTML = '<option value="">Select Employee</option>';
+                employees.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = `${emp.firstName} ${emp.lastName} (${emp.position})`;
+                    select.appendChild(option);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

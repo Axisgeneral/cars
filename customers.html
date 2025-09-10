@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li class="active">
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="four-square.html"><i class="fas fa-calculator"></i> Four Square</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search customers...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary"><i class="fas fa-plus"></i> New Customer</button>
+                        <button class="btn btn-secondary" id="customer-filter-btn"><i class="fas fa-filter"></i> Filter</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Customers Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Customer Management</h1>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option>Today</option>
+                            <option>Yesterday</option>
+                            <option>Last 7 Days</option>
+                            <option selected>This Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Customer Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-customers">0</h3>
+                            <p>Total Customers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="new-customers">0</h3>
+                            <p>New This Month</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="vip-customers">0</h3>
+                            <p>VIP Customers</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="active-deals">0</h3>
+                            <p>Active Deals</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Customer List</h2>
+                        <div class="table-actions">
+                            <div class="search-container-enhanced">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="customer-search" placeholder="Search customers...">
+                                </div>
+                                <select id="search-criteria" class="search-criteria-dropdown">
+                                    <option value="all">All Fields</option>
+                                    <option value="name">Name</option>
+                                    <option value="phone">Phone Number</option>
+                                    <option value="email">Email</option>
+                                    <option value="company">Company</option>
+                                </select>
+                            </div>
+                            <select id="customer-filter">
+                                <option value="">All Customers</option>
+                                <option value="VIP">VIP</option>
+                                <option value="Regular">Regular</option>
+                                <option value="New">New</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="data-table" id="customers-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Contact</th>
+                                    <th>Type</th>
+                                    <th>Date Added</th>
+                                    <th>Last Contact</th>
+                                    <th>Purchases</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-tbody">
+                                <!-- Customer rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="no-customers" class="no-data" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <h3>No Customers Found</h3>
+                        <p>Start by adding your first customer to the system.</p>
+                        <button class="btn btn-primary" id="add-first-customer">
+                            <i class="fas fa-plus"></i> Add Customer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/customers-data.js"></script>
+    <script src="js/mobile-nav.js"></script>
+    <script>
+        // Customer Management functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            DataService.initAll();
+            
+            // Load customers
+            loadCustomers();
+            updateStats();
+            
+            // Event listeners
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            console.log('Setting up customer event listeners...');
+            
+            // New Customer Button (in top nav)
+            const newCustomerBtn = document.querySelector('.top-nav-actions .btn-primary');
+            console.log('New Customer Button:', newCustomerBtn);
+            if (newCustomerBtn) {
+                newCustomerBtn.addEventListener('click', function(e) {
+                    console.log('New Customer button clicked');
+                    openAddCustomerModal();
+                });
+            }
+            
+            // Add First Customer Button
+            const addFirstCustomerBtn = document.getElementById('add-first-customer');
+            console.log('Add First Customer Button:', addFirstCustomerBtn);
+            if (addFirstCustomerBtn) {
+                addFirstCustomerBtn.addEventListener('click', function(e) {
+                    console.log('Add First Customer button clicked');
+                    openAddCustomerModal();
+                });
+            }
+            
+            // Search functionality
+            const searchInput = document.getElementById('customer-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterCustomers);
+            }
+            
+            // Search criteria dropdown functionality
+            const searchCriteriaSelect = document.getElementById('search-criteria');
+            if (searchCriteriaSelect) {
+                searchCriteriaSelect.addEventListener('change', function() {
+                    // Update placeholder text based on selected criteria
+                    const searchInput = document.getElementById('customer-search');
+                    const selectedCriteria = this.value;
+                    
+                    switch (selectedCriteria) {
+                        case 'name':
+                            searchInput.placeholder = 'Search by name...';
+                            break;
+                        case 'phone':
+                            searchInput.placeholder = 'Search by phone number...';
+                            break;
+                        case 'email':
+                            searchInput.placeholder = 'Search by email...';
+                            break;
+                        case 'company':
+                            searchInput.placeholder = 'Search by company...';
+                            break;
+                        case 'all':
+                        default:
+                            searchInput.placeholder = 'Search customers...';
+                            break;
+                    }
+                    
+                    // Re-run filter if there's already a search term
+                    if (searchInput.value.trim()) {
+                        filterCustomers();
+                    }
+                });
+            }
+            
+            // Filter functionality
+            const filterSelect = document.getElementById('customer-filter');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', filterCustomers);
+            }
+
+            // Filter button functionality
+            const filterBtn = document.getElementById('customer-filter-btn');
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function() {
+                    filterCustomers();
+                });
+            }
+            
+            // Notification Bell
+            const notificationBell = document.querySelector('.notification-bell');
+            if (notificationBell) {
+                notificationBell.addEventListener('click', function() {
+                    alert('Notifications feature coming soon!');
+                });
+            }
+        }
+        
+        // New Customer Modal
+        function openAddCustomerModal() {
+            console.log('Opening Add Customer Modal...');
+            
+            // Create modal content
+            const modalContent = `
+                <form id="add-customer-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Customer Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Address</h4>
+                        <div class="form-group">
+                            <label for="street">Street Address</label>
+                            <input type="text" id="street" name="street">
+                        </div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city">
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state" name="state">
+                            </div>
+                            <div class="form-group">
+                                <label for="zip">ZIP Code</label>
+                                <input type="text" id="zip" name="zip">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Additional Information</h4>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="source">Source</label>
+                                <select id="source" name="source">
+                                    <option value="">Select Source</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Walk-in">Walk-in</option>
+                                    <option value="Referral">Referral</option>
+                                    <option value="Lead Conversion">Lead Conversion</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="customerType">Customer Type</label>
+                                <select id="customerType" name="customerType">
+                                    <option value="Individual">Individual</option>
+                                    <option value="Business">Business</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            // Create modal with ModalUtils
+            const modal = ModalUtils.createModal('add-customer-modal', 'Add New Customer', modalContent, [
+                { text: 'Cancel', class: 'btn-secondary', attributes: 'data-modal-close' },
+                { text: 'Save Customer', class: 'btn-primary', attributes: 'id="save-customer-btn"' }
+            ]);
+            
+            // Open the modal
+            ModalUtils.openModal('add-customer-modal');
+            
+            // Add event listener for save button
+            const saveBtn = document.getElementById('save-customer-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', saveNewCustomer);
+            }
+        }
+
+        function saveNewCustomer() {
+            const form = document.getElementById('add-customer-form');
+            const formData = new FormData(form);
+            
+            // Create customer object
+            const customer = {
+                id: Date.now().toString(),
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                company: formData.get('company') || '',
+                address: {
+                    street: formData.get('address') || '',
+                    city: formData.get('city') || '',
+                    state: formData.get('state') || '',
+                    zip: formData.get('zipCode') || ''
+                },
+                notes: formData.get('notes') || '',
+                source: formData.get('source') || '',
+                type: formData.get('customerType') || 'Regular',
+                dateAdded: new Date().toISOString(),
+                lastContact: new Date().toISOString(),
+                purchaseHistory: []
+            };
+            
+            // Validate required fields
+            if (!customer.firstName || !customer.lastName || !customer.email || !customer.phone) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Save customer
+            DataService.customers.add(customer);
+            
+            // Close modal
+            ModalUtils.closeModal('add-customer-modal');
+            
+            // Refresh the customer list
+            loadCustomers();
+            updateStats();
+            
+            // Show success message
+            alert('Customer added successfully!');
+        }
+
+        function loadCustomers() {
+            filterCustomers();
+        }
+
+        function updateStats() {
+            const customers = DataService.customers.getAll();
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            // Total customers
+            document.getElementById('total-customers').textContent = customers.length;
+            
+            // New customers this month
+            const newThisMonth = customers.filter(customer => {
+                const dateAdded = new Date(customer.dateAdded);
+                return dateAdded.getMonth() === currentMonth && dateAdded.getFullYear() === currentYear;
+            }).length;
+            document.getElementById('new-customers').textContent = newThisMonth;
+            
+            // VIP customers
+            const vipCustomers = customers.filter(customer => customer.type === 'VIP').length;
+            document.getElementById('vip-customers').textContent = vipCustomers;
+            
+            // Active deals (placeholder - would need to check deals data)
+            document.getElementById('active-deals').textContent = '0';
+        }
+
+        function filterCustomers() {
+            const searchTerm = document.getElementById('customer-search').value.toLowerCase();
+            const searchCriteria = document.getElementById('search-criteria').value;
+            const filterType = document.getElementById('customer-filter').value;
+            const customers = DataService.customers.getAll();
+            
+            let filteredCustomers = customers;
+            
+            // Apply search filter based on selected criteria
+            if (searchTerm) {
+                filteredCustomers = filteredCustomers.filter(customer => {
+                    switch (searchCriteria) {
+                        case 'name':
+                            return customer.firstName.toLowerCase().includes(searchTerm) ||
+                                   customer.lastName.toLowerCase().includes(searchTerm);
+                        case 'phone':
+                            // Normalize both phone and searchTerm to digits only for matching
+                            const customerPhoneDigits = customer.phone.replace(/\D/g, '');
+                            const searchDigits = searchTerm.replace(/\D/g, '');
+                            return customerPhoneDigits.includes(searchDigits);
+                        case 'email':
+                            return customer.email.toLowerCase().includes(searchTerm);
+                        case 'company':
+                            return customer.company && customer.company.toLowerCase().includes(searchTerm);
+                        case 'all':
+                        default:
+                            return customer.firstName.toLowerCase().includes(searchTerm) ||
+                                   customer.lastName.toLowerCase().includes(searchTerm) ||
+                                   customer.email.toLowerCase().includes(searchTerm) ||
+                                   customer.phone.includes(searchTerm) ||
+                                   (customer.company && customer.company.toLowerCase().includes(searchTerm));
+                    }
+                });
+            }
+            
+            // Apply type filter
+            if (filterType) {
+                filteredCustomers = filteredCustomers.filter(customer => customer.type === filterType);
+            }
+            
+            // Update table
+            const tbody = document.getElementById('customers-tbody');
+            const noCustomersDiv = document.getElementById('no-customers');
+            if (filteredCustomers.length === 0) {
+                tbody.innerHTML = '';
+                noCustomersDiv.style.display = 'block';
+                noCustomersDiv.querySelector('h3').textContent = 'No Customers Found';
+                noCustomersDiv.querySelector('p').textContent = 'Try adjusting your search or filter criteria.';
+            } else {
+                noCustomersDiv.style.display = 'none';
+                tbody.innerHTML = filteredCustomers.map(customer => `
+                    <tr>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-avatar">
+                                    ${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="customer-name">${customer.firstName} ${customer.lastName}</div>
+                                    <div class="customer-company">${customer.company || 'Individual'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <div><i class="fas fa-phone"></i> ${customer.phone}</div>
+                                <div><i class="fas fa-envelope"></i> ${customer.email}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${customer.type ? customer.type.toLowerCase() : 'regular'}">${customer.type || 'Regular'}</span>
+                        </td>
+                        <td>${formatDate(customer.dateAdded)}</td>
+                        <td>${formatDate(customer.lastContact)}</td>
+                        <td>
+                            <span class="purchase-count">${customer.purchaseHistory ? customer.purchaseHistory.length : 0}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewCustomer('${customer.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editCustomer('${customer.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteCustomer('${customer.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function openAddCustomerModal() {
+            const modalContent = `
+                <form id="add-customer-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Personal Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone *</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" name="company">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Address Information</h4>
+                        <div class="form-group">
+                            <label for="address">Street Address</label>
+                            <input type="text" id="address" name="address">
+                        </div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city">
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state" name="state">
+                            </div>
+                            <div class="form-group">
+                                <label for="zipCode">ZIP Code</label>
+                                <input type="text" id="zipCode" name="zipCode">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Customer Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="type">Customer Type</label>
+                                <select id="type" name="type">
+                                    <option value="Regular">Regular</option>
+                                    <option value="VIP">VIP</option>
+                                    <option value="New">New</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="source">Lead Source</label>
+                                <select id="source" name="source">
+                                    <option value="">Select Source</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Referral">Referral</option>
+                                    <option value="Walk-in">Walk-in</option>
+                                    <option value="Phone">Phone</option>
+                                    <option value="Social Media">Social Media</option>
+                                    <option value="Advertisement">Advertisement</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3" placeholder="Additional notes about the customer..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Add Customer',
+                    class: 'btn-primary',
+                    icon: 'fas fa-plus',
+                    attributes: 'onclick="saveCustomer()"'
+                }
+            ];
+            
+            ModalUtils.createModal('add-customer-modal', 'Add New Customer', modalContent, footerButtons);
+            ModalUtils.openModal('add-customer-modal');
+        }
+
+        function saveCustomer() {
+            const form = document.getElementById('add-customer-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            
+            // Create customer object
+            const customer = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                company: formData.company || '',
+                address: formData.address || '',
+                city: formData.city || '',
+                state: formData.state || '',
+                zipCode: formData.zipCode || '',
+                type: formData.type || 'Regular',
+                source: formData.source || '',
+                notes: formData.notes || '',
+                lastContact: new Date().toISOString().split('T')[0],
+                purchaseHistory: []
+            };
+            
+            // Save customer
+            DataService.customers.add(customer);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-customer-modal');
+            ModalUtils.removeModal('add-customer-modal');
+            ModalUtils.showSuccessMessage('Customer added successfully!');
+            
+            // Refresh the page data
+            loadCustomers();
+            updateStats();
+        }
+
+        function editCustomer(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) return;
+            
+            // Similar to add modal but pre-populated with customer data
+            openAddCustomerModal();
+            
+            // Change modal title and button
+            document.querySelector('#add-customer-modal .modal-title').textContent = 'Edit Customer';
+            document.querySelector('#add-customer-modal .btn-primary').textContent = 'Update Customer';
+            document.querySelector('#add-customer-modal .btn-primary').setAttribute('onclick', `updateCustomer('${customerId}')`);
+            
+            // Populate form with customer data
+            const form = document.getElementById('add-customer-form');
+            ModalUtils.populateForm(form, customer);
+        }
+
+        function updateCustomer(customerId) {
+            const form = document.getElementById('add-customer-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            const customer = DataService.customers.get(customerId);
+            
+            // Update customer object
+            Object.assign(customer, {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                company: formData.company || '',
+                address: formData.address || '',
+                city: formData.city || '',
+                state: formData.state || '',
+                zipCode: formData.zipCode || '',
+                type: formData.type || 'Regular',
+                source: formData.source || '',
+                notes: formData.notes || ''
+            });
+            
+            // Save updated customer
+            DataService.customers.update(customer);
+            
+            // Close modal and refresh
+            ModalUtils.closeModal('add-customer-modal');
+            ModalUtils.removeModal('add-customer-modal');
+            ModalUtils.showSuccessMessage('Customer updated successfully!');
+            
+            // Refresh the page data
+            loadCustomers();
+            updateStats();
+        }
+
+        function viewCustomer(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) return;
+            
+            const modalContent = `
+                <div class="customer-details">
+                    <div class="customer-header">
+                        <div class="customer-avatar-large">
+                            ${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}
+                        </div>
+                        <div class="customer-info">
+                            <h3>${customer.firstName} ${customer.lastName}</h3>
+                            <p>${customer.company || 'Individual Customer'}</p>
+                            <span class="badge badge-${customer.type ? customer.type.toLowerCase() : 'regular'}">${customer.type || 'Regular'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-sections">
+                        <div class="info-section">
+                            <h4>Contact Information</h4>
+                            <div class="info-grid">
+                                <div><strong>Email:</strong> ${customer.email}</div>
+                                <div><strong>Phone:</strong> ${customer.phone}</div>
+                                <div><strong>Address:</strong> ${customer.address || 'Not provided'}</div>
+                                <div><strong>City:</strong> ${customer.city || 'Not provided'}</div>
+                                <div><strong>State:</strong> ${customer.state || 'Not provided'}</div>
+                                <div><strong>ZIP:</strong> ${customer.zipCode || 'Not provided'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4>Customer Details</h4>
+                            <div class="info-grid">
+                                <div><strong>Date Added:</strong> ${formatDate(customer.dateAdded)}</div>
+                                <div><strong>Last Contact:</strong> ${formatDate(customer.lastContact)}</div>
+                                <div><strong>Lead Source:</strong> ${customer.source || 'Not specified'}</div>
+                                <div><strong>Total Purchases:</strong> ${customer.purchaseHistory ? customer.purchaseHistory.length : 0}</div>
+                            </div>
+                        </div>
+                        
+                        ${customer.notes ? `
+                            <div class="info-section">
+                                <h4>Notes</h4>
+                                <p>${customer.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Edit Customer',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('view-customer-modal'); ModalUtils.removeModal('view-customer-modal'); editCustomer('${customerId}')"`
+                },
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                }
+            ];
+            
+            ModalUtils.createModal('view-customer-modal', 'Customer Details', modalContent, footerButtons);
+            ModalUtils.openModal('view-customer-modal');
+        }
+
+        function deleteCustomer(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) return;
+            
+            if (confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}? This action cannot be undone.`)) {
+                DataService.customers.remove(customerId);
+                ModalUtils.showSuccessMessage('Customer deleted successfully!');
+                loadCustomers();
+                updateStats();
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>

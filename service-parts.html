@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service & Parts Management - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
+                <h2>AutoConnect</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="inventory.html"><i class="fas fa-car"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="leads.html"><i class="fas fa-funnel-dollar"></i> Leads</a>
+                    </li>
+                    <li>
+                        <a href="customers.html"><i class="fas fa-users"></i> Customers</a>
+                    </li>
+                    <li>
+                        <a href="deals.html"><i class="fas fa-handshake"></i> Deals</a>
+                    </li>
+                    <li>
+                        <a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li>
+                        <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li class="active">
+                        <a href="service-parts.html"><i class="fas fa-wrench"></i> Service/Parts</a>
+                    </li>
+                    <li>
+                        <a href="payroll-scheduling.html"><i class="fas fa-calendar-alt"></i> Payroll & Scheduling</a>
+                    </li>
+                    <li>
+                        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="avatar avatar-placeholder">TM</div>
+                    <div class="user-details">
+                        <p class="user-name">Thomas Morales</p>
+                        <p class="user-role">Sales Manager</p>
+                    </div>
+                </div>
+                <a href="logout.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search service orders, parts...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" onclick="openServiceModal()"><i class="fas fa-plus"></i> New Service Order</button>
+                        <button class="btn btn-secondary" onclick="openPartsModal()"><i class="fas fa-cog"></i> Add Parts</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Service & Parts Content -->
+            <div class="dashboard-container">
+                <div class="page-header">
+                    <h1>Service & Parts Management</h1>
+                    <div class="date-filter">
+                        <label for="date-range">Date Range:</label>
+                        <select id="date-range">
+                            <option>Today</option>
+                            <option>Yesterday</option>
+                            <option>Last 7 Days</option>
+                            <option selected>This Month</option>
+                            <option>Last Month</option>
+                            <option>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Service & Parts Tabs -->
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="showTab('service-orders')">Service Orders</button>
+                        <button class="tab-btn" onclick="showTab('parts-inventory')">Parts Inventory</button>
+                        <button class="tab-btn" onclick="showTab('service-history')">Service History</button>
+                    </div>
+
+                    <!-- Service Orders Tab -->
+                    <div id="service-orders" class="tab-content active">
+                        <div class="section-header">
+                            <h3>Active Service Orders</h3>
+                            <div class="filter-controls">
+                                <select id="status-filter">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="in-progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="waiting-parts">Waiting for Parts</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="service-orders-list" id="service-orders-list">
+                            <!-- Service orders will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Parts Inventory Tab -->
+                    <div id="parts-inventory" class="tab-content">
+                        <div class="section-header">
+                            <h3>Parts Inventory</h3>
+                            <div class="filter-controls">
+                                <select id="category-filter">
+                                    <option value="">All Categories</option>
+                                    <option value="engine">Engine</option>
+                                    <option value="transmission">Transmission</option>
+                                    <option value="brakes">Brakes</option>
+                                    <option value="electrical">Electrical</option>
+                                    <option value="body">Body Parts</option>
+                                    <option value="filters">Filters</option>
+                                    <option value="fluids">Fluids</option>
+                                </select>
+                                <select id="stock-filter">
+                                    <option value="">All Stock Levels</option>
+                                    <option value="in-stock">In Stock</option>
+                                    <option value="low-stock">Low Stock</option>
+                                    <option value="out-of-stock">Out of Stock</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="parts-inventory-list" id="parts-inventory-list">
+                            <!-- Parts inventory will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Service History Tab -->
+                    <div id="service-history" class="tab-content">
+                        <div class="section-header">
+                            <h3>Service History</h3>
+                            <div class="filter-controls">
+                                <input type="text" placeholder="Search by customer or VIN..." id="history-search">
+                            </div>
+                        </div>
+                        
+                        <div class="service-history-list" id="service-history-list">
+                            <!-- Service history will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Service Order Modal -->
+    <div id="service-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">New Service Order</h3>
+                <button class="modal-close" onclick="closeServiceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="service-form">
+                <div class="form-group">
+                    <label for="customer-select">Customer:</label>
+                    <select id="customer-select" required>
+                        <option value="">Select Customer</option>
+                        <!-- Customers will be populated here -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="vehicle-vin">Vehicle VIN:</label>
+                    <input type="text" id="vehicle-vin" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="service-type">Service Type:</label>
+                    <select id="service-type" required>
+                        <option value="">Select Service Type</option>
+                        <option value="oil-change">Oil Change</option>
+                        <option value="brake-service">Brake Service</option>
+                        <option value="transmission">Transmission Service</option>
+                        <option value="engine-repair">Engine Repair</option>
+                        <option value="electrical">Electrical Repair</option>
+                        <option value="body-work">Body Work</option>
+                        <option value="inspection">Inspection</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="service-description">Description:</label>
+                    <textarea id="service-description" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estimated-cost">Estimated Cost:</label>
+                    <input type="number" id="estimated-cost" step="0.01" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="scheduled-date">Scheduled Date:</label>
+                    <input type="datetime-local" id="scheduled-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="technician">Assigned Technician:</label>
+                    <select id="technician">
+                        <option value="">Select Technician</option>
+                        <option value="john-smith">John Smith</option>
+                        <option value="mike-johnson">Mike Johnson</option>
+                        <option value="sarah-davis">Sarah Davis</option>
+                        <option value="robert-wilson">Robert Wilson</option>
+                    </select>
+                </div>
+                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeServiceModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="service-form">Create Service Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parts Modal -->
+    <div id="parts-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Parts to Inventory</h3>
+                <button class="modal-close" onclick="closePartsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="parts-form">
+                <div class="form-group">
+                    <label for="part-number">Part Number:</label>
+                    <input type="text" id="part-number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="part-name">Part Name:</label>
+                    <input type="text" id="part-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="part-category">Category:</label>
+                    <select id="part-category" required>
+                        <option value="">Select Category</option>
+                        <option value="engine">Engine</option>
+                        <option value="transmission">Transmission</option>
+                        <option value="brakes">Brakes</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="body">Body Parts</option>
+                        <option value="filters">Filters</option>
+                        <option value="fluids">Fluids</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="part-cost">Cost:</label>
+                    <input type="number" id="part-cost" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="part-price">Selling Price:</label>
+                    <input type="number" id="part-price" step="0.01" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="part-quantity">Quantity:</label>
+                    <input type="number" id="part-quantity" min="0" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="part-location">Storage Location:</label>
+                    <input type="text" id="part-location">
+                </div>
+                
+                <div class="form-group">
+                    <label for="supplier">Supplier:</label>
+                    <input type="text" id="supplier">
+                </div>
+                
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closePartsModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="parts-form">Add Part</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mobile-nav.js"></script>
+    <script src="js/service-parts.js"></script>
+</body>
+</html>

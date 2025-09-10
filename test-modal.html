@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Add Vehicle Modal</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div style="padding: 2rem;">
+        <h1>Test Add Vehicle Modal</h1>
+        <button id="test-btn" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Test Add Vehicle Modal
+        </button>
+    </div>
+
+    <script src="js/modal-utils.js"></script>
+    <script>
+        document.getElementById('test-btn').addEventListener('click', function() {
+            createAddVehicleModal();
+        });
+
+        function createAddVehicleModal() {
+            const modalHTML = `
+                <div id="add-vehicle-modal" class="modal-overlay active">
+                    <div class="modal">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Add New Vehicle</h3>
+                            <button type="button" class="modal-close" onclick="closeAddVehicleModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add-vehicle-form">
+                                <div class="form-section">
+                                    <h4 class="form-section-title">Basic Information</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="stockNumber">Stock Number *</label>
+                                            <input type="text" id="stockNumber" name="stockNumber" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="vin">VIN *</label>
+                                            <input type="text" id="vin" name="vin" required maxlength="17">
+                                        </div>
+                                    </div>
+                                    <div class="form-row-3">
+                                        <div class="form-group">
+                                            <label for="year">Year *</label>
+                                            <select id="year" name="year" required>
+                                                <option value="">Select Year</option>
+                                                <option value="2024">2024</option>
+                                                <option value="2023">2023</option>
+                                                <option value="2022">2022</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="make">Make *</label>
+                                            <select id="make" name="make" required>
+                                                <option value="">Select Make</option>
+                                                <option value="Toyota">Toyota</option>
+                                                <option value="Honda">Honda</option>
+                                                <option value="Ford">Ford</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="model">Model *</label>
+                                            <input type="text" id="model" name="model" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="trim">Trim</label>
+                                            <input type="text" id="trim" name="trim">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="color">Color *</label>
+                                            <input type="text" id="color" name="color" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4 class="form-section-title">Pricing & Details</h4>
+                                    <div class="form-row-3">
+                                        <div class="form-group">
+                                            <label for="price">Price *</label>
+                                            <input type="number" id="price" name="price" required min="0" step="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="cost">Cost</label>
+                                            <input type="number" id="cost" name="cost" min="0" step="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="mileage">Mileage *</label>
+                                            <input type="number" id="mileage" name="mileage" required min="0">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="status">Status *</label>
+                                            <select id="status" name="status" required>
+                                                <option value="in-stock">In Stock</option>
+                                                <option value="in-transit">In Transit</option>
+                                                <option value="on-hold">On Hold</option>
+                                                <option value="sold">Sold</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="location">Location</label>
+                                            <select id="location" name="location">
+                                                <option value="Main Lot">Main Lot</option>
+                                                <option value="Truck Lot">Truck Lot</option>
+                                                <option value="Luxury Lot">Luxury Lot</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4 class="form-section-title">Additional Information</h4>
+                                    <div class="form-group">
+                                        <label for="features">Features (comma-separated)</label>
+                                        <textarea id="features" name="features" placeholder="e.g., Leather Seats, Navigation, Sunroof, Bluetooth"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description</label>
+                                        <textarea id="description" name="description" placeholder="Enter vehicle description..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-outline" onclick="closeAddVehicleModal()">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Add Vehicle</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddVehicleModal() {
+            const modal = document.getElementById('add-vehicle-modal');
+            if (modal) {
+                modal.remove();
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Add basic button styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn {
+                padding: 0.75rem 1.5rem;
+                border: none;
+                border-radius: 6px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .btn-primary {
+                background-color: #3b82f6;
+                color: white;
+            }
+            .btn-primary:hover {
+                background-color: #2563eb;
+            }
+            .btn-outline {
+                background-color: transparent;
+                color: #6b7280;
+                border: 1px solid #d1d5db;
+            }
+            .btn-outline:hover {
+                background-color: #f9fafb;
+                color: #374151;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

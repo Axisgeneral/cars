@@ -1,0 +1,322 @@
+/* Inventory Page Specific Styles */
+
+/* Inventory Stats */
+.inventory-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+}
+
+.stat-label {
+    font-weight: var(--font-weight-medium);
+    color: var(--text-medium);
+    margin-right: var(--spacing-xs);
+}
+
+.stat-value {
+    font-weight: var(--font-weight-bold);
+    color: var(--text-dark);
+}
+
+/* Inventory Filters - Modern Blue Theme */
+.inventory-filters {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: flex-end;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-size: var(--font-size-sm);
+    color: var(--text-medium);
+    margin-bottom: var(--spacing-xs);
+}
+
+.filter-group select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+    font-size: var(--font-size-sm);
+}
+
+.filter-btn, .reset-btn {
+    margin-top: var(--spacing-md);
+    height: 38px;
+}
+
+/* Inventory Table - Modern Blue Theme */
+.inventory-table-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    overflow: auto;
+    margin-bottom: var(--spacing-lg);
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.inventory-table th {
+    background: var(--bg-gray);
+    color: var(--text-medium);
+    font-weight: var(--font-weight-semibold);
+    text-align: left;
+    padding: var(--spacing-md);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+}
+
+.inventory-table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+/* Alternating row colors for inventory table - Darker shade for even rows */
+.inventory-table tbody tr:nth-child(even) {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 197, 253, 0.12) 100%);
+}
+
+.inventory-table tbody tr:nth-child(odd) {
+    background-color: var(--bg-white);
+}
+
+.inventory-table tbody tr:hover {
+    background-color: rgba(37, 99, 235, 0.05) !important;
+}
+
+/* Checkbox Styling */
+.inventory-table input[type="checkbox"] {
+    display: none;
+}
+
+.inventory-table input[type="checkbox"] + label {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    position: relative;
+    cursor: pointer;
+}
+
+.inventory-table input[type="checkbox"]:checked + label::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--primary-color);
+    font-size: var(--font-size-xs);
+}
+
+/* Vehicle Photo */
+.vehicle-photo {
+    width: 80px;
+    height: 60px;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+}
+
+.vehicle-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.status-badge.in-stock {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.status-badge.in-transit {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--info-color);
+}
+
+.status-badge.on-hold {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.status-badge.sold {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) 0;
+}
+
+.pagination-info {
+    color: var(--text-medium);
+    font-size: var(--font-size-sm);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.pagination-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-white);
+    color: var(--text-medium);
+    font-size: var(--font-size-sm);
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--bg-gray);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.pagination-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    color: var(--text-medium);
+}
+
+.pagination-options {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-medium);
+    font-size: var(--font-size-sm);
+}
+
+.pagination-options select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background-color: var(--bg-white);
+    color: var(--text-dark);
+    font-size: var(--font-size-sm);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1400px) {
+    .filter-group {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .inventory-filters {
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        min-width: calc(33.333% - var(--spacing-md));
+    }
+    
+    .filter-btn, .reset-btn {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 992px) {
+    .filter-group {
+        min-width: calc(50% - var(--spacing-md));
+    }
+    
+    .inventory-stats {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-group {
+        min-width: 100%;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+    
+    .pagination-controls {
+        order: 1;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .pagination-info {
+        order: 2;
+    }
+    
+    .pagination-options {
+        order: 3;
+    }
+}

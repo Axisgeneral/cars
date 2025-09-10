@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Service</title>
+</head>
+<body>
+    <h1>Data Service Test</h1>
+    <div id="test-results"></div>
+    
+    <script src="js/data-service.js"></script>
+    <script>
+        // Test the data service
+        function runTests() {
+            const results = document.getElementById('test-results');
+            
+            try {
+                // Initialize data
+                DataService.utils.initializeAllData();
+                results.innerHTML += '<p>✅ Data service initialized successfully</p>';
+                
+                // Test inventory
+                const inventory = DataService.inventory.getAll();
+                results.innerHTML += `<p>✅ Inventory loaded: ${inventory.length} vehicles</p>`;
+                
+                // Test customers
+                const customers = DataService.customers.getAll();
+                results.innerHTML += `<p>✅ Customers loaded: ${customers.length} customers</p>`;
+                
+                // Test leads
+                const leads = DataService.leads.getAll();
+                results.innerHTML += `<p>✅ Leads loaded: ${leads.length} leads</p>`;
+                
+                // Test deals
+                const deals = DataService.deals.getAll();
+                results.innerHTML += `<p>✅ Deals loaded: ${deals.length} deals</p>`;
+                
+                // Test dashboard stats
+                const stats = DataService.dashboard.getStats();
+                results.innerHTML += `<p>✅ Dashboard stats: ${JSON.stringify(stats)}</p>`;
+                
+                // Test adding a new vehicle
+                const newVehicle = {
+                    make: 'Test',
+                    model: 'Vehicle',
+                    year: 2024,
+                    price: 30000,
+                    mileage: 0,
+                    color: 'Red',
+                    vin: 'TEST123456789',
+                    status: 'Available'
+                };
+                
+                const addedVehicle = DataService.inventory.add(newVehicle);
+                results.innerHTML += `<p>✅ Vehicle added successfully: ${addedVehicle.id}</p>`;
+                
+                // Verify the vehicle was added
+                const updatedInventory = DataService.inventory.getAll();
+                results.innerHTML += `<p>✅ Updated inventory count: ${updatedInventory.length} vehicles</p>`;
+                
+                results.innerHTML += '<p><strong>🎉 All tests passed! Data service is working correctly with localStorage.</strong></p>';
+                
+            } catch (error) {
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+                console.error('Test failed:', error);
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

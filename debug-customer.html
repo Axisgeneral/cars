@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Debug - AutoConnect</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .debug-button { margin: 5px; padding: 10px 15px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .debug-result { margin: 10px 0; padding: 10px; background: white; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+    </style>
+</head>
+<body>
+    <h1>Customer Functionality Debug</h1>
+    
+    <div class="debug-section">
+        <h2>Step 1: Clear Storage & Initialize</h2>
+        <button class="debug-button" onclick="clearStorage()">Clear LocalStorage</button>
+        <button class="debug-button" onclick="initializeData()">Initialize Data</button>
+        <div id="init-results"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Step 2: Test DataService</h2>
+        <button class="debug-button" onclick="testDataService()">Test DataService</button>
+        <div id="dataservice-results"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Step 3: Test Customer Creation</h2>
+        <button class="debug-button" onclick="testCustomerCreation()">Test Add Customer</button>
+        <div id="customer-results"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Step 4: Open Actual Customer Page</h2>
+        <button class="debug-button" onclick="openCustomerPage()">Open customers.html</button>
+    </div>
+
+    <!-- Include JavaScript files -->
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    
+    <script>
+        function clearStorage() {
+            localStorage.clear();
+            document.getElementById('init-results').innerHTML = '<div class="debug-result success">✅ LocalStorage cleared</div>';
+        }
+        
+        function initializeData() {
+            try {
+                DataService.initAll();
+                const customers = DataService.customers.getAll();
+                document.getElementById('init-results').innerHTML += `
+                    <div class="debug-result success">✅ Data initialized successfully</div>
+                    <div class="debug-result">📊 Found ${customers.length} sample customers</div>
+                `;
+            } catch (error) {
+                document.getElementById('init-results').innerHTML += `
+                    <div class="debug-result error">❌ Initialization error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function testDataService() {
+            try {
+                const customers = DataService.customers.getAll();
+                const results = document.getElementById('dataservice-results');
+                
+                if (customers.length === 0) {
+                    results.innerHTML = '<div class="debug-result error">❌ No customers found. Run Initialize Data first.</div>';
+                    return;
+                }
+                
+                const sampleCustomer = customers[0];
+                results.innerHTML = `
+                    <div class="debug-result success">✅ DataService working correctly</div>
+                    <div class="debug-result">📋 Sample customer structure:</div>
+                    <div class="debug-result"><pre>${JSON.stringify(sampleCustomer, null, 2)}</pre></div>
+                `;
+            } catch (error) {
+                document.getElementById('dataservice-results').innerHTML = `
+                    <div class="debug-result error">❌ DataService error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function testCustomerCreation() {
+            try {
+                // Create a test customer
+                const testCustomer = {
+                    firstName: 'Test',
+                    lastName: 'Customer',
+                    email: 'test@example.com',
+                    phone: '555-123-4567',
+                    company: 'Test Company',
+                    address: '123 Test St',
+                    city: 'Test City',
+                    state: 'TS',
+                    zipCode: '12345',
+                    type: 'Regular',
+                    source: 'Website',
+                    notes: 'This is a test customer',
+                    lastContact: new Date().toISOString().split('T')[0],
+                    purchaseHistory: []
+                };
+                
+                const beforeCount = DataService.customers.getAll().length;
+                DataService.customers.add(testCustomer);
+                const afterCount = DataService.customers.getAll().length;
+                
+                document.getElementById('customer-results').innerHTML = `
+                    <div class="debug-result success">✅ Customer creation test successful</div>
+                    <div class="debug-result">📊 Customers before: ${beforeCount}, after: ${afterCount}</div>
+                    <div class="debug-result">👤 Test customer added: ${testCustomer.firstName} ${testCustomer.lastName}</div>
+                `;
+            } catch (error) {
+                document.getElementById('customer-results').innerHTML = `
+                    <div class="debug-result error">❌ Customer creation error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        function openCustomerPage() {
+            window.open('customers.html', '_blank');
+        }
+    </script>
+</body>
+</html>

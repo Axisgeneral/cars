@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Test - AutoCRM</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .test-button { margin: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .test-result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Customer Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>JavaScript Files Loading Test</h2>
+        <div id="js-test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>DataService Test</h2>
+        <button class="test-button" onclick="testDataService()">Test DataService</button>
+        <div id="dataservice-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Customer Functions Test</h2>
+        <button class="test-button" onclick="testCustomerFunctions()">Test Customer Functions</button>
+        <div id="customer-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Modal Test</h2>
+        <button class="test-button" onclick="testModal()">Test Add Customer Modal</button>
+    </div>
+
+    <!-- Include all required JavaScript files -->
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/customers-data.js"></script>
+    
+    <script>
+        // Test if JavaScript files are loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const results = document.getElementById('js-test-results');
+            let testResults = [];
+            
+            // Test DataService
+            if (typeof DataService !== 'undefined') {
+                testResults.push('✅ DataService loaded successfully');
+            } else {
+                testResults.push('❌ DataService not loaded');
+            }
+            
+            // Test ModalUtils
+            if (typeof ModalUtils !== 'undefined') {
+                testResults.push('✅ ModalUtils loaded successfully');
+            } else {
+                testResults.push('❌ ModalUtils not loaded');
+            }
+            
+            // Test customer functions
+            if (typeof openAddCustomerModal !== 'undefined') {
+                testResults.push('✅ Customer functions loaded successfully');
+            } else {
+                testResults.push('❌ Customer functions not loaded');
+            }
+            
+            results.innerHTML = testResults.map(result => `<div class="test-result">${result}</div>`).join('');
+        });
+        
+        function testDataService() {
+            const results = document.getElementById('dataservice-results');
+            try {
+                // Initialize data
+                DataService.initAll();
+                
+                // Get customers
+                const customers = DataService.customers.getAll();
+                
+                results.innerHTML = `
+                    <div class="test-result">✅ DataService.initAll() executed successfully</div>
+                    <div class="test-result">✅ Found ${customers.length} customers in data</div>
+                    <div class="test-result">Sample customer: ${customers[0] ? customers[0].firstName + ' ' + customers[0].lastName : 'None'}</div>
+                `;
+            } catch (error) {
+                results.innerHTML = `<div class="test-result">❌ DataService error: ${error.message}</div>`;
+            }
+        }
+        
+        function testCustomerFunctions() {
+            const results = document.getElementById('customer-results');
+            try {
+                // Test if functions exist
+                const functions = ['openAddCustomerModal', 'saveCustomer', 'editCustomer', 'viewCustomer', 'deleteCustomer'];
+                const functionResults = functions.map(func => {
+                    return typeof window[func] !== 'undefined' ? `✅ ${func} exists` : `❌ ${func} missing`;
+                });
+                
+                results.innerHTML = functionResults.map(result => `<div class="test-result">${result}</div>`).join('');
+            } catch (error) {
+                results.innerHTML = `<div class="test-result">❌ Function test error: ${error.message}</div>`;
+            }
+        }
+        
+        function testModal() {
+            try {
+                openAddCustomerModal();
+            } catch (error) {
+                alert('Modal test error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
