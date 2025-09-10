@@ -1,7 +1,0 @@
-<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
-  <rect width="300" height="200" fill="#f0f0f0"/>
-  <text x="150" y="100" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="16" fill="#666">2023 Ford F-150</text>
-  <rect x="50" y="80" width="200" height="80" rx="10" fill="#ddd" stroke="#999" stroke-width="2"/>
-  <circle cx="80" cy="150" r="15" fill="#333"/>
-  <circle cx="220" cy="150" r="15" fill="#333"/>
-</svg>
