@@ -557,10 +557,13 @@
                             return lead.source && lead.source.toLowerCase().includes(searchTerm);
                         case 'all':
                         default:
+                            // Normalize phone search for 'all' criteria as well
+                            const leadPhoneDigitsAll = lead.phone.replace(/\D/g, '');
+                            const searchDigitsAll = searchTerm.replace(/\D/g, '');
                             return lead.firstName.toLowerCase().includes(searchTerm) ||
                                    lead.lastName.toLowerCase().includes(searchTerm) ||
                                    lead.email.toLowerCase().includes(searchTerm) ||
-                                   lead.phone.includes(searchTerm) ||
+                                   leadPhoneDigitsAll.includes(searchDigitsAll) ||
                                    (lead.company && lead.company.toLowerCase().includes(searchTerm)) ||
                                    (lead.interest && lead.interest.toLowerCase().includes(searchTerm)) ||
                                    (lead.source && lead.source.toLowerCase().includes(searchTerm));

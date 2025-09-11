@@ -194,10 +194,13 @@ function applyCustomersFilters() {
                 return customer.company && customer.company.toLowerCase().includes(searchTerm);
             }
             // 'all' or default
+            // Normalize phone search for 'all' criteria as well
+            const customerPhoneDigitsAll = (customer.phone || '').replace(/\D/g, '');
+            const searchDigitsAll = searchTerm.replace(/\D/g, '');
             return customer.firstName.toLowerCase().includes(searchTerm) ||
                    customer.lastName.toLowerCase().includes(searchTerm) ||
                    customer.email.toLowerCase().includes(searchTerm) ||
-                   (customer.phone || '').toLowerCase().includes(searchTerm) ||
+                   customerPhoneDigitsAll.includes(searchDigitsAll) ||
                    (customer.company && customer.company.toLowerCase().includes(searchTerm));
         });
     }
