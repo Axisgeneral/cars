@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Test - AutoConnect</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background: var(--bg-light);
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        .test-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .test-links a {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .test-links a:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1><i class="fas fa-cog"></i> Settings Page Test</h1>
+            <p>This page demonstrates the new settings functionality with themes and categories.</p>
+        </div>
+        
+        <div class="test-links">
+            <a href="settings.html"><i class="fas fa-cog"></i> Open Settings Page</a>
+            <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Go to Dashboard</a>
+            <a href="index.html"><i class="fas fa-home"></i> Back to Login</a>
+        </div>
+
+        <!-- Mini Settings Preview -->
+        <div class="settings-container">
+            <div class="settings-sidebar">
+                <nav class="settings-nav">
+                    <ul>
+                        <li><a href="#general" class="settings-nav-link active">
+                            <i class="fas fa-cog"></i> General
+                        </a></li>
+                        <li><a href="#appearance" class="settings-nav-link">
+                            <i class="fas fa-palette"></i> Appearance & Themes
+                        </a></li>
+                        <li><a href="#notifications" class="settings-nav-link">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a></li>
+                        <li><a href="#account" class="settings-nav-link">
+                            <i class="fas fa-user"></i> Account
+                        </a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h2>Settings Preview</h2>
+                    <p>This is a preview of the settings interface</p>
+                </div>
+
+                <div class="settings-group">
+                    <h3>Theme Selection</h3>
+                    <div class="theme-selector">
+                        <div class="theme-option active" data-theme="blue">
+                            <div class="theme-preview blue-theme">
+                                <div class="theme-sidebar"></div>
+                                <div class="theme-content">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-body"></div>
+                                </div>
+                            </div>
+                            <div class="theme-info">
+                                <h4>Modern Blue</h4>
+                                <p>Professional blue theme (Default)</p>
+                            </div>
+                        </div>
+
+                        <div class="theme-option" data-theme="dark">
+                            <div class="theme-preview dark-theme">
+                                <div class="theme-sidebar"></div>
+                                <div class="theme-content">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-body"></div>
+                                </div>
+                            </div>
+                            <div class="theme-info">
+                                <h4>Dark Mode</h4>
+                                <p>Easy on the eyes dark theme</p>
+                            </div>
+                        </div>
+
+                        <div class="theme-option" data-theme="green">
+                            <div class="theme-preview green-theme">
+                                <div class="theme-sidebar"></div>
+                                <div class="theme-content">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-body"></div>
+                                </div>
+                            </div>
+                            <div class="theme-info">
+                                <h4>Nature Green</h4>
+                                <p>Fresh green color scheme</p>
+                            </div>
+                        </div>
+
+                        <div class="theme-option" data-theme="purple">
+                            <div class="theme-preview purple-theme">
+                                <div class="theme-sidebar"></div>
+                                <div class="theme-content">
+                                    <div class="theme-header"></div>
+                                    <div class="theme-body"></div>
+                                </div>
+                            </div>
+                            <div class="theme-info">
+                                <h4>Royal Purple</h4>
+                                <p>Elegant purple theme</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <h3>Sample Toggle Settings</h3>
+                    <div class="setting-item">
+                        <div class="setting-toggle">
+                            <input type="checkbox" id="sample-toggle" class="toggle-input" checked>
+                            <label for="sample-toggle" class="toggle-label">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div class="setting-info">
+                                <strong>Sample Setting</strong>
+                                <p>This is a sample toggle setting to demonstrate the functionality</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme-manager.js"></script>
+    <script>
+        // Enhanced theme selector with actual theme switching
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeOptions = document.querySelectorAll('.theme-option');
+            
+            // Set initial theme selection based on current theme
+            const currentTheme = window.themeManager.getCurrentTheme();
+            themeOptions.forEach(option => {
+                if (option.getAttribute('data-theme') === currentTheme) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    themeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    
+                    const theme = option.getAttribute('data-theme');
+                    console.log(`Selected theme: ${theme}`);
+                    
+                    // Actually change the theme using the theme manager
+                    window.themeManager.changeTheme(theme);
+                    
+                    // Show notification
+                    const themeName = option.querySelector('h4').textContent;
+                    showNotification(`Theme changed to: ${themeName}`, 'success');
+                });
+            });
+            
+            // Simple notification function
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    font-weight: 500;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

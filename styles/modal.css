@@ -733,3 +733,103 @@
 .import-options input[type="checkbox"] {
     margin: 0;
 }
+
+/* Export Modal Styles */
+#export-modal.modal-overlay.active {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 9999 !important;
+}
+
+.export-modal-content {
+    max-width: 100%;
+}
+
+.export-options {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.export-options h4 {
+    color: #1e40af;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.export-options .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.export-options .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.export-options label {
+    display: block;
+    color: #374151;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.export-options .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.export-options .form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.date-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.date-inputs > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-inputs label {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.export-options label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    margin-bottom: 0;
+}
+
+.export-options label:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+/* Export Modal Responsive */
+@media (max-width: 768px) {
+    .date-inputs {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .export-options {
+        padding: 1rem;
+    }
+}
