@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Deals Fix</title>
+</head>
+<body>
+    <h1>Testing Deals Data Structure Fix</h1>
+    <div id="output"></div>
+
+    <script src="js/data-service.js"></script>
+    <script>
+        // Clear existing deals data to force reinitialization
+        localStorage.removeItem('autocrm_deals');
+        
+        // Initialize data service
+        DataService.deals.init();
+        
+        // Get deals and display structure
+        const deals = DataService.deals.getAll();
+        const output = document.getElementById('output');
+        
+        output.innerHTML = '<h2>Deals Data Structure:</h2>';
+        
+        deals.forEach((deal, index) => {
+            output.innerHTML += `
+                <h3>Deal ${index + 1}:</h3>
+                <ul>
+                    <li><strong>ID:</strong> ${deal.id}</li>
+                    <li><strong>Customer Name:</strong> ${deal.customerName || 'UNDEFINED'}</li>
+                    <li><strong>Customer Email:</strong> ${deal.customerEmail || 'UNDEFINED'}</li>
+                    <li><strong>Vehicle:</strong> ${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}</li>
+                    <li><strong>Value:</strong> $${deal.value}</li>
+                    <li><strong>Status:</strong> ${deal.status}</li>
+                    <li><strong>Salesperson:</strong> ${deal.salesperson}</li>
+                </ul>
+                <hr>
+            `;
+        });
+        
+        // Test if old nested structure exists
+        const hasNestedStructure = deals.some(deal => deal.customer && deal.customer.name);
+        output.innerHTML += `<p><strong>Has old nested structure:</strong> ${hasNestedStructure ? 'YES (PROBLEM)' : 'NO (FIXED)'}</p>`;
+        
+        // Test if flat structure exists
+        const hasFlatStructure = deals.some(deal => deal.customerName);
+        output.innerHTML += `<p><strong>Has flat structure:</strong> ${hasFlatStructure ? 'YES (GOOD)' : 'NO (PROBLEM)'}</p>`;
+    </script>
+</body>
+</html>

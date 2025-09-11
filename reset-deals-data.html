@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Deals Data</title>
+</head>
+<body>
+    <h1>Reset Deals Data</h1>
+    <p>This will clear the existing deals data and reinitialize with the correct structure.</p>
+    <button onclick="resetData()">Reset Deals Data</button>
+    <div id="result"></div>
+
+    <script src="js/data-service.js"></script>
+    <script>
+        function resetData() {
+            // Clear existing deals data
+            localStorage.removeItem('autocrm_deals');
+            
+            // Force reinitialization with new structure
+            DataService.deals.init();
+            
+            // Verify the data
+            const deals = DataService.deals.getAll();
+            const result = document.getElementById('result');
+            
+            result.innerHTML = `
+                <h2>Data Reset Complete!</h2>
+                <p>Found ${deals.length} deals with correct structure.</p>
+                <p>You can now go back to the deals page and it should work correctly.</p>
+                <a href="deals.html">Go to Deals Page</a>
+            `;
+        }
+    </script>
+</body>
+</html>

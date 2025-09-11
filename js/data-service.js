@@ -430,97 +430,49 @@ const DataService = {
                     id: '1',
                     customerId: '1',
                     vehicleId: '1',
-                    customer: {
-                        id: '1',
-                        name: 'John Smith',
-                        email: 'john.smith@email.com',
-                        phone: '(555) 123-4567',
-                        creditScore: 720
-                    },
-                    vehicle: {
-                        id: '1',
-                        make: 'Toyota',
-                        model: 'Camry',
-                        year: 2023,
-                        price: 28500,
-                        stockNumber: 'TC2023001',
-                        invoice: 26000
-                    },
-                    amount: 28500,
+                    customerName: 'John Smith',
+                    customerEmail: 'john.smith@email.com',
+                    vehicleYear: 2023,
+                    vehicleMake: 'Toyota',
+                    vehicleModel: 'Camry',
                     value: 28500,
                     status: 'Pending',
-                    dealType: 'Purchase',
                     salesperson: 'Mike Johnson',
                     notes: 'Customer interested in extended warranty',
                     dateCreated: new Date().toISOString(),
-                    dateAdded: new Date().toISOString(),
                     expectedCloseDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
                 },
                 {
                     id: '2',
                     customerId: '2',
                     vehicleId: '2',
-                    customer: {
-                        id: '2',
-                        name: 'Sarah Johnson',
-                        email: 'sarah.johnson@email.com',
-                        phone: '(555) 987-6543',
-                        creditScore: 680
-                    },
-                    vehicle: {
-                        id: '2',
-                        make: 'Honda',
-                        model: 'Civic',
-                        year: 2022,
-                        price: 24000,
-                        stockNumber: 'HC2022001',
-                        invoice: 22500
-                    },
-                    amount: 24000,
+                    customerName: 'Sarah Johnson',
+                    customerEmail: 'sarah.johnson@email.com',
+                    vehicleYear: 2022,
+                    vehicleMake: 'Honda',
+                    vehicleModel: 'Civic',
                     value: 24000,
-                    status: 'Negotiation',
-                    dealType: 'Purchase',
+                    status: 'In Progress',
                     salesperson: 'Sarah Wilson',
                     notes: 'Financing pre-approved',
                     dateCreated: new Date().toISOString(),
-                    dateAdded: new Date().toISOString(),
                     expectedCloseDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
                 },
                 {
                     id: '3',
-                    customerId: '1',
-                    vehicleId: '1',
-                    customer: {
-                        id: '1',
-                        name: 'Michael Brown',
-                        email: 'michael.brown@email.com',
-                        phone: '(555) 456-7890',
-                        creditScore: 750
-                    },
-                    vehicle: {
-                        id: '3',
-                        make: 'Ford',
-                        model: 'F-150',
-                        year: 2023,
-                        price: 35000,
-                        stockNumber: 'FF2023001',
-                        invoice: 32000
-                    },
-                    amount: 35000,
+                    customerId: '3',
+                    vehicleId: '3',
+                    customerName: 'Michael Brown',
+                    customerEmail: 'michael.brown@email.com',
+                    vehicleYear: 2023,
+                    vehicleMake: 'Ford',
+                    vehicleModel: 'F-150',
                     value: 35000,
-                    status: 'Approved',
-                    dealType: 'Purchase',
+                    status: 'Closed Won',
                     salesperson: 'Thomas Morales',
                     notes: 'Trade-in vehicle included',
                     dateCreated: new Date().toISOString(),
-                    dateAdded: new Date().toISOString(),
-                    expectedCloseDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-                    tradeIn: {
-                        make: 'Toyota',
-                        model: 'Corolla',
-                        year: 2018,
-                        value: 12000
-                    }
+                    expectedCloseDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
                 }
             ];
             this.save(sampleDeals);
@@ -534,97 +486,49 @@ const DataService = {
                         id: '1',
                         customerId: '1',
                         vehicleId: '1',
-                        customer: {
-                            id: '1',
-                            name: 'John Smith',
-                            email: 'john.smith@email.com',
-                            phone: '(555) 123-4567',
-                            creditScore: 720
-                        },
-                        vehicle: {
-                            id: '1',
-                            make: 'Toyota',
-                            model: 'Camry',
-                            year: 2023,
-                            price: 28500,
-                            stockNumber: 'TC2023001',
-                            invoice: 26000
-                        },
-                        amount: 28500,
+                        customerName: 'John Smith',
+                        customerEmail: 'john.smith@email.com',
+                        vehicleYear: 2023,
+                        vehicleMake: 'Toyota',
+                        vehicleModel: 'Camry',
                         value: 28500,
                         status: 'Pending',
-                        dealType: 'Purchase',
                         salesperson: 'Mike Johnson',
                         notes: 'Customer interested in extended warranty',
                         dateCreated: new Date().toISOString(),
-                        dateAdded: new Date().toISOString(),
                         expectedCloseDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
                     },
                     {
                         id: '2',
                         customerId: '2',
                         vehicleId: '2',
-                        customer: {
-                            id: '2',
-                            name: 'Sarah Johnson',
-                            email: 'sarah.johnson@email.com',
-                            phone: '(555) 987-6543',
-                            creditScore: 680
-                        },
-                        vehicle: {
-                            id: '2',
-                            make: 'Honda',
-                            model: 'Civic',
-                            year: 2022,
-                            price: 24000,
-                            stockNumber: 'HC2022001',
-                            invoice: 22500
-                        },
-                        amount: 24000,
+                        customerName: 'Sarah Johnson',
+                        customerEmail: 'sarah.johnson@email.com',
+                        vehicleYear: 2022,
+                        vehicleMake: 'Honda',
+                        vehicleModel: 'Civic',
                         value: 24000,
-                        status: 'Negotiation',
-                        dealType: 'Purchase',
+                        status: 'In Progress',
                         salesperson: 'Sarah Wilson',
                         notes: 'Financing pre-approved',
                         dateCreated: new Date().toISOString(),
-                        dateAdded: new Date().toISOString(),
                         expectedCloseDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
                     },
                     {
                         id: '3',
-                        customerId: '1',
-                        vehicleId: '1',
-                        customer: {
-                            id: '1',
-                            name: 'Michael Brown',
-                            email: 'michael.brown@email.com',
-                            phone: '(555) 456-7890',
-                            creditScore: 750
-                        },
-                        vehicle: {
-                            id: '3',
-                            make: 'Ford',
-                            model: 'F-150',
-                            year: 2023,
-                            price: 35000,
-                            stockNumber: 'FF2023001',
-                            invoice: 32000
-                        },
-                        amount: 35000,
+                        customerId: '3',
+                        vehicleId: '3',
+                        customerName: 'Michael Brown',
+                        customerEmail: 'michael.brown@email.com',
+                        vehicleYear: 2023,
+                        vehicleMake: 'Ford',
+                        vehicleModel: 'F-150',
                         value: 35000,
-                        status: 'Approved',
-                        dealType: 'Purchase',
+                        status: 'Closed Won',
                         salesperson: 'Thomas Morales',
                         notes: 'Trade-in vehicle included',
                         dateCreated: new Date().toISOString(),
-                        dateAdded: new Date().toISOString(),
-                        expectedCloseDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-                        tradeIn: {
-                            make: 'Toyota',
-                            model: 'Corolla',
-                            year: 2018,
-                            value: 12000
-                        }
+                        expectedCloseDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
                     }
                 ];
                 this.save(sampleDeals);
