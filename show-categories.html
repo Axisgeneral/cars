@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Categories - AutoConnect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .category-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .category-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .category-item:last-child {
+            border-bottom: none;
+        }
+        .tech-support {
+            background: #e7f3ff;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            font-weight: bold;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AutoConnect Report Categories</h1>
+        
+        <div id="categories-display">
+            <p>Loading categories...</p>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button class="btn btn-danger" onclick="clearReportsAndReload()">Clear Reports & Reload</button>
+            <button class="btn" onclick="loadCategories()">Refresh Categories</button>
+            <a href="reports.html" class="btn">Go to Reports</a>
+            <a href="reset-data.html" class="btn">Data Management</a>
+        </div>
+    </div>
+
+    <script src="js/data-service.js"></script>
+    <script>
+        function loadCategories() {
+            const display = document.getElementById('categories-display');
+            
+            if (typeof DataService !== 'undefined') {
+                // Initialize data if needed
+                DataService.utils.initializeAllData();
+                
+                const reports = DataService.reports.getAll();
+                const categories = DataService.reports.getCategories();
+                
+                let html = `<h3>Found ${reports.length} reports in ${categories.length} categories:</h3>`;
+                html += '<div class="category-list">';
+                
+                categories.forEach((category, index) => {
+                    const categoryReports = reports.filter(r => r.category === category);
+                    const isNewCategory = category === 'Tech Support';
+                    
+                    html += `<div class="category-item ${isNewCategory ? 'tech-support' : ''}">
+                        <strong>${index + 1}. ${category}</strong> 
+                        (${categoryReports.length} report${categoryReports.length !== 1 ? 's' : ''})
+                        ${isNewCategory ? ' ← NEW CATEGORY!' : ''}
+                    </div>`;
+                });
+                
+                html += '</div>';
+                
+                // Show specific Tech Support report details
+                const techSupportReports = reports.filter(r => r.category === 'Tech Support');
+                if (techSupportReports.length > 0) {
+                    html += '<h4>Tech Support Reports:</h4>';
+                    techSupportReports.forEach(report => {
+                        html += `<div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 3px;">
+                            <strong>${report.title}</strong><br>
+                            <small>${report.description}</small><br>
+                            <em>Created by: ${report.createdBy} | Frequency: ${report.frequency}</em>
+                        </div>`;
+                    });
+                }
+                
+                display.innerHTML = html;
+            } else {
+                display.innerHTML = '<p style="color: red;">Error: DataService not loaded. Please refresh the page.</p>';
+            }
+        }
+        
+        function clearReportsAndReload() {
+            localStorage.removeItem('autocrm_reports');
+            setTimeout(() => {
+                loadCategories();
+                alert('Reports cleared and reloaded! Tech Support category should now be visible.');
+            }, 100);
+        }
+        
+        // Load categories when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadCategories, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,11 @@
 // Inventory Management JavaScript
 
+// Pagination state
+let currentPage = 1;
+let itemsPerPage = 6;
+let totalItems = 0;
+let currentInventory = [];
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataService if available
     if (typeof DataService !== 'undefined') {
@@ -22,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add notification styles
     addInventoryNotificationStyles();
+    
+    // Initialize pagination dropdown
+    initializePaginationDropdown();
 });
 
 // Initialize Event Listeners
@@ -75,29 +84,32 @@ function initEventListeners() {
         });
     }
     
-    // Pagination Buttons
-    const paginationBtns = document.querySelectorAll('.pagination-btn:not([disabled])');
-    paginationBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (!this.classList.contains('active') && !this.disabled) {
-                // This would typically trigger an API call to fetch the next page
-                console.log('Pagination button clicked:', this.textContent.trim());
-                // changePage(this.textContent.trim());
+    // Pagination Buttons (using event delegation since buttons are dynamically created)
+    const paginationControls = document.querySelector('.pagination-controls');
+    if (paginationControls) {
+        paginationControls.addEventListener('click', function(e) {
+            const btn = e.target.closest('.pagination-btn');
+            if (btn && !btn.classList.contains('active') && !btn.disabled) {
+                const buttonText = btn.textContent.trim();
                 
-                // For demo purposes, update active state
-                document.querySelector('.pagination-btn.active').classList.remove('active');
-                this.classList.add('active');
+                // Handle navigation buttons
+                if (btn.querySelector('.fa-chevron-left')) {
+                    changePage('prev');
+                } else if (btn.querySelector('.fa-chevron-right')) {
+                    changePage('next');
+                } else if (!isNaN(buttonText)) {
+                    // Handle numbered page buttons
+                    changePage(parseInt(buttonText));
+                }
             }
         });
-    });
+    }
     
     // Items Per Page Select
     const itemsPerPageSelect = document.getElementById('items-per-page');
     if (itemsPerPageSelect) {
         itemsPerPageSelect.addEventListener('change', function() {
-            // This would typically trigger an API call to update items per page
-            console.log('Items per page changed to:', this.value);
-            // updateItemsPerPage(this.value);
+            updateItemsPerPage(parseInt(this.value));
         });
     }
     
@@ -255,8 +267,143 @@ function clearSearch() {
     }
 }
 
-// Populate Inventory Table with Data (helper function)
-function populateInventoryTableWithData(inventory) {
+// Change Page Function
+function changePage(page) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+    if (page === 'prev') {
+        if (currentPage > 1) {
+            currentPage--;
+        }
+    } else if (page === 'next') {
+        if (currentPage < totalPages) {
+            currentPage++;
+        }
+    } else if (typeof page === 'number') {
+        if (page >= 1 && page <= totalPages) {
+            currentPage = page;
+        }
+    }
+    
+    // Update the display
+    displayCurrentPage();
+    updatePaginationControls();
+}
+
+// Update Items Per Page
+function updateItemsPerPage(newItemsPerPage) {
+    itemsPerPage = newItemsPerPage;
+    currentPage = 1; // Reset to first page
+    
+    // Update the display
+    displayCurrentPage();
+    updatePaginationControls();
+}
+
+// Display Current Page
+function displayCurrentPage() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = currentInventory.slice(startIndex, endIndex);
+    
+    // Update table with current page data
+    populateInventoryTableWithPageData(pageData);
+    
+    // Update pagination info
+    updatePaginationInfo();
+}
+
+// Update Pagination Controls
+function updatePaginationControls() {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginationControls = document.querySelector('.pagination-controls');
+    
+    if (!paginationControls) return;
+    
+    // Clear existing controls
+    paginationControls.innerHTML = '';
+    
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'pagination-btn';
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevBtn.disabled = currentPage === 1;
+    paginationControls.appendChild(prevBtn);
+    
+    // Page numbers
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    // First page if not in range
+    if (startPage > 1) {
+        const firstBtn = document.createElement('button');
+        firstBtn.className = 'pagination-btn';
+        firstBtn.textContent = '1';
+        paginationControls.appendChild(firstBtn);
+        
+        if (startPage > 2) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'pagination-ellipsis';
+            ellipsis.textContent = '...';
+            paginationControls.appendChild(ellipsis);
+        }
+    }
+    
+    // Page number buttons
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.className = 'pagination-btn';
+        if (i === currentPage) {
+            pageBtn.classList.add('active');
+        }
+        pageBtn.textContent = i;
+        paginationControls.appendChild(pageBtn);
+    }
+    
+    // Last page if not in range
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'pagination-ellipsis';
+            ellipsis.textContent = '...';
+            paginationControls.appendChild(ellipsis);
+        }
+        
+        const lastBtn = document.createElement('button');
+        lastBtn.className = 'pagination-btn';
+        lastBtn.textContent = totalPages;
+        paginationControls.appendChild(lastBtn);
+    }
+    
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'pagination-btn';
+    nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextBtn.disabled = currentPage === totalPages;
+    paginationControls.appendChild(nextBtn);
+}
+
+// Update Pagination Info
+function updatePaginationInfo() {
+    const paginationInfo = document.querySelector('.pagination-info');
+    if (!paginationInfo) return;
+    
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    
+    paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${totalItems} vehicles`;
+}
+
+// Initialize Pagination Dropdown
+function initializePaginationDropdown() {
+    const itemsPerPageSelect = document.getElementById('items-per-page');
+    if (itemsPerPageSelect) {
+        itemsPerPageSelect.value = itemsPerPage.toString();
+    }
+}
+
+// Populate Inventory Table with Page Data (for pagination)
+function populateInventoryTableWithPageData(pageData) {
     const tableBody = document.querySelector('.inventory-table tbody');
     
     if (!tableBody) return;
@@ -264,7 +411,7 @@ function populateInventoryTableWithData(inventory) {
     // Clear existing rows
     tableBody.innerHTML = '';
     
-    if (inventory.length === 0) {
+    if (pageData.length === 0) {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="15" class="text-center" style="padding: 2rem; color: #6b7280;">
@@ -276,7 +423,7 @@ function populateInventoryTableWithData(inventory) {
     }
     
     // Add vehicles to the table
-    inventory.forEach(vehicle => {
+    pageData.forEach(vehicle => {
         const row = document.createElement('tr');
         
         // Create status badge HTML
@@ -343,12 +490,24 @@ function populateInventoryTableWithData(inventory) {
     });
     
     // Also populate mobile cards
-    populateMobileCards(inventory);
+    populateMobileCards(pageData);
     
     // Re-initialize event listeners for the new elements
     if (typeof initInventoryEventListeners === 'function') {
         initInventoryEventListeners();
     }
+}
+
+// Populate Inventory Table with Data (helper function)
+function populateInventoryTableWithData(inventory) {
+    // Update pagination state
+    currentInventory = inventory;
+    totalItems = inventory.length;
+    currentPage = 1; // Reset to first page
+    
+    // Update pagination controls and display first page
+    updatePaginationControls();
+    displayCurrentPage();
 }
 
 // Populate Mobile Cards (for responsive design)

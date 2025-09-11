@@ -18,6 +18,14 @@ function initInventoryData() {
 function populateInventoryTable() {
     try {
         const inventory = DataService.inventory.getAll();
+        
+        // Use the pagination-enabled function from inventory.js
+        if (typeof populateInventoryTableWithData === 'function') {
+            populateInventoryTableWithData(inventory);
+            return;
+        }
+        
+        // Fallback for direct table population (if pagination function not available)
         const tableBody = document.querySelector('.inventory-table tbody');
         
         if (!tableBody) return;
