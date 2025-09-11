@@ -1,9 +1,14 @@
 /* Responsive Styles for Auto Dealer CRM */
 
+/* Default mobile cards display */
+.mobile-inventory-cards {
+    display: block !important;
+}
+
 /* Desktop Styles - Hide mobile elements */
 @media (min-width: 768px) {
     .mobile-inventory-cards {
-        display: none;
+        display: none !important;
     }
     
     .mobile-menu-toggle {
@@ -249,10 +254,13 @@
     
     /* Mobile Card View */
     .mobile-inventory-cards {
-        display: block;
+        display: block !important;
         flex: 1;
         overflow-y: auto;
         padding-bottom: 1rem;
+        min-height: 200px;
+        background-color: rgba(240, 240, 240, 0.3); /* Light background to see container */
+        border: 1px dashed #ccc; /* Subtle border for debugging */
     }
     
     .mobile-vehicle-card {
@@ -363,6 +371,54 @@
         background: var(--bg-gray);
         color: var(--primary-color);
         border-color: var(--primary-color);
+    }
+    
+    /* Mobile Card Status Badges */
+    .mobile-detail-value .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .mobile-detail-value .status-badge.in-stock {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    
+    .mobile-detail-value .status-badge.in-transit {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .mobile-detail-value .status-badge.on-hold {
+        background-color: #fecaca;
+        color: #991b1b;
+    }
+    
+    .mobile-detail-value .status-badge.sold {
+        background-color: #e0e7ff;
+        color: #3730a3;
+    }
+    
+    /* Mobile Card Price Styling */
+    .mobile-detail-value.price {
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    /* Mobile No Results */
+    .mobile-no-results {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-medium);
+    }
+    
+    .mobile-no-results i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
     }
     
     /* Tables - Desktop fallback */

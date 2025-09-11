@@ -3,7 +3,8 @@
 
 (function initMobileNav() {
   function setup() {
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    // Support both class names for mobile menu button
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle') || document.querySelector('.mobile-menu-btn');
     const sidebar = document.querySelector('.sidebar');
     if (!mobileMenuToggle || !sidebar) return;
 

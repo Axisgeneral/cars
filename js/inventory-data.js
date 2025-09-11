@@ -348,8 +348,22 @@ function applyInventoryFilters() {
         tableBody.appendChild(row);
     }
     
+    // Update mobile cards with filtered inventory
+    if (typeof populateMobileCards === 'function') {
+        console.log('🔍 Updating mobile cards with', filteredInventory.length, 'filtered vehicles');
+        populateMobileCards(filteredInventory);
+    } else {
+        console.warn('⚠️ populateMobileCards function not available');
+    }
+    
     // Re-initialize event listeners for the new elements
     initInventoryEventListeners();
+    
+    // Re-initialize mobile card actions
+    if (typeof initMobileCardActions === 'function') {
+        console.log('🔄 Re-initializing mobile card actions');
+        initMobileCardActions();
+    }
     
     return filteredInventory.length;
 }

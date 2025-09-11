@@ -514,18 +514,27 @@ function populateInventoryTableWithData(inventory) {
 function populateMobileCards(inventory) {
     const mobileContainer = document.querySelector('.mobile-inventory-cards');
     
-    if (!mobileContainer) return;
+    console.log('🚗 populateMobileCards called with:', inventory.length, 'vehicles');
+    console.log('📱 Mobile container found:', !!mobileContainer);
     
-    // Clear existing cards
-    mobileContainer.innerHTML = '';
+    if (!mobileContainer) {
+        console.error('❌ Mobile inventory cards container not found!');
+        return;
+    }
+    
+    // Clear existing cards (but keep debug card)
+    const debugCard = mobileContainer.querySelector('.mobile-debug-card');
+    const existingCards = mobileContainer.querySelectorAll('.mobile-vehicle-card, .mobile-no-results');
+    existingCards.forEach(card => card.remove());
     
     if (inventory.length === 0) {
-        mobileContainer.innerHTML = `
-            <div class="mobile-no-results">
-                <i class="fas fa-search"></i>
-                <p>No vehicles found matching your search criteria.</p>
-            </div>
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.className = 'mobile-no-results';
+        noResultsDiv.innerHTML = `
+            <i class="fas fa-search"></i>
+            <p>No vehicles found matching your search criteria.</p>
         `;
+        mobileContainer.appendChild(noResultsDiv);
         return;
     }
     
@@ -562,56 +571,61 @@ function populateMobileCards(inventory) {
                     <input type="checkbox" id="mobile-vehicle-${vehicle.id}" name="selected-vehicles">
                     <label for="mobile-vehicle-${vehicle.id}"></label>
                 </div>
-                <div class="mobile-card-image">
+                <div class="mobile-card-photo">
                     <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
-            </div>
-            <div class="mobile-card-content">
                 <div class="mobile-card-title">
                     <h3>${vehicle.year} ${vehicle.make} ${vehicle.model}</h3>
                     <p>Stock #${vehicle.stockNumber || '-'} • VIN: ${vehicle.vin || '-'}</p>
                 </div>
+            </div>
+            <div class="mobile-card-body">
                 <div class="mobile-card-details">
-                    <div class="mobile-detail-row">
-                        <span class="detail-label">Trim:</span>
-                        <span class="detail-value">${vehicle.trim || '-'}</span>
+                    <div class="mobile-detail-item">
+                        <span class="mobile-detail-label">Trim:</span>
+                        <span class="mobile-detail-value">${vehicle.trim || '-'}</span>
                     </div>
-                    <div class="mobile-detail-row">
-                        <span class="detail-label">Color:</span>
-                        <span class="detail-value">${vehicle.color || '-'}</span>
+                    <div class="mobile-detail-item">
+                        <span class="mobile-detail-label">Color:</span>
+                        <span class="mobile-detail-value">${vehicle.color || '-'}</span>
                     </div>
-                    <div class="mobile-detail-row">
-                        <span class="detail-label">Mileage:</span>
-                        <span class="detail-value">${vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'}</span>
+                    <div class="mobile-detail-item">
+                        <span class="mobile-detail-label">Mileage:</span>
+                        <span class="mobile-detail-value">${vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'}</span>
                     </div>
-                    <div class="mobile-detail-row">
-                        <span class="detail-label">Price:</span>
-                        <span class="detail-value price">${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</span>
+                    <div class="mobile-detail-item">
+                        <span class="mobile-detail-label">Price:</span>
+                        <span class="mobile-detail-value price">${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</span>
                     </div>
-                    <div class="mobile-detail-row">
-                        <span class="detail-label">Days in Stock:</span>
-                        <span class="detail-value">${daysInStock}</span>
+                    <div class="mobile-detail-item">
+                        <span class="mobile-detail-label">Days in Stock:</span>
+                        <span class="mobile-detail-value">${daysInStock}</span>
+                    </div>
+                    <div class="mobile-detail-item">
+                        <span class="mobile-detail-label">Status:</span>
+                        <span class="mobile-detail-value">${statusBadgeHtml}</span>
                     </div>
                 </div>
-                <div class="mobile-card-status">
-                    ${statusBadgeHtml}
-                </div>
-                <div class="mobile-card-actions">
-                    <button class="btn-icon" title="View Details">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn-icon" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-icon" title="More Options">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
+                <div class="mobile-card-footer">
+                    <div class="mobile-card-actions">
+                        <button class="btn-icon" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon" title="More Options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
         
         mobileContainer.appendChild(card);
     });
+    
+    console.log('✅ Mobile cards created! Container now has', mobileContainer.children.length, 'total elements');
 }
 
 // Apply Filters
@@ -634,7 +648,7 @@ function applyFilters() {
     const price = document.getElementById('price-filter').value;
     
     // Log filter values
-    console.log('Applying filters:', {
+    console.log('🔧 Applying filters:', {
         status,
         type,
         make,
@@ -645,6 +659,8 @@ function applyFilters() {
     
     // Apply filters and get count of results
     const resultCount = applyInventoryFilters();
+    
+    console.log('🔧 Filter results:', resultCount, 'vehicles found');
     
     // Show message with result count
     alert(`Filters applied! Found ${resultCount} vehicles matching your criteria.`);
