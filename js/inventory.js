@@ -26,6 +26,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize Event Listeners
 function initEventListeners() {
+    // Search Input
+    const searchInput = document.querySelector('.search-container input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            performSearch(this.value);
+        });
+        
+        // Clear search on escape key
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                performSearch('');
+            }
+        });
+    }
+    
     // Add Vehicle Button
     const addVehicleBtn = document.querySelector('.top-nav-actions .btn-primary');
     if (addVehicleBtn) {
@@ -152,8 +168,304 @@ function getModelsByMake(make) {
     return modelsByMake[make] || [];
 }
 
+// Perform Search
+function performSearch(searchTerm) {
+    // Get all inventory
+    const allInventory = DataService.inventory.getAll();
+    
+    // If search term is empty, show all vehicles
+    if (!searchTerm || searchTerm.trim() === '') {
+        populateInventoryTableWithData(allInventory);
+        updateSearchResultsMessage('');
+        return;
+    }
+    
+    // Convert search term to lowercase for case-insensitive search
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    // Filter inventory based on search term
+    const filteredInventory = allInventory.filter(vehicle => {
+        // Search in multiple fields
+        const searchableFields = [
+            vehicle.vin,
+            vehicle.stockNumber,
+            vehicle.make,
+            vehicle.model,
+            vehicle.trim,
+            vehicle.color,
+            vehicle.year?.toString(),
+            vehicle.type,
+            vehicle.status
+        ];
+        
+        // Check if any field contains the search term
+        return searchableFields.some(field => {
+            if (field) {
+                return field.toString().toLowerCase().includes(searchLower);
+            }
+            return false;
+        });
+    });
+    
+    // Update table with search results
+    populateInventoryTableWithData(filteredInventory);
+    
+    // Update search results message
+    updateSearchResultsMessage(searchTerm, filteredInventory.length);
+}
+
+// Update Search Results Message
+function updateSearchResultsMessage(searchTerm, resultCount) {
+    // Find or create search results message element
+    let messageElement = document.querySelector('.search-results-message');
+    
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.className = 'search-results-message';
+        
+        // Insert after page header
+        const pageHeader = document.querySelector('.page-header');
+        if (pageHeader) {
+            pageHeader.insertAdjacentElement('afterend', messageElement);
+        }
+    }
+    
+    if (searchTerm && searchTerm.trim() !== '') {
+        messageElement.innerHTML = `
+            <div class="search-results-info">
+                <i class="fas fa-search"></i>
+                <span>Search results for "<strong>${searchTerm}</strong>": ${resultCount} vehicle${resultCount !== 1 ? 's' : ''} found</span>
+                <button class="clear-search-btn" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Clear Search
+                </button>
+            </div>
+        `;
+        messageElement.style.display = 'block';
+    } else {
+        messageElement.style.display = 'none';
+    }
+}
+
+// Clear Search
+function clearSearch() {
+    const searchInput = document.querySelector('.search-container input');
+    if (searchInput) {
+        searchInput.value = '';
+        performSearch('');
+    }
+}
+
+// Populate Inventory Table with Data (helper function)
+function populateInventoryTableWithData(inventory) {
+    const tableBody = document.querySelector('.inventory-table tbody');
+    
+    if (!tableBody) return;
+    
+    // Clear existing rows
+    tableBody.innerHTML = '';
+    
+    if (inventory.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="15" class="text-center" style="padding: 2rem; color: #6b7280;">
+                    No vehicles found matching your search criteria.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Add vehicles to the table
+    inventory.forEach(vehicle => {
+        const row = document.createElement('tr');
+        
+        // Create status badge HTML
+        let statusBadgeHtml = '';
+        switch(vehicle.status) {
+            case 'in-stock':
+                statusBadgeHtml = '<span class="status-badge in-stock">In Stock</span>';
+                break;
+            case 'in-transit':
+                statusBadgeHtml = '<span class="status-badge in-transit">In Transit</span>';
+                break;
+            case 'on-hold':
+                statusBadgeHtml = '<span class="status-badge on-hold">On Hold</span>';
+                break;
+            case 'sold':
+                statusBadgeHtml = '<span class="status-badge sold">Sold</span>';
+                break;
+            default:
+                statusBadgeHtml = '<span class="status-badge">' + vehicle.status + '</span>';
+        }
+        
+        // Calculate days in stock
+        const daysInStock = vehicle.dateAdded ? Math.floor((new Date() - new Date(vehicle.dateAdded)) / (1000 * 60 * 60 * 24)) : 0;
+        
+        // Create row HTML
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" id="vehicle-${vehicle.id}" name="selected-vehicles">
+                <label for="vehicle-${vehicle.id}"></label>
+            </td>
+            <td>
+                <div class="vehicle-photo">
+                    <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
+                </div>
+            </td>
+            <td>${vehicle.stockNumber || '-'}</td>
+            <td>${vehicle.vin || '-'}</td>
+            <td>${vehicle.year || '-'}</td>
+            <td>${vehicle.make || '-'}</td>
+            <td>${vehicle.model || '-'}</td>
+            <td>${vehicle.trim || '-'}</td>
+            <td>${vehicle.color || '-'}</td>
+            <td>${vehicle.type || 'Used'}</td>
+            <td>${vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'}</td>
+            <td>${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</td>
+            <td>${daysInStock}</td>
+            <td>${statusBadgeHtml}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon" title="More Options">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // Also populate mobile cards
+    populateMobileCards(inventory);
+    
+    // Re-initialize event listeners for the new elements
+    if (typeof initInventoryEventListeners === 'function') {
+        initInventoryEventListeners();
+    }
+}
+
+// Populate Mobile Cards (for responsive design)
+function populateMobileCards(inventory) {
+    const mobileContainer = document.querySelector('.mobile-inventory-cards');
+    
+    if (!mobileContainer) return;
+    
+    // Clear existing cards
+    mobileContainer.innerHTML = '';
+    
+    if (inventory.length === 0) {
+        mobileContainer.innerHTML = `
+            <div class="mobile-no-results">
+                <i class="fas fa-search"></i>
+                <p>No vehicles found matching your search criteria.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Add vehicles as mobile cards
+    inventory.forEach(vehicle => {
+        const card = document.createElement('div');
+        card.className = 'mobile-vehicle-card';
+        
+        // Create status badge HTML
+        let statusBadgeHtml = '';
+        switch(vehicle.status) {
+            case 'in-stock':
+                statusBadgeHtml = '<span class="status-badge in-stock">In Stock</span>';
+                break;
+            case 'in-transit':
+                statusBadgeHtml = '<span class="status-badge in-transit">In Transit</span>';
+                break;
+            case 'on-hold':
+                statusBadgeHtml = '<span class="status-badge on-hold">On Hold</span>';
+                break;
+            case 'sold':
+                statusBadgeHtml = '<span class="status-badge sold">Sold</span>';
+                break;
+            default:
+                statusBadgeHtml = '<span class="status-badge">' + vehicle.status + '</span>';
+        }
+        
+        // Calculate days in stock
+        const daysInStock = vehicle.dateAdded ? Math.floor((new Date() - new Date(vehicle.dateAdded)) / (1000 * 60 * 60 * 24)) : 0;
+        
+        card.innerHTML = `
+            <div class="mobile-card-header">
+                <div class="mobile-card-checkbox">
+                    <input type="checkbox" id="mobile-vehicle-${vehicle.id}" name="selected-vehicles">
+                    <label for="mobile-vehicle-${vehicle.id}"></label>
+                </div>
+                <div class="mobile-card-image">
+                    <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
+                </div>
+            </div>
+            <div class="mobile-card-content">
+                <div class="mobile-card-title">
+                    <h3>${vehicle.year} ${vehicle.make} ${vehicle.model}</h3>
+                    <p>Stock #${vehicle.stockNumber || '-'} • VIN: ${vehicle.vin || '-'}</p>
+                </div>
+                <div class="mobile-card-details">
+                    <div class="mobile-detail-row">
+                        <span class="detail-label">Trim:</span>
+                        <span class="detail-value">${vehicle.trim || '-'}</span>
+                    </div>
+                    <div class="mobile-detail-row">
+                        <span class="detail-label">Color:</span>
+                        <span class="detail-value">${vehicle.color || '-'}</span>
+                    </div>
+                    <div class="mobile-detail-row">
+                        <span class="detail-label">Mileage:</span>
+                        <span class="detail-value">${vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'}</span>
+                    </div>
+                    <div class="mobile-detail-row">
+                        <span class="detail-label">Price:</span>
+                        <span class="detail-value price">${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</span>
+                    </div>
+                    <div class="mobile-detail-row">
+                        <span class="detail-label">Days in Stock:</span>
+                        <span class="detail-value">${daysInStock}</span>
+                    </div>
+                </div>
+                <div class="mobile-card-status">
+                    ${statusBadgeHtml}
+                </div>
+                <div class="mobile-card-actions">
+                    <button class="btn-icon" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon" title="More Options">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        mobileContainer.appendChild(card);
+    });
+}
+
 // Apply Filters
 function applyFilters() {
+    // Clear search when applying filters
+    const searchInput = document.querySelector('.search-container input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // Hide search results message
+    updateSearchResultsMessage('');
+    
     // Get filter values
     const status = document.getElementById('status-filter').value;
     const type = document.getElementById('type-filter').value;
@@ -181,6 +493,15 @@ function applyFilters() {
 
 // Reset Filters
 function resetFilters() {
+    // Clear search input
+    const searchInput = document.querySelector('.search-container input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // Hide search results message
+    updateSearchResultsMessage('');
+    
     // Reset filters and repopulate table
     resetInventoryFilters();
     
@@ -1237,9 +1558,10 @@ function initMobileCardActions() {
     mobileViewButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const card = this.closest('.mobile-vehicle-card');
-            const stockNumber = card.querySelector('.mobile-card-title p').textContent.split('•')[0].replace('Stock #', '').trim();
-            console.log('View details for stock #:', stockNumber);
-            // viewVehicleDetails(stockNumber);
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            const vehicleId = checkbox.id.replace('mobile-vehicle-', '');
+            console.log('View details for vehicle ID:', vehicleId);
+            viewVehicleDetailsById(vehicleId);
         });
     });
     
@@ -1247,9 +1569,10 @@ function initMobileCardActions() {
     mobileEditButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const card = this.closest('.mobile-vehicle-card');
-            const stockNumber = card.querySelector('.mobile-card-title p').textContent.split('•')[0].replace('Stock #', '').trim();
-            console.log('Edit vehicle with stock #:', stockNumber);
-            // editVehicle(stockNumber);
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            const vehicleId = checkbox.id.replace('mobile-vehicle-', '');
+            console.log('Edit vehicle with ID:', vehicleId);
+            editVehicleById(vehicleId);
         });
     });
     
@@ -1257,9 +1580,10 @@ function initMobileCardActions() {
     mobileMoreButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const card = this.closest('.mobile-vehicle-card');
-            const stockNumber = card.querySelector('.mobile-card-title p').textContent.split('•')[0].replace('Stock #', '').trim();
-            console.log('More options for stock #:', stockNumber);
-            // showMoreOptions(stockNumber, this);
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            const vehicleId = checkbox.id.replace('mobile-vehicle-', '');
+            console.log('More options for vehicle ID:', vehicleId);
+            showMoreOptionsById(vehicleId, this);
         });
     });
     

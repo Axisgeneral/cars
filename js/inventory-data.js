@@ -28,7 +28,7 @@ function populateInventoryTable() {
         if (inventory.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="text-center" style="padding: 2rem; color: #6b7280;">
+                    <td colspan="15" class="text-center" style="padding: 2rem; color: #6b7280;">
                         No vehicles found. <a href="#" onclick="openAddVehicleModal()" style="color: #3b82f6;">Add your first vehicle</a>
                     </td>
                 </tr>
@@ -59,6 +59,9 @@ function populateInventoryTable() {
                 statusBadgeHtml = '<span class="status-badge">' + vehicle.status + '</span>';
         }
         
+        // Calculate days in stock
+        const daysInStock = vehicle.dateAdded ? Math.floor((new Date() - new Date(vehicle.dateAdded)) / (1000 * 60 * 60 * 24)) : 0;
+        
         // Create row HTML
         row.innerHTML = `
             <td>
@@ -70,13 +73,17 @@ function populateInventoryTable() {
                     <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
             </td>
-            <td>${vehicle.stockNumber}</td>
-            <td>${vehicle.year} ${vehicle.make} ${vehicle.model}</td>
-            <td>${vehicle.trim}</td>
-            <td>${vehicle.vin}</td>
-            <td>${vehicle.color}</td>
-            <td>${vehicle.mileage.toLocaleString()}</td>
-            <td>$${vehicle.price.toLocaleString()}</td>
+            <td>${vehicle.stockNumber || '-'}</td>
+            <td>${vehicle.vin || '-'}</td>
+            <td>${vehicle.year || '-'}</td>
+            <td>${vehicle.make || '-'}</td>
+            <td>${vehicle.model || '-'}</td>
+            <td>${vehicle.trim || '-'}</td>
+            <td>${vehicle.color || '-'}</td>
+            <td>${vehicle.type || 'Used'}</td>
+            <td>${vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'}</td>
+            <td>${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</td>
+            <td>${daysInStock}</td>
             <td>${statusBadgeHtml}</td>
             <td>
                 <div class="action-buttons">
@@ -107,7 +114,7 @@ function populateInventoryTable() {
         if (tableBody) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="9" class="text-center" style="padding: 2rem; color: #ef4444;">
+                    <td colspan="15" class="text-center" style="padding: 2rem; color: #ef4444;">
                         Error loading inventory data. Please try refreshing the page.
                     </td>
                 </tr>
@@ -163,8 +170,9 @@ function initInventoryEventListeners() {
     viewButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const row = this.closest('tr');
-            const stockNumber = row.cells[2].textContent;
-            viewVehicleDetails(stockNumber);
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            const vehicleId = checkbox.id.replace('vehicle-', '');
+            viewVehicleDetailsById(vehicleId);
         });
     });
     
@@ -172,8 +180,9 @@ function initInventoryEventListeners() {
     editButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const row = this.closest('tr');
-            const stockNumber = row.cells[2].textContent;
-            editVehicle(stockNumber);
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            const vehicleId = checkbox.id.replace('vehicle-', '');
+            editVehicleById(vehicleId);
         });
     });
     
@@ -181,8 +190,9 @@ function initInventoryEventListeners() {
     moreButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const row = this.closest('tr');
-            const stockNumber = row.cells[2].textContent;
-            showMoreOptions(stockNumber, this);
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            const vehicleId = checkbox.id.replace('vehicle-', '');
+            showMoreOptionsById(vehicleId, this);
         });
     });
 }
@@ -279,6 +289,9 @@ function applyInventoryFilters() {
                 statusBadgeHtml = '<span class="status-badge">' + vehicle.status + '</span>';
         }
         
+        // Calculate days in stock
+        const daysInStock = vehicle.dateAdded ? Math.floor((new Date() - new Date(vehicle.dateAdded)) / (1000 * 60 * 60 * 24)) : 0;
+        
         // Create row HTML
         row.innerHTML = `
             <td>
@@ -290,13 +303,17 @@ function applyInventoryFilters() {
                     <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
             </td>
-            <td>${vehicle.stockNumber}</td>
-            <td>${vehicle.year} ${vehicle.make} ${vehicle.model}</td>
-            <td>${vehicle.trim}</td>
-            <td>${vehicle.vin}</td>
-            <td>${vehicle.color}</td>
-            <td>${vehicle.mileage.toLocaleString()}</td>
-            <td>$${vehicle.price.toLocaleString()}</td>
+            <td>${vehicle.stockNumber || '-'}</td>
+            <td>${vehicle.vin || '-'}</td>
+            <td>${vehicle.year || '-'}</td>
+            <td>${vehicle.make || '-'}</td>
+            <td>${vehicle.model || '-'}</td>
+            <td>${vehicle.trim || '-'}</td>
+            <td>${vehicle.color || '-'}</td>
+            <td>${vehicle.type || 'Used'}</td>
+            <td>${vehicle.mileage ? vehicle.mileage.toLocaleString() : '-'}</td>
+            <td>${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</td>
+            <td>${daysInStock}</td>
             <td>${statusBadgeHtml}</td>
             <td>
                 <div class="action-buttons">
@@ -319,7 +336,7 @@ function applyInventoryFilters() {
     // If no vehicles, show a message
     if (filteredInventory.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="11" style="text-align: center; padding: 2rem;">No vehicles found matching the selected filters</td>';
+        row.innerHTML = '<td colspan="15" style="text-align: center; padding: 2rem;">No vehicles found matching the selected filters</td>';
         tableBody.appendChild(row);
     }
     
@@ -349,8 +366,46 @@ function resetInventoryFilters() {
     populateInventoryTable();
 }
 
-// View Vehicle Details
+// View Vehicle Details by ID
+function viewVehicleDetailsById(vehicleId) {
+    // Find the vehicle by ID
+    const vehicle = DataService.inventory.get(vehicleId);
+    
+    if (!vehicle) {
+        alert(`Vehicle with ID ${vehicleId} not found.`);
+        return;
+    }
+    
+    // For demo purposes, show an alert with vehicle details
+    alert(`
+        Vehicle Details:
+        Stock #: ${vehicle.stockNumber || 'Not assigned'}
+        VIN: ${vehicle.vin || 'Not available'}
+        Year: ${vehicle.year || 'Not available'}
+        Make: ${vehicle.make || 'Not available'}
+        Model: ${vehicle.model || 'Not available'}
+        Trim: ${vehicle.trim || 'Not available'}
+        Color: ${vehicle.color || 'Not available'}
+        Mileage: ${vehicle.mileage ? vehicle.mileage.toLocaleString() : 'Not available'}
+        Price: ${vehicle.price ? '$' + vehicle.price.toLocaleString() : 'Not available'}
+        Status: ${vehicle.status || 'Not available'}
+        Location: ${vehicle.location || 'Not available'}
+        Date Added: ${vehicle.dateAdded || 'Not available'}
+        
+        Features: ${vehicle.features ? vehicle.features.join(', ') : 'None listed'}
+        
+        Description: ${vehicle.description || 'No description available'}
+    `);
+}
+
+// View Vehicle Details (legacy function for backward compatibility)
 function viewVehicleDetails(stockNumber) {
+    // Handle case where stockNumber is '-' (meaning undefined/empty)
+    if (stockNumber === '-') {
+        alert('This vehicle does not have a stock number assigned. Cannot view details by stock number.');
+        return;
+    }
+    
     // Find the vehicle by stock number
     const inventory = DataService.inventory.getAll();
     const vehicle = inventory.find(v => v.stockNumber === stockNumber);
@@ -382,9 +437,33 @@ function viewVehicleDetails(stockNumber) {
     `);
 }
 
-// Edit Vehicle
+// Edit Vehicle by ID
+function editVehicleById(vehicleId) {
+    console.log('editVehicleById called with vehicleId:', vehicleId);
+    
+    // Find the vehicle by ID
+    const vehicle = DataService.inventory.get(vehicleId);
+    console.log('Found vehicle:', vehicle);
+    
+    if (!vehicle) {
+        alert(`Vehicle with ID ${vehicleId} not found.`);
+        return;
+    }
+    
+    // Open the edit modal with the vehicle ID
+    console.log('Opening edit modal for vehicle ID:', vehicle.id);
+    editVehicleModal(vehicle.id);
+}
+
+// Edit Vehicle (legacy function for backward compatibility)
 function editVehicle(stockNumber) {
     console.log('editVehicle called with stockNumber:', stockNumber);
+    
+    // Handle case where stockNumber is '-' (meaning undefined/empty)
+    if (stockNumber === '-') {
+        alert('This vehicle does not have a stock number assigned. Cannot edit by stock number.');
+        return;
+    }
     
     // Find the vehicle by stock number
     const inventory = DataService.inventory.getAll();
@@ -403,8 +482,30 @@ function editVehicle(stockNumber) {
     editVehicleModal(vehicle.id);
 }
 
-// Show More Options
+// Show More Options by ID
+function showMoreOptionsById(vehicleId, buttonElement) {
+    // Find the vehicle by ID
+    const vehicle = DataService.inventory.get(vehicleId);
+    
+    if (!vehicle) {
+        alert(`Vehicle with ID ${vehicleId} not found.`);
+        return;
+    }
+    
+    // For demo purposes, show an alert with options
+    const options = ['Delete', 'Duplicate', 'Print Details', 'Mark as Sold', 'Move to Different Lot'];
+    const vehicleIdentifier = vehicle.stockNumber || `ID: ${vehicleId}`;
+    alert(`Options for vehicle ${vehicleIdentifier}:\n\n${options.join('\n')}`);
+}
+
+// Show More Options (legacy function for backward compatibility)
 function showMoreOptions(stockNumber, buttonElement) {
+    // Handle case where stockNumber is '-' (meaning undefined/empty)
+    if (stockNumber === '-') {
+        alert('This vehicle does not have a stock number assigned. Cannot show options by stock number.');
+        return;
+    }
+    
     // Find the vehicle by stock number
     const inventory = DataService.inventory.getAll();
     const vehicle = inventory.find(v => v.stockNumber === stockNumber);

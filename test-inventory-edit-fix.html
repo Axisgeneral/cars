@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Inventory Edit Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { margin: 5px; padding: 8px 15px; }
+        .vehicle-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .vehicle-table th, .vehicle-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .vehicle-table th { background-color: #f2f2f2; }
+        .btn-icon { padding: 5px; margin: 2px; }
+    </style>
+</head>
+<body>
+    <h1>Test: Inventory Edit Fix</h1>
+    <p>This test verifies that vehicles without stock numbers can be edited properly.</p>
+
+    <div class="test-section">
+        <h2>Test Setup</h2>
+        <button onclick="setupTestData()">Setup Test Data</button>
+        <button onclick="clearTestData()">Clear Test Data</button>
+        <div id="setup-status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Vehicles</h2>
+        <table class="vehicle-table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Stock Number</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="test-vehicles">
+                <!-- Test vehicles will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script src="js/data-service.js"></script>
+    <script src="js/inventory-data.js"></script>
+    <script>
+        let testResults = [];
+
+        function logResult(test, status, message) {
+            testResults.push({ test, status, message });
+            updateResultsDisplay();
+        }
+
+        function updateResultsDisplay() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = testResults.map(result => 
+                `<div class="${result.status}">
+                    <strong>${result.test}:</strong> ${result.message}
+                </div>`
+            ).join('');
+        }
+
+        function setupTestData() {
+            try {
+                // Clear existing data
+                localStorage.removeItem('autocrm_inventory');
+                
+                // Create test vehicles - some with stock numbers, some without
+                const testVehicles = [
+                    {
+                        id: 'test-1',
+                        stockNumber: 'ABC123',
+                        make: 'Toyota',
+                        model: 'Camry',
+                        year: 2020,
+                        price: 25000,
+                        status: 'in-stock'
+                    },
+                    {
+                        id: 'test-2',
+                        stockNumber: '', // Empty stock number
+                        make: 'Honda',
+                        model: 'Civic',
+                        year: 2021,
+                        price: 22000,
+                        status: 'in-stock'
+                    },
+                    {
+                        id: 'test-3',
+                        // No stockNumber property at all
+                        make: 'Ford',
+                        model: 'Focus',
+                        year: 2019,
+                        price: 18000,
+                        status: 'in-stock'
+                    }
+                ];
+
+                // Save test data
+                localStorage.setItem('autocrm_inventory', JSON.stringify(testVehicles));
+                
+                // Populate test table
+                populateTestTable();
+                
+                document.getElementById('setup-status').innerHTML = 
+                    '<span class="success">✓ Test data setup complete</span>';
+                
+                logResult('Setup', 'success', 'Test vehicles created successfully');
+            } catch (error) {
+                document.getElementById('setup-status').innerHTML = 
+                    '<span class="error">✗ Setup failed: ' + error.message + '</span>';
+                logResult('Setup', 'error', 'Failed to setup test data: ' + error.message);
+            }
+        }
+
+        function clearTestData() {
+            localStorage.removeItem('autocrm_inventory');
+            document.getElementById('test-vehicles').innerHTML = '';
+            document.getElementById('setup-status').innerHTML = 
+                '<span class="info">Test data cleared</span>';
+            testResults = [];
+            updateResultsDisplay();
+        }
+
+        function populateTestTable() {
+            const vehicles = JSON.parse(localStorage.getItem('autocrm_inventory')) || [];
+            const tbody = document.getElementById('test-vehicles');
+            
+            tbody.innerHTML = vehicles.map(vehicle => `
+                <tr>
+                    <td>
+                        <input type="checkbox" id="vehicle-${vehicle.id}" name="selected-vehicles">
+                        <label for="vehicle-${vehicle.id}"></label>
+                    </td>
+                    <td>${vehicle.stockNumber || '-'}</td>
+                    <td>${vehicle.make}</td>
+                    <td>${vehicle.model}</td>
+                    <td>
+                        <button class="btn-icon" title="Edit" onclick="testEditVehicle('${vehicle.id}', '${vehicle.stockNumber || '-'}')">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function testEditVehicle(vehicleId, displayedStockNumber) {
+            try {
+                console.log('Testing edit for vehicle ID:', vehicleId, 'Displayed stock number:', displayedStockNumber);
+                
+                // Test the new editVehicleById function
+                const vehicle = DataService.inventory.get(vehicleId);
+                
+                if (!vehicle) {
+                    logResult('Edit Test', 'error', `Vehicle with ID ${vehicleId} not found`);
+                    return;
+                }
+                
+                // Simulate the edit process
+                logResult('Edit Test', 'success', 
+                    `Successfully found vehicle: ${vehicle.make} ${vehicle.model} (ID: ${vehicleId}, Stock: ${vehicle.stockNumber || 'None'})`);
+                
+                // Test that we can call editVehicleById without errors
+                if (typeof editVehicleById === 'function') {
+                    logResult('Function Test', 'success', 'editVehicleById function is available');
+                    
+                    // Override the modal function for testing
+                    const originalEditVehicleModal = window.editVehicleModal;
+                    window.editVehicleModal = function(id) {
+                        logResult('Modal Test', 'success', `Edit modal would open for vehicle ID: ${id}`);
+                    };
+                    
+                    // Call the function
+                    editVehicleById(vehicleId);
+                    
+                    // Restore original function
+                    window.editVehicleModal = originalEditVehicleModal;
+                } else {
+                    logResult('Function Test', 'error', 'editVehicleById function not found');
+                }
+                
+                // Test the legacy function with '-' stock number
+                if (displayedStockNumber === '-') {
+                    if (typeof editVehicle === 'function') {
+                        // Override alert for testing
+                        const originalAlert = window.alert;
+                        let alertMessage = '';
+                        window.alert = function(msg) { alertMessage = msg; };
+                        
+                        editVehicle('-');
+                        
+                        if (alertMessage.includes('does not have a stock number assigned')) {
+                            logResult('Legacy Function Test', 'success', 'Legacy function properly handles missing stock numbers');
+                        } else {
+                            logResult('Legacy Function Test', 'error', 'Legacy function did not handle missing stock number correctly');
+                        }
+                        
+                        // Restore original alert
+                        window.alert = originalAlert;
+                    }
+                }
+                
+            } catch (error) {
+                logResult('Edit Test', 'error', 'Error during edit test: ' + error.message);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('Initialization', 'info', 'Test page loaded successfully');
+        });
+    </script>
+</body>
+</html>

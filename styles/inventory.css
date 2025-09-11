@@ -320,3 +320,98 @@
         order: 3;
     }
 }
+
+/* Search Results Message */
+.search-results-message {
+    margin-bottom: var(--spacing-lg);
+    display: none;
+}
+
+.search-results-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    backdrop-filter: blur(10px);
+}
+
+.search-results-info i {
+    color: var(--primary-color);
+    font-size: var(--font-size-lg);
+}
+
+.search-results-info span {
+    flex: 1;
+    color: var(--text-dark);
+    font-weight: var(--font-weight-medium);
+}
+
+.clear-search-btn {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.clear-search-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
+}
+
+.clear-search-btn i {
+    font-size: var(--font-size-sm);
+}
+
+/* Enhanced Search Input Styling */
+.search-container {
+    position: relative;
+}
+
+.search-container input {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.search-container input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.search-container i {
+    transition: color 0.3s ease;
+}
+
+.search-container input:focus + i,
+.search-container input:not(:placeholder-shown) + i {
+    color: var(--primary-color);
+}
+
+/* Mobile No Results */
+.mobile-no-results {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-medium);
+}
+
+.mobile-no-results i {
+    font-size: 3rem;
+    color: var(--text-light);
+    margin-bottom: var(--spacing-md);
+}
+
+.mobile-no-results p {
+    font-size: var(--font-size-lg);
+    margin: 0;
+}

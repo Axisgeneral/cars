@@ -121,27 +121,50 @@ const DataService = {
                 const sampleVehicles = [
                     {
                         id: '1',
+                        stockNumber: 'T12345',
                         make: 'Toyota',
                         model: 'Camry',
                         year: 2023,
+                        trim: 'XSE',
+                        type: 'New',
                         price: 28500,
                         mileage: 15000,
                         color: 'Silver',
                         vin: '1HGBH41JXMN109186',
-                        status: 'Available',
+                        status: 'in-stock',
                         dateAdded: new Date().toISOString()
                     },
                     {
                         id: '2',
+                        stockNumber: 'H54321',
                         make: 'Honda',
                         model: 'Civic',
                         year: 2022,
+                        trim: 'Touring',
+                        type: 'Used',
                         price: 24000,
                         mileage: 22000,
                         color: 'Blue',
                         vin: '2HGFC2F59NH123456',
-                        status: 'Available',
+                        status: 'in-stock',
                         dateAdded: new Date().toISOString()
+                    },
+                    {
+                        id: '3',
+                        // No stockNumber property - this will test the fix
+                        make: 'Ford',
+                        model: 'Focus',
+                        year: 2021,
+                        trim: 'SE',
+                        type: 'Used',
+                        price: 19500,
+                        mileage: 35000,
+                        color: 'Red',
+                        vin: '1FADP3F20FL123789',
+                        status: 'in-stock',
+                        dateAdded: new Date().toISOString(),
+                        features: ['Bluetooth', 'Backup Camera'],
+                        description: 'Great fuel economy, perfect for commuting'
                     }
                 ];
                 this.save(sampleVehicles);
