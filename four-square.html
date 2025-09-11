@@ -595,12 +595,17 @@
             // Clear existing options except the first one
             selector.innerHTML = '<option value="">Select an existing deal or create a new one</option>';
             
-            deals.forEach(deal => {
-                const option = document.createElement('option');
-                option.value = deal.id;
-                option.textContent = `${deal.customer.name} - ${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model}`;
-                selector.appendChild(option);
-            });
+            // Check if deals is an array and has items
+            if (Array.isArray(deals) && deals.length > 0) {
+                deals.forEach(deal => {
+                    if (deal && deal.id) {
+                        const option = document.createElement('option');
+                        option.value = deal.id;
+                        option.textContent = `${deal.customerName || 'Unknown Customer'} - ${deal.vehicleYear || ''} ${deal.vehicleMake || ''} ${deal.vehicleModel || ''}`;
+                        selector.appendChild(option);
+                    }
+                });
+            }
         }
 
         function loadSelectedDeal() {
@@ -620,23 +625,33 @@
             currentDeal = deal;
             
             // Load customer information
-            document.getElementById('customer-name').textContent = (deal.customer && deal.customer.name) || deal.customerName || '-';
-            document.getElementById('customer-email').textContent = (deal.customer && deal.customer.email) || deal.customerEmail || '-';
-            document.getElementById('customer-phone').textContent = (deal.customer && deal.customer.phone) || deal.customerPhone || '-';
-            document.getElementById('customer-credit').textContent = (deal.customer && deal.customer.creditScore) || '-';
+            let customer = null;
+            if (deal.customerId) {
+                customer = DataService.customers.get(deal.customerId);
+            }
+            
+            document.getElementById('customer-name').textContent = (customer && `${customer.firstName} ${customer.lastName}`) || deal.customerName || '-';
+            document.getElementById('customer-email').textContent = (customer && customer.email) || deal.customerEmail || '-';
+            document.getElementById('customer-phone').textContent = (customer && customer.phone) || '-';
+            document.getElementById('customer-credit').textContent = (customer && customer.creditScore) || '-';
             
             // Load vehicle information
-            const vehicleYear = deal.vehicle?.year || deal.vehicleYear || '';
-            const vehicleMake = deal.vehicle?.make || deal.vehicleMake || '';
-            const vehicleModel = deal.vehicle?.model || deal.vehicleModel || '';
+            let vehicle = null;
+            if (deal.vehicleId) {
+                vehicle = DataService.inventory.get(deal.vehicleId);
+            }
+            
+            const vehicleYear = (vehicle && vehicle.year) || deal.vehicleYear || '';
+            const vehicleMake = (vehicle && vehicle.make) || deal.vehicleMake || '';
+            const vehicleModel = (vehicle && vehicle.model) || deal.vehicleModel || '';
             document.getElementById('vehicle-info').textContent = `${vehicleYear} ${vehicleMake} ${vehicleModel}`.trim() || '-';
-            document.getElementById('vehicle-stock').textContent = deal.vehicle?.stockNumber || '-';
-            document.getElementById('vehicle-msrp').textContent = deal.vehicle?.price ? `$${deal.vehicle.price.toLocaleString()}` : (deal.value ? `$${deal.value.toLocaleString()}` : '-');
-            document.getElementById('vehicle-invoice').textContent = deal.vehicle?.invoice ? `$${deal.vehicle.invoice.toLocaleString()}` : '-';
+            document.getElementById('vehicle-stock').textContent = (vehicle && vehicle.stockNumber) || '-';
+            document.getElementById('vehicle-msrp').textContent = (vehicle && vehicle.price) ? `$${vehicle.price.toLocaleString()}` : (deal.value ? `$${deal.value.toLocaleString()}` : '-');
+            document.getElementById('vehicle-invoice').textContent = (vehicle && vehicle.invoice) ? `$${vehicle.invoice.toLocaleString()}` : '-';
             
             // Load existing four square data if available
             if (deal.fourSquare) {
-                document.getElementById('selling-price').value = deal.fourSquare.sellingPrice || deal.vehicle?.price || deal.value || '';
+                document.getElementById('selling-price').value = deal.fourSquare.sellingPrice || (vehicle && vehicle.price) || deal.value || '';
                 document.getElementById('trade-in-value').value = deal.fourSquare.tradeInValue || deal.tradeIn?.value || '';
                 document.getElementById('down-payment').value = deal.fourSquare.downPayment || deal.financeDetails?.downPayment || '';
                 
@@ -648,7 +663,7 @@
                 }
             } else {
                 // Load from existing deal data
-                document.getElementById('selling-price').value = deal.vehicle?.price || deal.value || '';
+                document.getElementById('selling-price').value = (vehicle && vehicle.price) || deal.value || '';
                 document.getElementById('trade-in-value').value = deal.tradeIn?.value || '';
                 document.getElementById('down-payment').value = deal.financeDetails?.downPayment || '';
                 
