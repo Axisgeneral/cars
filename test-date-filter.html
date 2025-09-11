@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Filter Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        select { padding: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Date Filter Utility Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Date Range Filtering</h2>
+        <label for="test-date-range">Select Date Range:</label>
+        <select id="test-date-range">
+            <option value="Today">Today</option>
+            <option value="This Week">This Week</option>
+            <option value="This Month" selected>This Month</option>
+            <option value="Last Month">Last Month</option>
+            <option value="This Quarter">This Quarter</option>
+            <option value="This Year">This Year</option>
+        </select>
+        <button onclick="testFilter()">Test Filter</button>
+        
+        <div id="test-results" class="result">
+            <p>Select a date range and click "Test Filter" to see results.</p>
+        </div>
+    </div>
+
+    <script src="js/data-service.js"></script>
+    <script src="js/date-filter-utils.js"></script>
+    <script>
+        // Initialize data
+        DataService.initAll();
+        
+        function testFilter() {
+            const dateRange = document.getElementById('test-date-range').value;
+            const resultsDiv = document.getElementById('test-results');
+            
+            try {
+                // Test filtering for each data type
+                const filteredLeads = DateFilterUtils.getFilteredData('leads', dateRange);
+                const filteredDeals = DateFilterUtils.getFilteredData('deals', dateRange);
+                const filteredCustomers = DateFilterUtils.getFilteredData('customers', dateRange);
+                
+                // Get stats
+                const leadsStats = DateFilterUtils.calculateStats('leads', dateRange);
+                const dealsStats = DateFilterUtils.calculateStats('deals', dateRange);
+                
+                resultsDiv.innerHTML = `
+                    <h3>Filter Results for: ${dateRange}</h3>
+                    <div>
+                        <h4>Leads:</h4>
+                        <p>Total: ${leadsStats.total}</p>
+                        <p>Conversion Rate: ${leadsStats.conversionRate}%</p>
+                        <p>Filtered Records: ${filteredLeads.length}</p>
+                    </div>
+                    <div>
+                        <h4>Deals:</h4>
+                        <p>Total: ${dealsStats.total}</p>
+                        <p>Closed: ${dealsStats.closed}</p>
+                        <p>Closed Value: $${dealsStats.closedValue.toLocaleString()}</p>
+                        <p>Filtered Records: ${filteredDeals.length}</p>
+                    </div>
+                    <div>
+                        <h4>Customers:</h4>
+                        <p>Filtered Records: ${filteredCustomers.length}</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h3>Error:</h3>
+                    <p style="color: red;">${error.message}</p>
+                    <p>Make sure the DateFilterUtils is loaded correctly.</p>
+                `;
+                console.error('Date filter test error:', error);
+            }
+        }
+        
+        // Test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(testFilter, 500); // Give time for data to initialize
+        });
+    </script>
+</body>
+</html>

@@ -143,9 +143,8 @@ function initEventListeners() {
     const dateRangeSelect = document.getElementById('date-range');
     if (dateRangeSelect) {
         dateRangeSelect.addEventListener('change', function() {
-            // This would typically trigger an API call to refresh data
             console.log('Date range changed to:', this.value);
-            // refreshDashboardData(this.value);
+            refreshDashboardData(this.value);
         });
     }
     
@@ -199,33 +198,66 @@ function initEventListeners() {
 function refreshDashboardData(dateRange) {
     console.log('Refreshing dashboard data for date range:', dateRange);
     
-    // Update KPIs with current data
-    updateDashboardKPIs();
+    // Update KPIs with filtered data
+    updateDashboardKPIs(dateRange);
     
-    // Refresh charts if needed
-    // initSalesChart();
-    // initLeadSourceChart();
+    // Refresh charts with filtered data
+    updateChartsWithFilteredData(dateRange);
 }
 
 // Function to update dashboard KPIs
-function updateDashboardKPIs() {
-    // Get current leads data
-    const leads = DataService.leads.getAll();
+function updateDashboardKPIs(dateRange = 'This Month') {
+    // Get filtered data based on date range
+    const filteredLeads = DateFilterUtils.getFilteredData('leads', dateRange);
+    const filteredDeals = DateFilterUtils.getFilteredData('deals', dateRange);
+    const filteredCustomers = DateFilterUtils.getFilteredData('customers', dateRange);
+    
+    // Calculate stats
+    const leadsStats = DateFilterUtils.calculateStats('leads', dateRange);
+    const dealsStats = DateFilterUtils.calculateStats('deals', dateRange);
+    
+    // Update Vehicles Sold KPI (using closed deals)
+    const vehiclesSoldElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
+    if (vehiclesSoldElement) {
+        vehiclesSoldElement.textContent = dealsStats.closed;
+    }
+    
+    // Update Revenue KPI
+    const revenueElement = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
+    if (revenueElement) {
+        const formattedRevenue = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(dealsStats.closedValue);
+        revenueElement.textContent = formattedRevenue;
+    }
     
     // Update New Leads KPI
     const newLeadsElement = document.querySelector('.kpi-card:nth-child(3) .kpi-value');
     if (newLeadsElement) {
-        newLeadsElement.textContent = leads.length;
+        newLeadsElement.textContent = leadsStats.total;
     }
     
-    // Calculate conversion rate (assuming some leads are converted)
-    const convertedLeads = leads.filter(lead => lead.status === 'Converted').length;
-    const conversionRate = leads.length > 0 ? Math.round((convertedLeads / leads.length) * 100) : 0;
-    
+    // Update Conversion Rate KPI
     const conversionRateElement = document.querySelector('.kpi-card:nth-child(4) .kpi-value');
     if (conversionRateElement) {
-        conversionRateElement.textContent = conversionRate + '%';
+        conversionRateElement.textContent = leadsStats.conversionRate + '%';
     }
+}
+
+// Function to update charts with filtered data
+function updateChartsWithFilteredData(dateRange) {
+    // For now, we'll keep the static charts but this is where you would
+    // update the charts with filtered data in a real implementation
+    console.log('Charts would be updated with filtered data for:', dateRange);
+    
+    // Example of how you might update charts:
+    // const filteredDeals = DateFilterUtils.getFilteredData('deals', dateRange);
+    // const filteredLeads = DateFilterUtils.getFilteredData('leads', dateRange);
+    // updateSalesChart(filteredDeals);
+    // updateLeadSourceChart(filteredLeads);
 }
 
 // Function to update task status (would be implemented with actual API calls)

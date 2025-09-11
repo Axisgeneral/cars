@@ -113,6 +113,7 @@
                             <option>Last 7 Days</option>
                             <option selected>This Month</option>
                             <option>Last Month</option>
+                            <option>All Time</option>
                             <option>Custom Range</option>
                         </select>
                     </div>
@@ -221,6 +222,7 @@
 
     <script src="js/auth.js"></script>
     <script src="js/data-service.js"></script>
+    <script src="js/date-filter-utils.js"></script>
     <script src="js/modal-utils.js"></script>
         <script src="js/modal-functions.js"></script>
     <script src="js/mobile-nav.js"></script>
@@ -334,6 +336,15 @@
             const filterSelect = document.getElementById('deal-filter');
             if (filterSelect) {
                 filterSelect.addEventListener('change', filterDeals);
+            }
+            
+            // Date Range Filter Change
+            const dateRangeSelect = document.getElementById('date-range');
+            if (dateRangeSelect) {
+                dateRangeSelect.addEventListener('change', function() {
+                    console.log('Date range changed to:', this.value);
+                    filterDealsByDateRange(this.value);
+                });
             }
             
             // Notification Bell
@@ -1031,6 +1042,93 @@
 
         function formatNumber(number) {
             return new Intl.NumberFormat('en-US').format(number);
+        }
+        
+        function filterDealsByDateRange(dateRange) {
+            console.log('Filtering deals by date range:', dateRange);
+            
+            // Get filtered deals based on date range
+            const filteredDeals = DateFilterUtils.getFilteredData('deals', dateRange);
+            
+            // Update the deals table with filtered data
+            const tbody = document.getElementById('deals-tbody');
+            const noDealsDiv = document.getElementById('no-deals');
+            
+            if (filteredDeals.length === 0) {
+                tbody.innerHTML = '';
+                noDealsDiv.style.display = 'block';
+                noDealsDiv.querySelector('h3').textContent = 'No Deals Found';
+                noDealsDiv.querySelector('p').textContent = `No deals found for the selected date range: ${dateRange}`;
+            } else {
+                noDealsDiv.style.display = 'none';
+                tbody.innerHTML = filteredDeals.map(deal => `
+                    <tr>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-name">${deal.customerName}</div>
+                                <div class="customer-email">${deal.customerEmail}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="vehicle-info">
+                                <div class="vehicle-name">${deal.vehicleMake} ${deal.vehicleModel}</div>
+                                <div class="vehicle-year">${deal.vehicleYear}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${deal.status.toLowerCase().replace(' ', '-')}">${deal.status}</span>
+                        </td>
+                        <td>
+                            <span class="deal-value">$${formatNumber(deal.value)}</span>
+                        </td>
+                        <td>
+                            <span class="salesperson">${deal.salesperson}</span>
+                        </td>
+                        <td>
+                            <span class="date">${formatDate(deal.dateCreated)}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewDeal('${deal.id}')" title="View Deal">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editDeal('${deal.id}')" title="Edit Deal">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="openFourSquare('${deal.id}')" title="Four Square">
+                                    <i class="fas fa-calculator"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteDeal('${deal.id}')" title="Delete Deal">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Update stats with filtered data
+            updateStatsWithFilteredData(filteredDeals);
+        }
+        
+        function updateStatsWithFilteredData(filteredDeals) {
+            // Calculate stats for filtered deals
+            const totalDeals = filteredDeals.length;
+            const totalValue = filteredDeals.reduce((sum, deal) => sum + (deal.value || 0), 0);
+            const closedDeals = filteredDeals.filter(deal => deal.status === 'Closed Won');
+            const closedValue = closedDeals.reduce((sum, deal) => sum + (deal.value || 0), 0);
+            const conversionRate = totalDeals > 0 ? (closedDeals.length / totalDeals * 100).toFixed(1) : 0;
+            
+            // Update stats display (if stats elements exist)
+            const totalDealsElement = document.querySelector('.stat-total-deals');
+            const totalValueElement = document.querySelector('.stat-total-value');
+            const closedDealsElement = document.querySelector('.stat-closed-deals');
+            const conversionRateElement = document.querySelector('.stat-conversion-rate');
+            
+            if (totalDealsElement) totalDealsElement.textContent = totalDeals;
+            if (totalValueElement) totalValueElement.textContent = '$' + formatNumber(totalValue);
+            if (closedDealsElement) closedDealsElement.textContent = closedDeals.length;
+            if (conversionRateElement) conversionRateElement.textContent = conversionRate + '%';
         }
     </script>
 </body>

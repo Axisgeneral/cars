@@ -230,6 +230,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
+            position: relative;
         }
 
         .deal-selector h3 {
@@ -237,19 +238,125 @@
             margin-bottom: 1rem;
         }
 
-        .deal-selector select {
+        .deal-search-container {
+            position: relative;
             width: 100%;
-            padding: 0.75rem;
+        }
+
+        .deal-search-input {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 0.75rem;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 1rem;
             background: white;
+            box-sizing: border-box;
         }
 
-        .deal-selector select:focus {
+        .deal-search-input:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .deal-search-icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            pointer-events: none;
+        }
+
+        .deal-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .deal-dropdown.show {
+            display: block;
+        }
+
+        .deal-option {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+        }
+
+        .deal-option:hover {
+            background-color: #f8fafc;
+        }
+
+        .deal-option.selected {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .deal-option:last-child {
+            border-bottom: none;
+        }
+
+        .deal-option-main {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .deal-option-details {
+            font-size: 0.875rem;
+            color: #6b7280;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .deal-option-status {
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-in-progress {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-closed-won {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-closed-lost {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .no-deals-message {
+            padding: 1rem;
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .deal-selector select {
+            display: none;
         }
 
         @media (max-width: 768px) {
@@ -355,7 +462,7 @@
             <header class="top-nav">
                 <div class="search-container">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search deals...">
+                    <input type="text" id="top-search" placeholder="Search deals...">
                 </div>
                 
                 <div class="top-nav-actions">
@@ -379,8 +486,15 @@
 
                 <!-- Deal Selector -->
                 <div class="deal-selector">
-                    <h3><i class="fas fa-handshake"></i> Select Deal</h3>
-                    <select id="deal-selector">
+                    <h3><i class="fas fa-handshake"></i> Search & Select Deal</h3>
+                    <div class="deal-search-container">
+                        <input type="text" id="deal-search-input" class="deal-search-input" placeholder="Search deals by customer, vehicle, status, salesperson, or notes..." autocomplete="off">
+                        <i class="fas fa-search deal-search-icon"></i>
+                        <div id="deal-dropdown" class="deal-dropdown">
+                            <div class="no-deals-message">Start typing to search for deals...</div>
+                        </div>
+                    </div>
+                    <select id="deal-selector" style="display: none;">
                         <option value="">Select an existing deal or create a new one</option>
                     </select>
                 </div>
@@ -564,7 +678,64 @@
         });
 
         function setupEventListeners() {
-            // Deal selector
+            // Deal search functionality
+            const searchInput = document.getElementById('deal-search-input');
+            const dropdown = document.getElementById('deal-dropdown');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.trim();
+                if (searchTerm.length > 0) {
+                    searchDeals(searchTerm);
+                    dropdown.classList.add('show');
+                } else {
+                    dropdown.classList.remove('show');
+                    dropdown.innerHTML = '<div class="no-deals-message">Start typing to search for deals...</div>';
+                }
+            });
+            
+            searchInput.addEventListener('focus', function() {
+                const searchTerm = this.value.trim();
+                if (searchTerm.length > 0) {
+                    dropdown.classList.add('show');
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.deal-search-container')) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            // Top navigation search functionality
+            const topSearch = document.getElementById('top-search');
+            if (topSearch) {
+                topSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm.length > 0) {
+                        // Update the main search input
+                        searchInput.value = searchTerm;
+                        searchDeals(searchTerm);
+                        dropdown.classList.add('show');
+                        // Focus the main search input
+                        searchInput.focus();
+                    } else {
+                        searchInput.value = '';
+                        dropdown.classList.remove('show');
+                        dropdown.innerHTML = '<div class="no-deals-message">Start typing to search for deals...</div>';
+                    }
+                });
+                
+                topSearch.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        // Focus the main search input to show results
+                        searchInput.focus();
+                    }
+                });
+            }
+            
+            // Deal selector (hidden fallback)
             document.getElementById('deal-selector').addEventListener('change', loadSelectedDeal);
             
             // Input fields
@@ -609,6 +780,167 @@
                     }
                 });
             }
+        }
+
+        function searchDeals(searchTerm) {
+            const deals = DataService.deals.getAll();
+            const dropdown = document.getElementById('deal-dropdown');
+            const searchLower = searchTerm.toLowerCase();
+            
+            // Filter deals based on search term
+            const filteredDeals = deals.filter(deal => {
+                if (!deal) return false;
+                
+                // Search in customer name
+                const customerName = (deal.customerName || '').toLowerCase();
+                if (customerName.includes(searchLower)) return true;
+                
+                // Search in customer email
+                const customerEmail = (deal.customerEmail || '').toLowerCase();
+                if (customerEmail.includes(searchLower)) return true;
+                
+                // Search in vehicle information
+                const vehicleInfo = `${deal.vehicleYear || ''} ${deal.vehicleMake || ''} ${deal.vehicleModel || ''}`.toLowerCase();
+                if (vehicleInfo.includes(searchLower)) return true;
+                
+                // Search in status
+                const status = (deal.status || '').toLowerCase();
+                if (status.includes(searchLower)) return true;
+                
+                // Search in salesperson
+                const salesperson = (deal.salesperson || '').toLowerCase();
+                if (salesperson.includes(searchLower)) return true;
+                
+                // Search in notes
+                const notes = (deal.notes || '').toLowerCase();
+                if (notes.includes(searchLower)) return true;
+                
+                // Search in deal value
+                const value = (deal.value || '').toString();
+                if (value.includes(searchTerm)) return true;
+                
+                return false;
+            });
+            
+            // Clear dropdown
+            dropdown.innerHTML = '';
+            
+            if (filteredDeals.length === 0) {
+                dropdown.innerHTML = '<div class="no-deals-message">No deals found matching your search.</div>';
+                return;
+            }
+            
+            // Add filtered deals to dropdown
+            filteredDeals.forEach(deal => {
+                const dealOption = document.createElement('div');
+                dealOption.className = 'deal-option';
+                dealOption.dataset.dealId = deal.id;
+                
+                const statusClass = getStatusClass(deal.status);
+                const vehicleInfo = `${deal.vehicleYear || ''} ${deal.vehicleMake || ''} ${deal.vehicleModel || ''}`.trim();
+                const dealValue = deal.value ? `$${deal.value.toLocaleString()}` : 'N/A';
+                
+                dealOption.innerHTML = `
+                    <div class="deal-option-main">${deal.customerName || 'Unknown Customer'} - ${vehicleInfo}</div>
+                    <div class="deal-option-details">
+                        <span>Value: ${dealValue} | Salesperson: ${deal.salesperson || 'N/A'}</span>
+                        <span class="deal-option-status ${statusClass}">${deal.status || 'Unknown'}</span>
+                    </div>
+                `;
+                
+                dealOption.addEventListener('click', function() {
+                    selectDeal(deal);
+                });
+                
+                dropdown.appendChild(dealOption);
+            });
+        }
+
+        function getStatusClass(status) {
+            if (!status) return '';
+            const statusLower = status.toLowerCase();
+            if (statusLower.includes('pending')) return 'status-pending';
+            if (statusLower.includes('progress')) return 'status-in-progress';
+            if (statusLower.includes('won')) return 'status-closed-won';
+            if (statusLower.includes('lost')) return 'status-closed-lost';
+            return '';
+        }
+
+        function selectDeal(deal) {
+            const searchInput = document.getElementById('deal-search-input');
+            const dropdown = document.getElementById('deal-dropdown');
+            const selector = document.getElementById('deal-selector');
+            
+            // Update search input with selected deal
+            const vehicleInfo = `${deal.vehicleYear || ''} ${deal.vehicleMake || ''} ${deal.vehicleModel || ''}`.trim();
+            searchInput.value = `${deal.customerName || 'Unknown Customer'} - ${vehicleInfo}`;
+            
+            // Update hidden selector
+            selector.value = deal.id;
+            
+            // Hide dropdown
+            dropdown.classList.remove('show');
+            
+            // Load the selected deal
+            currentDeal = deal;
+            loadDealData(deal);
+        }
+
+        function loadDealData(deal) {
+            // Load customer information
+            let customer = null;
+            if (deal.customerId) {
+                customer = DataService.customers.get(deal.customerId);
+            }
+            
+            document.getElementById('customer-name').textContent = (customer && `${customer.firstName} ${customer.lastName}`) || deal.customerName || '-';
+            document.getElementById('customer-email').textContent = (customer && customer.email) || deal.customerEmail || '-';
+            document.getElementById('customer-phone').textContent = (customer && customer.phone) || '-';
+            document.getElementById('customer-credit').textContent = (customer && customer.creditScore) || '-';
+            
+            // Load vehicle information
+            let vehicle = null;
+            if (deal.vehicleId) {
+                vehicle = DataService.inventory.get(deal.vehicleId);
+            }
+            
+            const vehicleYear = (vehicle && vehicle.year) || deal.vehicleYear || '';
+            const vehicleMake = (vehicle && vehicle.make) || deal.vehicleMake || '';
+            const vehicleModel = (vehicle && vehicle.model) || deal.vehicleModel || '';
+            document.getElementById('vehicle-info').textContent = `${vehicleYear} ${vehicleMake} ${vehicleModel}`.trim() || '-';
+            document.getElementById('vehicle-stock').textContent = (vehicle && vehicle.stockNumber) || '-';
+            document.getElementById('vehicle-msrp').textContent = (vehicle && vehicle.price) ? `$${vehicle.price.toLocaleString()}` : (deal.value ? `$${deal.value.toLocaleString()}` : '-');
+            document.getElementById('vehicle-invoice').textContent = (vehicle && vehicle.invoice) ? `$${vehicle.invoice.toLocaleString()}` : '-';
+            
+            // Load existing four square data if available
+            if (deal.fourSquare) {
+                document.getElementById('selling-price').value = deal.fourSquare.sellingPrice || (vehicle && vehicle.price) || deal.value || '';
+                document.getElementById('trade-in-value').value = deal.fourSquare.tradeInValue || deal.tradeIn?.value || '';
+                document.getElementById('down-payment').value = deal.fourSquare.downPayment || deal.financeDetails?.downPayment || '';
+                
+                if (deal.fourSquare.loanTerm) {
+                    document.getElementById('loan-term').value = deal.fourSquare.loanTerm;
+                }
+                if (deal.fourSquare.interestRate) {
+                    document.getElementById('interest-rate').value = deal.fourSquare.interestRate;
+                }
+            } else {
+                // Load from existing deal data
+                document.getElementById('selling-price').value = (vehicle && vehicle.price) || deal.value || '';
+                document.getElementById('trade-in-value').value = deal.tradeIn?.value || '';
+                document.getElementById('down-payment').value = deal.financeDetails?.downPayment || '';
+                
+                if (deal.financeDetails) {
+                    if (deal.financeDetails.term) {
+                        document.getElementById('loan-term').value = deal.financeDetails.term;
+                    }
+                    if (deal.financeDetails.rate) {
+                        document.getElementById('interest-rate').value = deal.financeDetails.rate;
+                    }
+                }
+            }
+            
+            updateCalculations();
         }
 
         function loadSelectedDeal() {
@@ -819,6 +1151,11 @@
 
         function clearForm() {
             currentDeal = null;
+            
+            // Clear search input and dropdown
+            document.getElementById('deal-search-input').value = '';
+            document.getElementById('deal-dropdown').classList.remove('show');
+            document.getElementById('deal-dropdown').innerHTML = '<div class="no-deals-message">Start typing to search for deals...</div>';
             
             // Clear customer info
             document.getElementById('customer-name').textContent = '-';

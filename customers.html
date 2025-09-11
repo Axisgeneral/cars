@@ -109,6 +109,7 @@
                             <option>Last 7 Days</option>
                             <option selected>This Month</option>
                             <option>Last Month</option>
+                            <option>All Time</option>
                             <option>Custom Range</option>
                         </select>
                     </div>
@@ -286,6 +287,7 @@
     <script src="js/theme-manager.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/data-service.js"></script>
+    <script src="js/date-filter-utils.js"></script>
     <script src="js/modal-utils.js"></script>
     <script src="js/customers-data.js"></script>
     <script src="js/mobile-nav.js"></script>
@@ -370,6 +372,15 @@
             const filterSelect = document.getElementById('customer-filter');
             if (filterSelect) {
                 filterSelect.addEventListener('change', filterCustomers);
+            }
+            
+            // Date Range Filter Change
+            const dateRangeSelect = document.getElementById('date-range');
+            if (dateRangeSelect) {
+                dateRangeSelect.addEventListener('change', function() {
+                    console.log('Date range changed to:', this.value);
+                    filterCustomersByDateRange(this.value);
+                });
             }
 
             // Filter button functionality
@@ -953,6 +964,88 @@
                 month: 'short',
                 day: 'numeric'
             });
+        }
+        
+        function filterCustomersByDateRange(dateRange) {
+            console.log('Filtering customers by date range:', dateRange);
+            
+            // Get filtered customers based on date range
+            const filteredCustomers = DateFilterUtils.getFilteredData('customers', dateRange);
+            
+            // Update the customers table with filtered data
+            const tbody = document.getElementById('customers-tbody');
+            const noCustomersDiv = document.getElementById('no-customers');
+            
+            if (filteredCustomers.length === 0) {
+                tbody.innerHTML = '';
+                noCustomersDiv.style.display = 'block';
+                noCustomersDiv.querySelector('h3').textContent = 'No Customers Found';
+                noCustomersDiv.querySelector('p').textContent = `No customers found for the selected date range: ${dateRange}`;
+            } else {
+                noCustomersDiv.style.display = 'none';
+                tbody.innerHTML = filteredCustomers.map(customer => `
+                    <tr>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-avatar">
+                                    ${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}
+                                </div>
+                                <div class="customer-details">
+                                    <div class="customer-name">${customer.firstName} ${customer.lastName}</div>
+                                    <div class="customer-company">${customer.company || 'Individual Customer'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <div class="email">${customer.email}</div>
+                                <div class="phone">${customer.phone}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${customer.type.toLowerCase().replace(' ', '-')}">${customer.type}</span>
+                        </td>
+                        <td>
+                            <span class="source">${customer.source || 'Not specified'}</span>
+                        </td>
+                        <td>
+                            <span class="date">${formatDate(customer.dateAdded)}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewCustomer('${customer.id}')" title="View Customer">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editCustomer('${customer.id}')" title="Edit Customer">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteCustomer('${customer.id}')" title="Delete Customer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Update stats with filtered data
+            updateStatsWithFilteredCustomers(filteredCustomers);
+        }
+        
+        function updateStatsWithFilteredCustomers(filteredCustomers) {
+            // Calculate stats for filtered customers
+            const totalCustomers = filteredCustomers.length;
+            const newCustomers = filteredCustomers.filter(customer => customer.type === 'New');
+            const returningCustomers = filteredCustomers.filter(customer => customer.type === 'Returning');
+            
+            // Update stats display (if stats elements exist)
+            const totalCustomersElement = document.querySelector('.stat-total-customers');
+            const newCustomersElement = document.querySelector('.stat-new-customers');
+            const returningCustomersElement = document.querySelector('.stat-returning-customers');
+            
+            if (totalCustomersElement) totalCustomersElement.textContent = totalCustomers;
+            if (newCustomersElement) newCustomersElement.textContent = newCustomers.length;
+            if (returningCustomersElement) returningCustomersElement.textContent = returningCustomers.length;
         }
     </script>
 </body>

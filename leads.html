@@ -109,6 +109,7 @@
                             <option>Last 7 Days</option>
                             <option selected>This Month</option>
                             <option>Last Month</option>
+                            <option>All Time</option>
                             <option>Custom Range</option>
                         </select>
                     </div>
@@ -290,6 +291,7 @@
     <script src="js/theme-manager.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/data-service.js"></script>
+    <script src="js/date-filter-utils.js"></script>
     <script src="js/modal-utils.js"></script>
     <script src="js/leads-data.js"></script>
     <script src="js/mobile-nav.js"></script>
@@ -380,6 +382,15 @@
             const filterSelect = document.getElementById('lead-filter');
             if (filterSelect) {
                 filterSelect.addEventListener('change', filterLeads);
+            }
+            
+            // Date Range Filter Change
+            const dateRangeSelect = document.getElementById('date-range');
+            if (dateRangeSelect) {
+                dateRangeSelect.addEventListener('change', function() {
+                    console.log('Date range changed to:', this.value);
+                    filterLeadsByDateRange(this.value);
+                });
             }
             
             // Notification Bell
@@ -1029,6 +1040,94 @@
                 month: 'short',
                 day: 'numeric'
             });
+        }
+        
+        function filterLeadsByDateRange(dateRange) {
+            console.log('Filtering leads by date range:', dateRange);
+            
+            // Get filtered leads based on date range
+            const filteredLeads = DateFilterUtils.getFilteredData('leads', dateRange);
+            
+            // Update the leads table with filtered data
+            const tbody = document.getElementById('leads-tbody');
+            const noLeadsDiv = document.getElementById('no-leads');
+            
+            if (filteredLeads.length === 0) {
+                tbody.innerHTML = '';
+                noLeadsDiv.style.display = 'block';
+                noLeadsDiv.querySelector('h3').textContent = 'No Leads Found';
+                noLeadsDiv.querySelector('p').textContent = `No leads found for the selected date range: ${dateRange}`;
+            } else {
+                noLeadsDiv.style.display = 'none';
+                tbody.innerHTML = filteredLeads.map(lead => `
+                    <tr>
+                        <td>
+                            <div class="lead-info">
+                                <div class="lead-avatar">
+                                    ${lead.firstName.charAt(0)}${lead.lastName.charAt(0)}
+                                </div>
+                                <div class="lead-details">
+                                    <div class="lead-name">${lead.firstName} ${lead.lastName}</div>
+                                    <div class="lead-company">${lead.company || 'Individual Lead'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <div class="email">${lead.email}</div>
+                                <div class="phone">${lead.phone}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-${lead.status.toLowerCase()}">${lead.status}</span>
+                        </td>
+                        <td>
+                            <span class="source">${lead.source}</span>
+                        </td>
+                        <td>
+                            <span class="interest">${lead.interest || 'Not specified'}</span>
+                        </td>
+                        <td>
+                            <span class="date">${formatDate(lead.dateCreated)}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" onclick="viewLead('${lead.id}')" title="View Lead">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editLead('${lead.id}')" title="Edit Lead">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-success" onclick="convertLead('${lead.id}')" title="Convert to Customer">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteLead('${lead.id}')" title="Delete Lead">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Update stats with filtered data
+            updateStatsWithFilteredLeads(filteredLeads);
+        }
+        
+        function updateStatsWithFilteredLeads(filteredLeads) {
+            // Calculate stats for filtered leads
+            const totalLeads = filteredLeads.length;
+            const convertedLeads = filteredLeads.filter(lead => lead.status === 'Converted');
+            const conversionRate = totalLeads > 0 ? (convertedLeads.length / totalLeads * 100).toFixed(1) : 0;
+            
+            // Update stats display (if stats elements exist)
+            const totalLeadsElement = document.querySelector('.stat-total-leads');
+            const convertedLeadsElement = document.querySelector('.stat-converted-leads');
+            const conversionRateElement = document.querySelector('.stat-conversion-rate');
+            
+            if (totalLeadsElement) totalLeadsElement.textContent = totalLeads;
+            if (convertedLeadsElement) convertedLeadsElement.textContent = convertedLeads.length;
+            if (conversionRateElement) conversionRateElement.textContent = conversionRate + '%';
         }
     </script>
 </body>
