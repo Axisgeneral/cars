@@ -22,12 +22,32 @@
     display: flex !important;
 }
 
+.modal-overlay.active .modal {
+    opacity: 1;
+    transform: scale(1);
+}
+
 /* High specificity rule for add-vehicle modal overlay */
 #add-vehicle-modal.modal-overlay.active {
     display: flex !important;
     opacity: 1 !important;
     visibility: visible !important;
     z-index: 9999 !important;
+}
+
+/* Import modal specific styles */
+#import-leads-modal.modal-overlay.active,
+#import-customers-modal.modal-overlay.active {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 9999 !important;
+}
+
+#import-leads-modal .modal,
+#import-customers-modal .modal {
+    max-width: 800px;
+    width: 95%;
 }
 
 .modal {
@@ -390,4 +410,326 @@
 .form-group.success textarea {
     border-color: #10b981;
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Import Modal Styles */
+.import-container {
+    max-width: 100%;
+}
+
+.import-instructions {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.import-instructions h4 {
+    color: #1e40af;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.import-instructions p {
+    margin: 0.5rem 0;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.csv-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.csv-column {
+    background: #3b82f6;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-family: monospace;
+}
+
+.import-instructions .note {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+.template-download {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.template-download .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+}
+
+.file-upload-area {
+    margin-bottom: 1.5rem;
+}
+
+.file-drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-over {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.file-drop-zone i {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.file-drop-zone:hover i,
+.file-drop-zone.drag-over i {
+    color: #3b82f6;
+}
+
+.file-drop-zone p {
+    margin: 0.5rem 0;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.file-drop-zone small {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.import-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+}
+
+.import-preview h4 {
+    background: #f9fafb;
+    margin: 0;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    font-size: 1rem;
+}
+
+.preview-table-container {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.preview-table th,
+.preview-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.preview-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    position: sticky;
+    top: 0;
+}
+
+.preview-table td {
+    color: #6b7280;
+}
+
+.preview-table tr:hover {
+    background: rgba(59, 130, 246, 0.02);
+}
+
+.import-summary {
+    padding: 1rem;
+    background: #f0f9ff;
+    border-top: 1px solid #e5e7eb;
+    color: #0369a1;
+    font-weight: 500;
+}
+
+.import-summary i {
+    margin-right: 0.5rem;
+}
+
+.text-success {
+    color: #10b981 !important;
+}
+
+/* Import Modal Responsive */
+@media (max-width: 768px) {
+    .csv-columns {
+        justify-content: center;
+    }
+    
+    .file-drop-zone {
+        padding: 2rem 1rem;
+    }
+    
+    .file-drop-zone i {
+        font-size: 2rem;
+    }
+    
+    .preview-table-container {
+        max-height: 200px;
+    }
+    
+    .preview-table th,
+    .preview-table td {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Table Action Buttons */
+.table-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.table-action-buttons .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.table-action-buttons .btn i {
+    font-size: 0.875rem;
+}
+
+/* Upload Zone Styles */
+.upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.upload-zone i {
+    font-size: 2.5rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.upload-zone:hover i,
+.upload-zone.drag-over i {
+    color: #3b82f6;
+}
+
+.upload-zone p {
+    margin: 0.5rem 0;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.upload-zone .file-types {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* File Info Display */
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.file-info i {
+    color: #3b82f6;
+    font-size: 1.25rem;
+}
+
+.file-info span {
+    flex: 1;
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.btn-remove {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-remove:hover {
+    background: #dc2626;
+}
+
+/* Import Options */
+.import-options {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.import-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #374151;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.import-options input[type="checkbox"] {
+    margin: 0;
 }

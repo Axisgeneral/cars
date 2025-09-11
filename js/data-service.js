@@ -714,6 +714,294 @@ const DataService = {
         }
     },
     
+    // Reports Methods
+    reports: {
+        getAll: function() {
+            return JSON.parse(localStorage.getItem('autocrm_reports')) || [];
+        },
+        
+        get: function(id) {
+            const reports = this.getAll();
+            return reports.find(report => report.id === id) || null;
+        },
+        
+        add: function(report) {
+            const reports = this.getAll();
+            if (!report.id) {
+                report.id = Date.now().toString();
+            }
+            report.dateCreated = new Date().toISOString();
+            reports.push(report);
+            this.save(reports);
+            return report;
+        },
+        
+        update: function(id, updatedReport) {
+            const reports = this.getAll();
+            const index = reports.findIndex(report => report.id === id);
+            if (index !== -1) {
+                reports[index] = { ...reports[index], ...updatedReport, updatedAt: new Date().toISOString() };
+                this.save(reports);
+                return reports[index];
+            }
+            return null;
+        },
+        
+        delete: function(id) {
+            const reports = this.getAll();
+            const filteredReports = reports.filter(report => report.id !== id);
+            this.save(filteredReports);
+            return filteredReports.length < reports.length;
+        },
+        
+        save: function(reportsData) {
+            localStorage.setItem('autocrm_reports', JSON.stringify(reportsData));
+        },
+        
+        getByCategory: function(category) {
+            const reports = this.getAll();
+            return reports.filter(report => report.category === category);
+        },
+        
+        getCategories: function() {
+            const reports = this.getAll();
+            const categories = [...new Set(reports.map(report => report.category))].filter(Boolean);
+            return categories.sort();
+        },
+        
+        // Generate dynamic reports based on current data
+        generateSalesReport: function(dateRange = 'thisMonth') {
+            const deals = DataService.deals.getAll();
+            const customers = DataService.customers.getAll();
+            const inventory = DataService.inventory.getAll();
+            
+            // Filter deals based on date range
+            const now = new Date();
+            let startDate;
+            
+            switch(dateRange) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'thisWeek':
+                    startDate = new Date(now.setDate(now.getDate() - now.getDay()));
+                    break;
+                case 'thisMonth':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+                case 'thisYear':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    break;
+                default:
+                    startDate = new Date(0); // All time
+            }
+            
+            const filteredDeals = deals.filter(deal => new Date(deal.dateAdded) >= startDate);
+            
+            const totalRevenue = filteredDeals.reduce((sum, deal) => sum + (deal.amount || 0), 0);
+            const totalDeals = filteredDeals.length;
+            const avgDealSize = totalDeals > 0 ? totalRevenue / totalDeals : 0;
+            
+            return {
+                id: 'dynamic_sales_' + Date.now(),
+                title: `Sales Report - ${dateRange}`,
+                category: 'Sales',
+                type: 'dynamic',
+                dateRange: dateRange,
+                data: {
+                    totalRevenue,
+                    totalDeals,
+                    avgDealSize,
+                    deals: filteredDeals
+                },
+                generatedAt: new Date().toISOString()
+            };
+        },
+        
+        generateInventoryReport: function() {
+            const inventory = DataService.inventory.getAll();
+            
+            const totalVehicles = inventory.length;
+            const availableVehicles = inventory.filter(v => v.status === 'Available').length;
+            const soldVehicles = inventory.filter(v => v.status === 'Sold').length;
+            const avgPrice = inventory.length > 0 ? inventory.reduce((sum, v) => sum + (v.price || 0), 0) / inventory.length : 0;
+            
+            const makeBreakdown = inventory.reduce((acc, vehicle) => {
+                acc[vehicle.make] = (acc[vehicle.make] || 0) + 1;
+                return acc;
+            }, {});
+            
+            return {
+                id: 'dynamic_inventory_' + Date.now(),
+                title: 'Current Inventory Report',
+                category: 'Inventory',
+                type: 'dynamic',
+                data: {
+                    totalVehicles,
+                    availableVehicles,
+                    soldVehicles,
+                    avgPrice,
+                    makeBreakdown,
+                    vehicles: inventory
+                },
+                generatedAt: new Date().toISOString()
+            };
+        },
+        
+        // Initialize with sample reports if empty
+        init: function() {
+            if (this.getAll().length === 0) {
+                const sampleReports = [
+                    {
+                        id: '1',
+                        title: 'Monthly Sales Performance',
+                        description: 'Comprehensive analysis of sales performance for the current month including revenue, units sold, and conversion rates.',
+                        category: 'Sales',
+                        type: 'scheduled',
+                        frequency: 'Monthly',
+                        lastGenerated: new Date().toISOString(),
+                        nextScheduled: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'Active',
+                        createdBy: 'Thomas Morales',
+                        dateCreated: new Date().toISOString(),
+                        parameters: {
+                            includeCharts: true,
+                            includeComparisons: true,
+                            emailRecipients: ['manager@autoconnect.com']
+                        }
+                    },
+                    {
+                        id: '2',
+                        title: 'Inventory Aging Report',
+                        description: 'Analysis of vehicle inventory showing aging patterns, slow-moving stock, and recommendations for pricing adjustments.',
+                        category: 'Inventory',
+                        type: 'scheduled',
+                        frequency: 'Weekly',
+                        lastGenerated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: new Date(Date.now() + 0 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'Active',
+                        createdBy: 'Sarah Johnson',
+                        dateCreated: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            agingThreshold: 60,
+                            includePhotos: false,
+                            sortBy: 'daysOnLot'
+                        }
+                    },
+                    {
+                        id: '3',
+                        title: 'Lead Conversion Analysis',
+                        description: 'Detailed breakdown of lead sources, conversion rates, and sales funnel performance with actionable insights.',
+                        category: 'Marketing',
+                        type: 'on-demand',
+                        frequency: 'As Needed',
+                        lastGenerated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: null,
+                        status: 'Active',
+                        createdBy: 'Mike Rodriguez',
+                        dateCreated: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            timeframe: '90days',
+                            includeSourceBreakdown: true,
+                            includeROI: true
+                        }
+                    },
+                    {
+                        id: '4',
+                        title: 'Customer Satisfaction Survey Results',
+                        description: 'Compilation and analysis of customer feedback, satisfaction scores, and improvement recommendations.',
+                        category: 'Customer Service',
+                        type: 'scheduled',
+                        frequency: 'Quarterly',
+                        lastGenerated: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'Active',
+                        createdBy: 'Lisa Chen',
+                        dateCreated: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            includeComments: true,
+                            minimumResponses: 10,
+                            includeNPS: true
+                        }
+                    },
+                    {
+                        id: '5',
+                        title: 'Financial Performance Dashboard',
+                        description: 'Executive summary of key financial metrics including revenue, profit margins, expenses, and cash flow analysis.',
+                        category: 'Financial',
+                        type: 'scheduled',
+                        frequency: 'Monthly',
+                        lastGenerated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'Active',
+                        createdBy: 'Thomas Morales',
+                        dateCreated: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            includeProjections: true,
+                            compareToLastYear: true,
+                            includeExpenseBreakdown: true
+                        }
+                    },
+                    {
+                        id: '6',
+                        title: 'Service Department Performance',
+                        description: 'Analysis of service department metrics including job completion times, customer wait times, and revenue per service.',
+                        category: 'Service',
+                        type: 'scheduled',
+                        frequency: 'Weekly',
+                        lastGenerated: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'Active',
+                        createdBy: 'David Wilson',
+                        dateCreated: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            includeEfficiencyMetrics: true,
+                            includeCustomerFeedback: true,
+                            includePartsCost: true
+                        }
+                    },
+                    {
+                        id: '7',
+                        title: 'Sales Team Performance Review',
+                        description: 'Individual and team performance metrics for sales staff including deals closed, revenue generated, and customer satisfaction.',
+                        category: 'HR',
+                        type: 'scheduled',
+                        frequency: 'Monthly',
+                        lastGenerated: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'Active',
+                        createdBy: 'Jennifer Adams',
+                        dateCreated: new Date(Date.now() - 75 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            includeIndividualMetrics: true,
+                            includeTeamComparisons: true,
+                            includeGoalTracking: true
+                        }
+                    },
+                    {
+                        id: '8',
+                        title: 'Market Trends and Competitive Analysis',
+                        description: 'Analysis of local market conditions, competitor pricing, and industry trends affecting dealership performance.',
+                        category: 'Market Research',
+                        type: 'on-demand',
+                        frequency: 'As Needed',
+                        lastGenerated: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                        nextScheduled: null,
+                        status: 'Active',
+                        createdBy: 'Robert Kim',
+                        dateCreated: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+                        parameters: {
+                            includeCompetitorPricing: true,
+                            includeMarketShare: true,
+                            includeIndustryTrends: true
+                        }
+                    }
+                ];
+                this.save(sampleReports);
+            }
+        }
+    },
+    
     // Settings Methods (keeping localStorage for now)
     settings: {
         get: function() {
@@ -748,6 +1036,7 @@ const DataService = {
             DataService.deals.init();
             DataService.sales.init();
             DataService.tasks.init();
+            DataService.reports.init();
         },
         
         // Clear all data (for testing purposes)
@@ -758,6 +1047,7 @@ const DataService = {
             localStorage.removeItem('autocrm_deals');
             localStorage.removeItem('autocrm_sales');
             localStorage.removeItem('autocrm_tasks');
+            localStorage.removeItem('autocrm_reports');
             localStorage.removeItem('autocrm_settings');
         },
         
@@ -770,6 +1060,7 @@ const DataService = {
                 deals: DataService.deals.getAll(),
                 sales: DataService.sales.getAll(),
                 tasks: DataService.tasks.getAll(),
+                reports: DataService.reports.getAll(),
                 settings: DataService.settings.get(),
                 exportDate: new Date().toISOString()
             };
@@ -783,6 +1074,7 @@ const DataService = {
             if (data.deals) DataService.deals.save(data.deals);
             if (data.sales) DataService.sales.save(data.sales);
             if (data.tasks) DataService.tasks.save(data.tasks);
+            if (data.reports) DataService.reports.save(data.reports);
             if (data.settings) DataService.settings.save(data.settings);
         }
     }

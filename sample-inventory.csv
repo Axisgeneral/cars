@@ -1,0 +1,6 @@
+make,model,year,price,mileage,color,vin,status
+Toyota,Camry,2023,28500,15000,Silver,1HGBH41JXMN109186,Available
+Honda,Civic,2022,24000,22000,Blue,2HGFC2F59NH123456,Available
+Ford,F-150,2023,35000,8000,Red,1FTFW1ET5NFC12345,Available
+Chevrolet,Malibu,2021,22000,35000,Black,1G1ZD5ST5MF123456,Sold
+BMW,X3,2022,45000,18000,White,5UXWX9C50N0A12345,Available

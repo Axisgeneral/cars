@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - AutoConnect</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/reports.css">
     <link rel="stylesheet" href="styles/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -107,14 +108,48 @@
                     </div>
                 </div>
 
-                <!-- Reports Content Placeholder -->
-                <div style="text-align: center; padding: 100px 0;">
-                    <i class="fas fa-chart-bar" style="font-size: 48px; color: #64748b; margin-bottom: 20px;"></i>
-                    <h2>Reports</h2>
-                    <p>This page is under construction. Check back soon for reporting features.</p>
-                    <div style="margin-top: 30px;">
-                        <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+                <!-- Reports Statistics -->
+                <div class="reports-stats">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions-section">
+                    <h3>Quick Generate</h3>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn generate-report-btn" data-report-type="sales">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Sales Report</span>
+                        </button>
+                        <button class="quick-action-btn generate-report-btn" data-report-type="inventory">
+                            <i class="fas fa-car"></i>
+                            <span>Inventory Report</span>
+                        </button>
                     </div>
+                </div>
+
+                <!-- Reports Filters -->
+                <div class="reports-filters">
+                    <div class="filter-section">
+                        <h3>Filter by Category</h3>
+                        <div class="category-filters">
+                            <!-- Category buttons will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="sort-section">
+                        <label for="sort-reports">Sort by:</label>
+                        <select id="sort-reports">
+                            <option value="dateCreated">Date Created</option>
+                            <option value="title">Title</option>
+                            <option value="category">Category</option>
+                            <option value="lastGenerated">Last Generated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Reports Container -->
+                <div id="reports-container" class="reports-grid">
+                    <!-- Reports will be populated by JavaScript -->
                 </div>
             </div>
         </main>
@@ -122,8 +157,10 @@
 
     <script src="js/auth.js"></script>
     <script src="js/mobile-nav.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/reports.js"></script>
     <script>
-        // Basic navigation functionality
+        // Enhanced navigation functionality
         document.addEventListener('DOMContentLoaded', function() {
             // Notification Bell
             const notificationBell = document.querySelector('.notification-bell');
@@ -133,19 +170,27 @@
                 });
             }
             
-            // Export Button
-            const exportBtn = document.querySelector('.btn-primary');
+            // Export Button - Updated to export reports data
+            const exportBtn = document.querySelector('.top-nav-actions .btn-primary');
             if (exportBtn) {
                 exportBtn.addEventListener('click', function() {
-                    alert('Export feature coming soon!');
+                    const reports = DataService.reports.getAll();
+                    const dataStr = JSON.stringify(reports, null, 2);
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    const url = URL.createObjectURL(dataBlob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'autoconnect-reports.json';
+                    link.click();
+                    URL.revokeObjectURL(url);
                 });
             }
             
-            // Print Button
-            const printBtn = document.querySelector('.btn-secondary');
+            // Print Button - Updated to print current reports view
+            const printBtn = document.querySelector('.top-nav-actions .btn-secondary');
             if (printBtn) {
                 printBtn.addEventListener('click', function() {
-                    alert('Print feature coming soon!');
+                    window.print();
                 });
             }
         });

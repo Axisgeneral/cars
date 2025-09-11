@@ -397,4 +397,351 @@ function formatDate(dateString) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// Customer functions are now defined in customers.html to avoid conflicts
+// Import/Export Functions
+let selectedCustomersFile = null;
+let parsedCustomersData = null;
+
+// Initialize Import/Export Event Listeners
+function initCustomersImportExportListeners() {
+    // Import button
+    const importBtn = document.getElementById('import-customers-btn');
+    if (importBtn) {
+        importBtn.addEventListener('click', openCustomersImportModal);
+    }
+
+    // Export button
+    const exportBtn = document.getElementById('export-customers-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportCustomers);
+    }
+
+    // File input
+    const fileInput = document.getElementById('customers-file-input');
+    if (fileInput) {
+        fileInput.addEventListener('change', handleCustomersFileSelect);
+    }
+
+    // Upload zone
+    const uploadZone = document.getElementById('customers-upload-zone');
+    if (uploadZone) {
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', handleCustomersDragOver);
+        uploadZone.addEventListener('drop', handleCustomersFileDrop);
+    }
+
+    // Modal controls
+    const closeModal = document.getElementById('close-import-customers-modal');
+    const cancelImport = document.getElementById('cancel-import-customers');
+    const confirmImport = document.getElementById('confirm-import-customers');
+    const removeFile = document.getElementById('customers-remove-file');
+
+    if (closeModal) closeModal.addEventListener('click', closeCustomersImportModal);
+    if (cancelImport) cancelImport.addEventListener('click', closeCustomersImportModal);
+    if (confirmImport) confirmImport.addEventListener('click', confirmImportCustomers);
+    if (removeFile) removeFile.addEventListener('click', removeCustomersSelectedFile);
+}
+
+// Open Import Modal
+function openCustomersImportModal() {
+    const modal = document.getElementById('import-customers-modal');
+    if (modal) {
+        modal.classList.add('active');
+        resetCustomersImportModal();
+    }
+}
+
+// Close Import Modal
+function closeCustomersImportModal() {
+    const modal = document.getElementById('import-customers-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        resetCustomersImportModal();
+    }
+}
+
+// Reset Import Modal
+function resetCustomersImportModal() {
+    selectedCustomersFile = null;
+    parsedCustomersData = null;
+    
+    const fileInfo = document.getElementById('customers-file-info');
+    const uploadZone = document.getElementById('customers-upload-zone');
+    const preview = document.getElementById('customers-import-preview');
+    const confirmBtn = document.getElementById('confirm-import-customers');
+    
+    if (fileInfo) fileInfo.style.display = 'none';
+    if (uploadZone) uploadZone.style.display = 'block';
+    if (preview) preview.style.display = 'none';
+    if (confirmBtn) confirmBtn.disabled = true;
+}
+
+// Handle File Selection
+function handleCustomersFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        processCustomersSelectedFile(file);
+    }
+}
+
+// Handle Drag Over
+function handleCustomersDragOver(event) {
+    event.preventDefault();
+    event.currentTarget.classList.add('drag-over');
+}
+
+// Handle File Drop
+function handleCustomersFileDrop(event) {
+    event.preventDefault();
+    event.currentTarget.classList.remove('drag-over');
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        processCustomersSelectedFile(files[0]);
+    }
+}
+
+// Process Selected File
+function processCustomersSelectedFile(file) {
+    if (!file) return;
+    
+    // Validate file type
+    const validTypes = ['text/csv', 'application/json', '.csv', '.json'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    
+    if (!validTypes.includes(file.type) && !validTypes.includes(fileExtension)) {
+        alert('Please select a CSV or JSON file.');
+        return;
+    }
+    
+    selectedCustomersFile = file;
+    
+    // Show file info
+    const fileInfo = document.getElementById('customers-file-info');
+    const fileName = document.getElementById('customers-file-name');
+    const uploadZone = document.getElementById('customers-upload-zone');
+    
+    if (fileInfo && fileName && uploadZone) {
+        fileName.textContent = file.name;
+        fileInfo.style.display = 'flex';
+        uploadZone.style.display = 'none';
+    }
+    
+    // Parse and preview file
+    parseCustomersFile(file);
+}
+
+// Remove Selected File
+function removeCustomersSelectedFile() {
+    selectedCustomersFile = null;
+    parsedCustomersData = null;
+    
+    const fileInput = document.getElementById('customers-file-input');
+    if (fileInput) fileInput.value = '';
+    
+    resetCustomersImportModal();
+}
+
+// Parse File
+function parseCustomersFile(file) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        try {
+            let data;
+            
+            if (file.name.toLowerCase().endsWith('.csv')) {
+                data = parseCustomersCSV(e.target.result);
+            } else if (file.name.toLowerCase().endsWith('.json')) {
+                data = JSON.parse(e.target.result);
+            }
+            
+            if (data && data.length > 0) {
+                parsedCustomersData = data;
+                showCustomersPreview(data);
+                
+                const confirmBtn = document.getElementById('confirm-import-customers');
+                if (confirmBtn) confirmBtn.disabled = false;
+            } else {
+                alert('No valid data found in the file.');
+            }
+        } catch (error) {
+            alert('Error parsing file: ' + error.message);
+        }
+    };
+    
+    reader.readAsText(file);
+}
+
+// Parse CSV
+function parseCustomersCSV(csvText) {
+    const lines = csvText.split('\n');
+    if (lines.length < 2) return [];
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const data = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const row = {};
+        
+        headers.forEach((header, index) => {
+            row[header] = values[index] || '';
+        });
+        
+        data.push(row);
+    }
+    
+    return data;
+}
+
+// Show Preview
+function showCustomersPreview(data) {
+    const preview = document.getElementById('customers-import-preview');
+    const table = document.getElementById('customers-preview-table');
+    
+    if (!preview || !table || !data.length) return;
+    
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    // Clear existing content
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+    
+    // Create header row
+    const headerRow = document.createElement('tr');
+    const sampleRow = data[0];
+    Object.keys(sampleRow).forEach(key => {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    
+    // Create preview rows (first 5)
+    const previewData = data.slice(0, 5);
+    previewData.forEach(row => {
+        const tr = document.createElement('tr');
+        Object.values(row).forEach(value => {
+            const td = document.createElement('td');
+            td.textContent = value || '';
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+    
+    preview.style.display = 'block';
+}
+
+// Confirm Import
+function confirmImportCustomers() {
+    if (!parsedCustomersData || !parsedCustomersData.length) {
+        alert('No data to import.');
+        return;
+    }
+    
+    const skipDuplicates = document.getElementById('customers-skip-duplicates').checked;
+    const existingCustomers = DataService.customers.getAll();
+    const existingEmails = new Set(existingCustomers.map(customer => customer.email.toLowerCase()));
+    
+    let importedCount = 0;
+    let skippedCount = 0;
+    
+    parsedCustomersData.forEach(rowData => {
+        // Skip if duplicate and option is enabled
+        if (skipDuplicates && rowData.email && existingEmails.has(rowData.email.toLowerCase())) {
+            skippedCount++;
+            return;
+        }
+        
+        // Create customer object with default values
+        const customer = {
+            id: Date.now() + Math.random(),
+            firstName: rowData.firstName || '',
+            lastName: rowData.lastName || '',
+            email: rowData.email || '',
+            phone: rowData.phone || '',
+            company: rowData.company || '',
+            type: rowData.type || 'Regular',
+            notes: rowData.notes || '',
+            dateAdded: new Date().toISOString(),
+            lastContact: rowData.lastContact || '',
+            address: {
+                street: rowData.street || rowData.address || '',
+                city: rowData.city || '',
+                state: rowData.state || '',
+                zip: rowData.zip || ''
+            },
+            purchaseHistory: []
+        };
+        
+        // Add to data service
+        DataService.customers.add(customer);
+        importedCount++;
+    });
+    
+    // Show results
+    let message = `Import completed!\n\nImported: ${importedCount} customers`;
+    if (skippedCount > 0) {
+        message += `\nSkipped duplicates: ${skippedCount} customers`;
+    }
+    
+    alert(message);
+    
+    // Refresh the table and close modal
+    loadCustomers();
+    updateStats();
+    closeCustomersImportModal();
+}
+
+// Export Customers
+function exportCustomers() {
+    const customers = DataService.customers.getAll();
+    
+    if (customers.length === 0) {
+        alert('No customers to export.');
+        return;
+    }
+    
+    // Create CSV content
+    const headers = [
+        'firstName', 'lastName', 'email', 'phone', 'company', 'type', 
+        'notes', 'dateAdded', 'lastContact', 'street', 'city', 'state', 'zip'
+    ];
+    
+    let csvContent = headers.join(',') + '\n';
+    
+    customers.forEach(customer => {
+        const row = [
+            customer.firstName || '',
+            customer.lastName || '',
+            customer.email || '',
+            customer.phone || '',
+            customer.company || '',
+            customer.type || '',
+            (customer.notes || '').replace(/,/g, ';'),
+            customer.dateAdded || '',
+            customer.lastContact || '',
+            (customer.address && customer.address.street) || '',
+            (customer.address && customer.address.city) || '',
+            (customer.address && customer.address.state) || '',
+            (customer.address && customer.address.zip) || ''
+        ];
+        
+        csvContent += row.map(field => `"${field}"`).join(',') + '\n';
+    });
+    
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customers_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}

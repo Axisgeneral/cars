@@ -652,7 +652,7 @@ function updateVehicle(vehicleId) {
     });
     
     // Save updated vehicle
-    DataService.inventory.update(vehicle);
+    DataService.inventory.update(vehicleId, vehicle);
     
     // Close modal and refresh
     ModalUtils.closeModal('add-vehicle-modal');
@@ -668,7 +668,7 @@ function deleteVehicle(vehicleId) {
     if (!vehicle) return;
     
     if (confirm(`Are you sure you want to delete ${vehicle.year} ${vehicle.make} ${vehicle.model} (Stock #${vehicle.stockNumber})? This action cannot be undone.`)) {
-        DataService.inventory.remove(vehicleId);
+        DataService.inventory.delete(vehicleId);
         ModalUtils.showSuccessMessage('Vehicle deleted successfully!');
         populateInventoryTable();
     }

@@ -171,13 +171,21 @@
                                     <option value="source">Source</option>
                                 </select>
                             </div>
-                            <select id="lead-filter">
-                                <option value="">All Leads</option>
-                                <option value="Hot">Hot</option>
-                                <option value="Warm">Warm</option>
-                                <option value="Cold">Cold</option>
-                                <option value="Converted">Converted</option>
-                            </select>
+                            <div class="table-action-buttons">
+                                <button class="btn btn-secondary" id="import-leads-btn">
+                                    <i class="fas fa-upload"></i> Import
+                                </button>
+                                <button class="btn btn-secondary" id="export-leads-btn">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                                <select id="lead-filter">
+                                    <option value="">All Leads</option>
+                                    <option value="Hot">Hot</option>
+                                    <option value="Warm">Warm</option>
+                                    <option value="Cold">Cold</option>
+                                    <option value="Converted">Converted</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
@@ -212,6 +220,68 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="leads-file-input" accept=".csv,.json" style="display: none;">
+
+    <!-- Import Modal -->
+    <div id="import-leads-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Leads</h2>
+                <span class="close" id="close-import-leads-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="import-instructions">
+                    <h3>Import Instructions</h3>
+                    <p>You can import leads from a CSV or JSON file. Please ensure your file contains the following columns:</p>
+                    <ul>
+                        <li><strong>firstName</strong> - Lead's first name</li>
+                        <li><strong>lastName</strong> - Lead's last name</li>
+                        <li><strong>email</strong> - Email address</li>
+                        <li><strong>phone</strong> - Phone number</li>
+                        <li><strong>source</strong> - Lead source (Website, Referral, etc.)</li>
+                        <li><strong>status</strong> - Lead status (Hot, Warm, Cold, etc.)</li>
+                        <li><strong>interest</strong> - Vehicle interest (optional)</li>
+                        <li><strong>notes</strong> - Additional notes (optional)</li>
+                    </ul>
+                </div>
+                <div class="file-upload-area">
+                    <div class="upload-zone" id="leads-upload-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag and drop your file here, or click to select</p>
+                        <p class="file-types">Supported formats: CSV, JSON</p>
+                    </div>
+                    <div id="leads-file-info" class="file-info" style="display: none;">
+                        <i class="fas fa-file"></i>
+                        <span id="leads-file-name"></span>
+                        <button type="button" id="leads-remove-file" class="btn-remove">×</button>
+                    </div>
+                </div>
+                <div class="import-options">
+                    <label>
+                        <input type="checkbox" id="leads-skip-duplicates" checked>
+                        Skip duplicate entries (based on email)
+                    </label>
+                </div>
+                <div id="leads-import-preview" class="import-preview" style="display: none;">
+                    <h4>Preview (first 5 rows)</h4>
+                    <div class="preview-table-container">
+                        <table id="leads-preview-table" class="preview-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancel-import-leads">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-import-leads" disabled>Import Leads</button>
+            </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/auth.js"></script>
@@ -315,6 +385,9 @@
                     alert('Notifications feature coming soon!');
                 });
             }
+            
+            // Initialize import/export listeners
+            initImportExportListeners();
         }
         
         // New Lead Modal

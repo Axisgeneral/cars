@@ -102,7 +102,7 @@ function initEventListeners() {
     if (importBtn) {
         importBtn.addEventListener('click', function() {
             console.log('Import button clicked');
-            // openImportDialog();
+            openImportDialog();
         });
     }
 }
@@ -909,19 +909,317 @@ function handleAddVehicleSubmit(form, saveBtn) {
     }, 1000);
 }
 
-// Function to open import dialog (would be implemented with actual UI)
+// Function to open import dialog
 function openImportDialog() {
-    // This is a placeholder for the actual implementation
     console.log('Opening import dialog');
     
-    // Example of what this might do:
-    // 1. Show import modal
-    // 2. Provide file upload or paste options
-    // 3. Handle file validation
-    // 4. Process import
+    const modalContent = `
+        <div class="import-container">
+            <div class="import-instructions">
+                <h4><i class="fas fa-info-circle"></i> CSV Import Instructions</h4>
+                <p>Upload a CSV file with the following columns (in any order):</p>
+                <div class="csv-columns">
+                    <span class="csv-column">make</span>
+                    <span class="csv-column">model</span>
+                    <span class="csv-column">year</span>
+                    <span class="csv-column">price</span>
+                    <span class="csv-column">mileage</span>
+                    <span class="csv-column">color</span>
+                    <span class="csv-column">vin</span>
+                    <span class="csv-column">status</span>
+                </div>
+                <p class="note"><strong>Note:</strong> The first row should contain column headers. Missing columns will be left empty.</p>
+                <div class="template-download">
+                    <button type="button" class="btn btn-outline" id="downloadTemplateBtn">
+                        <i class="fas fa-download"></i> Download CSV Template
+                    </button>
+                </div>
+            </div>
+            
+            <div class="file-upload-area">
+                <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                <div class="file-drop-zone" id="fileDropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to select CSV file or drag and drop</p>
+                    <small>Supported format: .csv</small>
+                </div>
+            </div>
+            
+            <div class="import-preview" id="importPreview" style="display: none;">
+                <h4>Preview (First 5 rows)</h4>
+                <div class="preview-table-container">
+                    <table class="preview-table" id="previewTable">
+                        <thead id="previewHeader"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+                <div class="import-summary">
+                    <span id="importSummary"></span>
+                </div>
+            </div>
+        </div>
+    `;
     
-    // For demo purposes, show a message
-    alert('Opening import dialog');
+    const footerButtons = [
+        {
+            text: 'Cancel',
+            class: 'btn-secondary',
+            attributes: 'data-modal-close'
+        },
+        {
+            text: 'Import Vehicles',
+            class: 'btn-primary',
+            attributes: 'id="importVehiclesBtn" disabled',
+            icon: 'fas fa-file-import'
+        }
+    ];
+    
+    // Create and show modal
+    ModalUtils.createModal('importModal', 'Import Vehicles from CSV', modalContent, footerButtons);
+    ModalUtils.openModal('importModal');
+    
+    // Initialize file upload functionality
+    initFileUpload();
+    
+    // Initialize template download
+    initTemplateDownload();
+}
+
+// Initialize file upload functionality
+function initFileUpload() {
+    const fileInput = document.getElementById('csvFileInput');
+    const dropZone = document.getElementById('fileDropZone');
+    const importBtn = document.getElementById('importVehiclesBtn');
+    
+    let csvData = null;
+    
+    // Click to select file
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    // File selection handler
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            handleFileUpload(file);
+        }
+    });
+    
+    // Drag and drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('drag-over');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        
+        const file = e.dataTransfer.files[0];
+        if (file && file.type === 'text/csv') {
+            handleFileUpload(file);
+        } else {
+            ModalUtils.showErrorMessage('Please upload a valid CSV file.');
+        }
+    });
+    
+    // Import button handler
+    importBtn.addEventListener('click', () => {
+        if (csvData) {
+            importVehiclesFromCSV(csvData);
+        }
+    });
+    
+    // Handle file upload and parsing
+    function handleFileUpload(file) {
+        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+            ModalUtils.showErrorMessage('Please upload a valid CSV file.');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const csvText = e.target.result;
+                csvData = parseCSV(csvText);
+                
+                if (csvData && csvData.length > 0) {
+                    showPreview(csvData);
+                    importBtn.disabled = false;
+                } else {
+                    ModalUtils.showErrorMessage('No valid data found in CSV file.');
+                }
+            } catch (error) {
+                console.error('Error parsing CSV:', error);
+                ModalUtils.showErrorMessage('Error parsing CSV file. Please check the format.');
+            }
+        };
+        
+        reader.readAsText(file);
+    }
+}
+
+// Initialize template download functionality
+function initTemplateDownload() {
+    const downloadBtn = document.getElementById('downloadTemplateBtn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', () => {
+            downloadCSVTemplate();
+        });
+    }
+}
+
+// Download CSV template
+function downloadCSVTemplate() {
+    const csvContent = `make,model,year,price,mileage,color,vin,status
+Toyota,Camry,2023,28500,15000,Silver,1HGBH41JXMN109186,Available
+Honda,Civic,2022,24000,22000,Blue,2HGFC2F59NH123456,Available
+Ford,F-150,2023,35000,8000,Red,1FTFW1ET5NFC12345,Available`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'inventory-template.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+// Parse CSV text into array of objects
+function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) {
+        throw new Error('CSV must have at least a header row and one data row');
+    }
+    
+    // Parse header row
+    const headers = lines[0].split(',').map(header => header.trim().replace(/"/g, ''));
+    
+    // Parse data rows
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length === headers.length) {
+            const row = {};
+            headers.forEach((header, index) => {
+                row[header.toLowerCase()] = values[index].trim().replace(/"/g, '');
+            });
+            
+            // Validate and convert data types
+            if (row.make && row.model) { // At minimum, require make and model
+                // Convert numeric fields
+                if (row.year) row.year = parseInt(row.year) || '';
+                if (row.price) row.price = parseFloat(row.price) || '';
+                if (row.mileage) row.mileage = parseInt(row.mileage) || '';
+                
+                // Set default status if not provided
+                if (!row.status) row.status = 'Available';
+                
+                data.push(row);
+            }
+        }
+    }
+    
+    return data;
+}
+
+// Parse a single CSV line (handles commas within quotes)
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    result.push(current);
+    return result;
+}
+
+// Show preview of CSV data
+function showPreview(data) {
+    const previewContainer = document.getElementById('importPreview');
+    const previewHeader = document.getElementById('previewHeader');
+    const previewBody = document.getElementById('previewBody');
+    const importSummary = document.getElementById('importSummary');
+    
+    // Show preview container
+    previewContainer.style.display = 'block';
+    
+    // Create header
+    const headers = Object.keys(data[0]);
+    previewHeader.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>`;
+    
+    // Create preview rows (first 5)
+    const previewRows = data.slice(0, 5);
+    previewBody.innerHTML = previewRows.map(row => 
+        `<tr>${headers.map(header => `<td>${row[header] || ''}</td>`).join('')}</tr>`
+    ).join('');
+    
+    // Update summary
+    importSummary.innerHTML = `<i class="fas fa-check-circle text-success"></i> Ready to import ${data.length} vehicle(s)`;
+}
+
+// Import vehicles from parsed CSV data
+function importVehiclesFromCSV(data) {
+    const importBtn = document.getElementById('importVehiclesBtn');
+    ModalUtils.setButtonLoading(importBtn, true);
+    
+    try {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        data.forEach(vehicleData => {
+            try {
+                // Add the vehicle using DataService
+                DataService.inventory.add(vehicleData);
+                successCount++;
+            } catch (error) {
+                console.error('Error importing vehicle:', vehicleData, error);
+                errorCount++;
+            }
+        });
+        
+        // Show success message
+        const message = errorCount > 0 
+            ? `Import completed: ${successCount} vehicles imported successfully, ${errorCount} failed.`
+            : `Successfully imported ${successCount} vehicle(s)!`;
+            
+        ModalUtils.showSuccessMessage(message);
+        
+        // Close modal and refresh table
+        setTimeout(() => {
+            ModalUtils.closeModal('importModal');
+            ModalUtils.removeModal('importModal');
+            populateInventoryTable(); // Refresh the inventory table
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error during import:', error);
+        ModalUtils.showErrorMessage('An error occurred during import. Please try again.');
+    } finally {
+        ModalUtils.setButtonLoading(importBtn, false);
+    }
 }
 
 // Initialize Mobile Menu (disabled - handled globally in mobile-nav.js)

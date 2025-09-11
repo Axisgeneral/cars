@@ -1,0 +1,6 @@
+firstName,lastName,email,phone,company,type,notes,street,city,state,zip
+Robert,Anderson,robert.anderson@email.com,555-0201,Anderson Corp,VIP,Long-time customer,123 Main St,Springfield,IL,62701
+Jennifer,Martinez,jennifer.martinez@email.com,555-0202,,Regular,Purchased 2 vehicles,456 Oak Ave,Chicago,IL,60601
+David,Taylor,david.taylor@email.com,555-0203,Taylor Industries,VIP,Fleet customer,789 Pine Rd,Peoria,IL,61601
+Amanda,White,amanda.white@email.com,555-0204,,New,Recent purchase,321 Elm St,Rockford,IL,61101
+Chris,Garcia,chris.garcia@email.com,555-0205,Garcia LLC,Regular,Service customer,654 Maple Dr,Aurora,IL,60502

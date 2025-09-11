@@ -1,0 +1,6 @@
+firstName,lastName,email,phone,source,status,interest,notes,vehicleMake,vehicleModel,vehicleYear,vehicleBudget
+John,Smith,john.smith@email.com,555-0101,Website,Hot,SUV,Interested in family vehicle,Toyota,Highlander,2024,45000
+Sarah,Johnson,sarah.johnson@email.com,555-0102,Referral,Warm,Sedan,Looking for fuel efficient car,Honda,Accord,2023,35000
+Mike,Davis,mike.davis@email.com,555-0103,Social Media,Cold,Truck,Needs work vehicle,Ford,F-150,2024,55000
+Lisa,Wilson,lisa.wilson@email.com,555-0104,Walk-in,Hot,Luxury,Wants premium features,BMW,X5,2024,75000
+Tom,Brown,tom.brown@email.com,555-0105,Phone Call,Warm,Compact,First time buyer,Nissan,Sentra,2023,25000

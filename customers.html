@@ -169,12 +169,20 @@
                                     <option value="company">Company</option>
                                 </select>
                             </div>
-                            <select id="customer-filter">
-                                <option value="">All Customers</option>
-                                <option value="VIP">VIP</option>
-                                <option value="Regular">Regular</option>
-                                <option value="New">New</option>
-                            </select>
+                            <div class="table-action-buttons">
+                                <button class="btn btn-secondary" id="import-customers-btn">
+                                    <i class="fas fa-upload"></i> Import
+                                </button>
+                                <button class="btn btn-secondary" id="export-customers-btn">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                                <select id="customer-filter">
+                                    <option value="">All Customers</option>
+                                    <option value="VIP">VIP</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="New">New</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
@@ -208,6 +216,68 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="customers-file-input" accept=".csv,.json" style="display: none;">
+
+    <!-- Import Modal -->
+    <div id="import-customers-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Customers</h2>
+                <span class="close" id="close-import-customers-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="import-instructions">
+                    <h3>Import Instructions</h3>
+                    <p>You can import customers from a CSV or JSON file. Please ensure your file contains the following columns:</p>
+                    <ul>
+                        <li><strong>firstName</strong> - Customer's first name</li>
+                        <li><strong>lastName</strong> - Customer's last name</li>
+                        <li><strong>email</strong> - Email address</li>
+                        <li><strong>phone</strong> - Phone number</li>
+                        <li><strong>address</strong> - Address information (street, city, state, zip)</li>
+                        <li><strong>type</strong> - Customer type (VIP, Regular, New)</li>
+                        <li><strong>company</strong> - Company name (optional)</li>
+                        <li><strong>notes</strong> - Additional notes (optional)</li>
+                    </ul>
+                </div>
+                <div class="file-upload-area">
+                    <div class="upload-zone" id="customers-upload-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag and drop your file here, or click to select</p>
+                        <p class="file-types">Supported formats: CSV, JSON</p>
+                    </div>
+                    <div id="customers-file-info" class="file-info" style="display: none;">
+                        <i class="fas fa-file"></i>
+                        <span id="customers-file-name"></span>
+                        <button type="button" id="customers-remove-file" class="btn-remove">×</button>
+                    </div>
+                </div>
+                <div class="import-options">
+                    <label>
+                        <input type="checkbox" id="customers-skip-duplicates" checked>
+                        Skip duplicate entries (based on email)
+                    </label>
+                </div>
+                <div id="customers-import-preview" class="import-preview" style="display: none;">
+                    <h4>Preview (first 5 rows)</h4>
+                    <div class="preview-table-container">
+                        <table id="customers-preview-table" class="preview-table">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancel-import-customers">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm-import-customers" disabled>Import Customers</button>
+            </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/auth.js"></script>
@@ -313,6 +383,9 @@
                     alert('Notifications feature coming soon!');
                 });
             }
+            
+            // Initialize import/export listeners
+            initCustomersImportExportListeners();
         }
         
         // New Customer Modal

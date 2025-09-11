@@ -1,34 +1,178 @@
-// Print W2s for all employees
-function printW2s() {
-    const select = document.getElementById('w2-employee-select');
-    const employeeId = select ? select.value : '';
-    if (!employeeId) {
-        alert('Please select an employee to print W2.');
-        return;
-    }
+// Print W2 for a specific employee
+function printW2(employeeId) {
     const emp = PayrollSchedulingData.employees.getAll().find(e => e.id === employeeId);
     if (!emp) {
         alert('Employee not found.');
         return;
     }
-    let w2Html = `<h2>W2 Form</h2><div style="page-break-after:always;border:1px solid #ccc;padding:1rem;margin-bottom:2rem;">
-        <h3>W2 - ${emp.firstName} ${emp.lastName}</h3>
-        <p><strong>Employee ID:</strong> ${emp.employeeId}</p>
-        <p><strong>Position:</strong> ${emp.position}</p>
-        <p><strong>Department:</strong> ${emp.department}</p>
-        <p><strong>Email:</strong> ${emp.email}</p>
-        <p><strong>Phone:</strong> ${emp.phone}</p>
-        <p><strong>Hire Date:</strong> ${emp.hireDate}</p>
-        <p><strong>Status:</strong> ${emp.status}</p>
-        <p><strong>Hourly Rate:</strong> $${emp.hourlyRate}</p>
-        <p><strong>Employment Type:</strong> ${emp.employmentType}</p>
-        <hr>
-        <p><em>This is a demo W2. Actual tax details would be included in a real implementation.</em></p>
-    </div>`;
+    
+    const year = document.getElementById('w2-year-filter')?.value || '2024';
+    const w2Html = generateW2Html(emp, year);
+    
     const w2Window = window.open('', '_blank');
-    w2Window.document.write(`<html><head><title>W2 Form</title></head><body>${w2Html}</body></html>`);
+    w2Window.document.write(`
+        <html>
+            <head>
+                <title>W2 Form - ${emp.firstName} ${emp.lastName}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .w2-form { border: 2px solid #000; padding: 20px; max-width: 800px; margin: 0 auto; }
+                    .w2-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                    .w2-section { margin-bottom: 15px; }
+                    .w2-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+                    .w2-box { border: 1px solid #000; padding: 5px; margin: 2px; flex: 1; }
+                    .w2-label { font-weight: bold; font-size: 12px; }
+                    .w2-value { font-size: 14px; }
+                    @media print { body { margin: 0; } }
+                </style>
+            </head>
+            <body>${w2Html}</body>
+        </html>
+    `);
     w2Window.document.close();
     w2Window.print();
+}
+
+// Print W2s for all employees
+function printAllW2s() {
+    const employees = PayrollSchedulingData.employees.getAll();
+    const year = document.getElementById('w2-year-filter')?.value || '2024';
+    
+    if (employees.length === 0) {
+        alert('No employees found.');
+        return;
+    }
+    
+    let allW2Html = '';
+    employees.forEach((emp, index) => {
+        allW2Html += generateW2Html(emp, year);
+        if (index < employees.length - 1) {
+            allW2Html += '<div style="page-break-after: always;"></div>';
+        }
+    });
+    
+    const w2Window = window.open('', '_blank');
+    w2Window.document.write(`
+        <html>
+            <head>
+                <title>All W2 Forms - ${year}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .w2-form { border: 2px solid #000; padding: 20px; max-width: 800px; margin: 0 auto 40px auto; }
+                    .w2-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                    .w2-section { margin-bottom: 15px; }
+                    .w2-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+                    .w2-box { border: 1px solid #000; padding: 5px; margin: 2px; flex: 1; }
+                    .w2-label { font-weight: bold; font-size: 12px; }
+                    .w2-value { font-size: 14px; }
+                    @media print { body { margin: 0; } }
+                </style>
+            </head>
+            <body>${allW2Html}</body>
+        </html>
+    `);
+    w2Window.document.close();
+    w2Window.print();
+}
+
+// Generate W2 HTML for an employee
+function generateW2Html(employee, year) {
+    // Calculate estimated annual earnings (this would come from actual payroll data in a real system)
+    const estimatedAnnualHours = employee.employmentType === 'full-time' ? 2080 : 1040;
+    const grossWages = (employee.hourlyRate * estimatedAnnualHours).toFixed(2);
+    const federalTax = (grossWages * 0.22).toFixed(2);
+    const socialSecurityWages = Math.min(grossWages, 160200).toFixed(2);
+    const socialSecurityTax = (socialSecurityWages * 0.062).toFixed(2);
+    const medicareWages = grossWages;
+    const medicareTax = (grossWages * 0.0145).toFixed(2);
+    const stateTax = (grossWages * 0.05).toFixed(2);
+    
+    return `
+        <div class="w2-form">
+            <div class="w2-header">
+                <h2>Form W-2 Wage and Tax Statement ${year}</h2>
+                <p><strong>AutoConnect Dealership</strong></p>
+                <p>123 Auto Drive, Car City, ST 12345</p>
+                <p>EIN: 12-3456789</p>
+            </div>
+            
+            <div class="w2-section">
+                <div class="w2-row">
+                    <div class="w2-box">
+                        <div class="w2-label">Employee Name:</div>
+                        <div class="w2-value">${employee.firstName} ${employee.lastName}</div>
+                    </div>
+                    <div class="w2-box">
+                        <div class="w2-label">Employee ID:</div>
+                        <div class="w2-value">${employee.employeeId}</div>
+                    </div>
+                </div>
+                
+                <div class="w2-row">
+                    <div class="w2-box">
+                        <div class="w2-label">Position:</div>
+                        <div class="w2-value">${employee.position}</div>
+                    </div>
+                    <div class="w2-box">
+                        <div class="w2-label">Department:</div>
+                        <div class="w2-value">${formatDepartment(employee.department)}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="w2-section">
+                <h3>Wage and Tax Information</h3>
+                <div class="w2-row">
+                    <div class="w2-box">
+                        <div class="w2-label">1. Wages, tips, other compensation:</div>
+                        <div class="w2-value">$${grossWages}</div>
+                    </div>
+                    <div class="w2-box">
+                        <div class="w2-label">2. Federal income tax withheld:</div>
+                        <div class="w2-value">$${federalTax}</div>
+                    </div>
+                </div>
+                
+                <div class="w2-row">
+                    <div class="w2-box">
+                        <div class="w2-label">3. Social security wages:</div>
+                        <div class="w2-value">$${socialSecurityWages}</div>
+                    </div>
+                    <div class="w2-box">
+                        <div class="w2-label">4. Social security tax withheld:</div>
+                        <div class="w2-value">$${socialSecurityTax}</div>
+                    </div>
+                </div>
+                
+                <div class="w2-row">
+                    <div class="w2-box">
+                        <div class="w2-label">5. Medicare wages and tips:</div>
+                        <div class="w2-value">$${medicareWages}</div>
+                    </div>
+                    <div class="w2-box">
+                        <div class="w2-label">6. Medicare tax withheld:</div>
+                        <div class="w2-value">$${medicareTax}</div>
+                    </div>
+                </div>
+                
+                <div class="w2-row">
+                    <div class="w2-box">
+                        <div class="w2-label">17. State income tax:</div>
+                        <div class="w2-value">$${stateTax}</div>
+                    </div>
+                    <div class="w2-box">
+                        <div class="w2-label">18. Local wages, tips, etc.:</div>
+                        <div class="w2-value">$${grossWages}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="w2-section">
+                <p><small><em>This is a demo W2 form. In a real implementation, actual payroll data would be used for calculations.</em></small></p>
+                <p><small>Generated on: ${new Date().toLocaleDateString()}</small></p>
+            </div>
+        </div>
+    `;
 }
 // Payroll & Scheduling Management JavaScript
 
@@ -330,6 +474,9 @@ function showTab(tabName) {
             break;
         case 'payroll':
             loadPayroll();
+            break;
+        case 'w2':
+            loadW2Employees();
             break;
     }
 }
@@ -1170,4 +1317,163 @@ function closePaystubModal() {
 
 function printPaystub() {
     window.print();
+}
+
+// Load W2 employees
+function loadW2Employees() {
+    const container = document.getElementById('w2-employee-list');
+    if (!container) return;
+    
+    const employees = PayrollSchedulingData.employees.getAll();
+    const year = document.getElementById('w2-year-filter')?.value || '2024';
+    
+    container.innerHTML = employees.map(employee => {
+        const estimatedAnnualHours = employee.employmentType === 'full-time' ? 2080 : 1040;
+        const grossWages = (employee.hourlyRate * estimatedAnnualHours).toFixed(2);
+        
+        return `
+            <div class="w2-employee-card">
+                <div class="w2-employee-header">
+                    <div class="w2-employee-info">
+                        <h4>${employee.firstName} ${employee.lastName}</h4>
+                        <p class="employee-id">ID: ${employee.employeeId}</p>
+                        <p class="position">${employee.position}</p>
+                        <p class="department">${formatDepartment(employee.department)}</p>
+                    </div>
+                    <div class="w2-employee-status">
+                        <span class="status-badge ${employee.status}">${formatStatus(employee.status)}</span>
+                        <span class="employment-type">${formatEmploymentType(employee.employmentType)}</span>
+                    </div>
+                </div>
+                <div class="w2-employee-details">
+                    <div class="w2-wage-info">
+                        <p><strong>Hourly Rate:</strong> $${employee.hourlyRate.toFixed(2)}</p>
+                        <p><strong>Est. Annual Wages (${year}):</strong> $${grossWages}</p>
+                        <p><strong>Hire Date:</strong> ${formatDate(employee.hireDate)}</p>
+                    </div>
+                </div>
+                <div class="w2-employee-actions">
+                    <button class="btn btn-primary" onclick="printW2('${employee.id}')">
+                        <i class="fas fa-print"></i> Print W2
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewW2Preview('${employee.id}')">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Filter W2 employees based on search and year
+function filterW2Employees() {
+    const searchTerm = document.getElementById('w2-employee-search')?.value.toLowerCase() || '';
+    const year = document.getElementById('w2-year-filter')?.value || '2024';
+    const container = document.getElementById('w2-employee-list');
+    
+    if (!container) return;
+    
+    let employees = PayrollSchedulingData.employees.getAll();
+    
+    // Filter by search term
+    if (searchTerm) {
+        employees = employees.filter(emp => 
+            emp.firstName.toLowerCase().includes(searchTerm) ||
+            emp.lastName.toLowerCase().includes(searchTerm) ||
+            emp.employeeId.toLowerCase().includes(searchTerm) ||
+            emp.department.toLowerCase().includes(searchTerm) ||
+            emp.position.toLowerCase().includes(searchTerm) ||
+            emp.email.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    container.innerHTML = employees.map(employee => {
+        const estimatedAnnualHours = employee.employmentType === 'full-time' ? 2080 : 1040;
+        const grossWages = (employee.hourlyRate * estimatedAnnualHours).toFixed(2);
+        
+        return `
+            <div class="w2-employee-card">
+                <div class="w2-employee-header">
+                    <div class="w2-employee-info">
+                        <h4>${employee.firstName} ${employee.lastName}</h4>
+                        <p class="employee-id">ID: ${employee.employeeId}</p>
+                        <p class="position">${employee.position}</p>
+                        <p class="department">${formatDepartment(employee.department)}</p>
+                    </div>
+                    <div class="w2-employee-status">
+                        <span class="status-badge ${employee.status}">${formatStatus(employee.status)}</span>
+                        <span class="employment-type">${formatEmploymentType(employee.employmentType)}</span>
+                    </div>
+                </div>
+                <div class="w2-employee-details">
+                    <div class="w2-wage-info">
+                        <p><strong>Hourly Rate:</strong> $${employee.hourlyRate.toFixed(2)}</p>
+                        <p><strong>Est. Annual Wages (${year}):</strong> $${grossWages}</p>
+                        <p><strong>Hire Date:</strong> ${formatDate(employee.hireDate)}</p>
+                    </div>
+                </div>
+                <div class="w2-employee-actions">
+                    <button class="btn btn-primary" onclick="printW2('${employee.id}')">
+                        <i class="fas fa-print"></i> Print W2
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewW2Preview('${employee.id}')">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Show no results message if no employees found
+    if (employees.length === 0) {
+        container.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>No employees found</h3>
+                <p>Try adjusting your search criteria or check if employees exist for the selected year.</p>
+            </div>
+        `;
+    }
+}
+
+// View W2 preview in a modal
+function viewW2Preview(employeeId) {
+    const emp = PayrollSchedulingData.employees.getAll().find(e => e.id === employeeId);
+    if (!emp) {
+        alert('Employee not found.');
+        return;
+    }
+    
+    const year = document.getElementById('w2-year-filter')?.value || '2024';
+    const w2Html = generateW2Html(emp, year);
+    
+    const modalHTML = `
+        <div id="w2-preview-modal" class="modal-overlay">
+            <div class="modal large-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">W2 Preview - ${emp.firstName} ${emp.lastName} (${year})</h3>
+                    <button class="modal-close" onclick="closeW2PreviewModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="w2-preview-content">
+                        ${w2Html}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeW2PreviewModal()">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="printW2('${employeeId}')">Print W2</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Close W2 preview modal
+function closeW2PreviewModal() {
+    const modal = document.getElementById('w2-preview-modal');
+    if (modal) {
+        modal.remove();
+    }
 }

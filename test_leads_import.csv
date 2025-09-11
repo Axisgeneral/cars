@@ -1,0 +1,4 @@
+firstName,lastName,email,phone,source,status,interest,notes
+John,Smith,john.smith@test.com,555-0101,Website,Hot,SUV,Test lead 1
+Jane,Doe,jane.doe@test.com,555-0102,Referral,Warm,Sedan,Test lead 2
+Bob,Johnson,bob.johnson@test.com,555-0103,Social Media,Cold,Truck,Test lead 3

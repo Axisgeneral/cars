@@ -114,6 +114,7 @@
                         <button class="tab-btn" onclick="showTab('schedule')">Schedule</button>
                         <button class="tab-btn" onclick="showTab('timesheet')">Timesheet</button>
                         <button class="tab-btn" onclick="showTab('payroll')">Payroll</button>
+                        <button class="tab-btn" onclick="showTab('w2')">W2</button>
                     </div>
 
                     <!-- Employees Tab -->
@@ -188,10 +189,6 @@
                                     <option>Custom Period</option>
                                 </select>
                                 <button class="btn btn-primary" onclick="processPayroll()">Process Payroll</button>
-                                <select id="w2-employee-select">
-                                    <option value="">Select Employee</option>
-                                </select>
-                                <button class="btn btn-secondary" onclick="printW2s()">Print W2</button>
                             </div>
                         </div>
                         
@@ -216,6 +213,30 @@
                         
                         <div class="payroll-list" id="payroll-list">
                             <!-- Payroll details will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- W2 Tab -->
+                    <div id="w2" class="tab-content">
+                        <div class="section-header">
+                            <h3>W2 Management</h3>
+                            <div class="w2-controls">
+                                <div class="search-container">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="w2-employee-search" placeholder="Search employees by name, ID, or department...">
+                                </div>
+                                <select id="w2-year-filter">
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="printAllW2s()">Print All W2s</button>
+                            </div>
+                        </div>
+                        
+                        <div class="w2-employee-list" id="w2-employee-list">
+                            <!-- W2 employee list will be populated here -->
                         </div>
                     </div>
                 </div>
@@ -370,15 +391,18 @@
     <script src="js/payroll-scheduling.js"></script>
     <script>
         window.addEventListener('load', function() {
-            const select = document.getElementById('w2-employee-select');
-            if (select && window.PayrollSchedulingData) {
-                const employees = PayrollSchedulingData.employees.getAll();
-                select.innerHTML = '<option value="">Select Employee</option>';
-                employees.forEach(emp => {
-                    const option = document.createElement('option');
-                    option.value = emp.id;
-                    option.textContent = `${emp.firstName} ${emp.lastName} (${emp.position})`;
-                    select.appendChild(option);
+            // Initialize W2 search functionality
+            const searchInput = document.getElementById('w2-employee-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    filterW2Employees();
+                });
+            }
+            
+            const yearFilter = document.getElementById('w2-year-filter');
+            if (yearFilter) {
+                yearFilter.addEventListener('change', function() {
+                    filterW2Employees();
                 });
             }
         });
