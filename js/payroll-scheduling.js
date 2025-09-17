@@ -91,7 +91,7 @@ function generateW2Html(employee, year) {
         <div class="w2-form">
             <div class="w2-header">
                 <h2>Form W-2 Wage and Tax Statement ${year}</h2>
-                <p><strong>AutoConnect Dealership</strong></p>
+                <p><strong>TheOnePages Dealership</strong></p>
                 <p>123 Auto Drive, Car City, ST 12345</p>
                 <p>EIN: 12-3456789</p>
             </div>
@@ -490,6 +490,19 @@ function loadEmployees() {
     let employees = PayrollSchedulingData.employees.getAll();
     let filteredEmployees = employees;
     
+    // Apply global search filter
+    if (globalSearchTerm) {
+        filteredEmployees = filteredEmployees.filter(emp => 
+            emp.firstName.toLowerCase().includes(globalSearchTerm) ||
+            emp.lastName.toLowerCase().includes(globalSearchTerm) ||
+            emp.employeeId.toLowerCase().includes(globalSearchTerm) ||
+            emp.department.toLowerCase().includes(globalSearchTerm) ||
+            emp.position.toLowerCase().includes(globalSearchTerm) ||
+            emp.email.toLowerCase().includes(globalSearchTerm) ||
+            emp.phone.toLowerCase().includes(globalSearchTerm)
+        );
+    }
+    
     if (departmentFilter) {
         filteredEmployees = filteredEmployees.filter(emp => emp.department === departmentFilter);
     }
@@ -558,7 +571,19 @@ function loadSchedule() {
                     const employees = PayrollSchedulingData.employees.getAll();
                     const employee = employees.find(emp => emp.id === schedule.employeeId);
                     if (employee) {
-                        gridHTML += `<div class="schedule-item">${employee.firstName} ${employee.lastName}</div>`;
+                        // Apply global search filter
+                        if (globalSearchTerm) {
+                            const matchesSearch = employee.firstName.toLowerCase().includes(globalSearchTerm) ||
+                                                employee.lastName.toLowerCase().includes(globalSearchTerm) ||
+                                                employee.employeeId.toLowerCase().includes(globalSearchTerm) ||
+                                                employee.department.toLowerCase().includes(globalSearchTerm) ||
+                                                employee.position.toLowerCase().includes(globalSearchTerm);
+                            if (matchesSearch) {
+                                gridHTML += `<div class="schedule-item">${employee.firstName} ${employee.lastName}</div>`;
+                            }
+                        } else {
+                            gridHTML += `<div class="schedule-item">${employee.firstName} ${employee.lastName}</div>`;
+                        }
                     }
                 }
             });
@@ -578,6 +603,21 @@ function loadTimesheets() {
     
     let timesheets = PayrollSchedulingData.timesheets.getAll();
     let filteredTimesheets = timesheets;
+    const employees = PayrollSchedulingData.employees.getAll();
+    
+    // Apply global search filter
+    if (globalSearchTerm) {
+        filteredTimesheets = filteredTimesheets.filter(ts => {
+            const employee = employees.find(emp => emp.id === ts.employeeId);
+            if (!employee) return false;
+            
+            return employee.firstName.toLowerCase().includes(globalSearchTerm) ||
+                   employee.lastName.toLowerCase().includes(globalSearchTerm) ||
+                   employee.employeeId.toLowerCase().includes(globalSearchTerm) ||
+                   ts.weekOf.toLowerCase().includes(globalSearchTerm) ||
+                   ts.status.toLowerCase().includes(globalSearchTerm);
+        });
+    }
     
     if (employeeFilter) {
         filteredTimesheets = filteredTimesheets.filter(ts => ts.employeeId === employeeFilter);
@@ -588,7 +628,6 @@ function loadTimesheets() {
     }
     
     container.innerHTML = filteredTimesheets.map(timesheet => {
-        const employees = PayrollSchedulingData.employees.getAll();
         const employee = employees.find(emp => emp.id === timesheet.employeeId);
         return `
             <div class="timesheet-card">
@@ -643,7 +682,23 @@ function loadTimesheets() {
 // Load payroll
 function loadPayroll() {
     const container = document.getElementById('payroll-list');
-    const timesheets = PayrollSchedulingData.timesheets.getAll();
+    let timesheets = PayrollSchedulingData.timesheets.getAll();
+    const employees = PayrollSchedulingData.employees.getAll();
+    
+    // Apply global search filter
+    if (globalSearchTerm) {
+        timesheets = timesheets.filter(ts => {
+            const employee = employees.find(emp => emp.id === ts.employeeId);
+            if (!employee) return false;
+            
+            return employee.firstName.toLowerCase().includes(globalSearchTerm) ||
+                   employee.lastName.toLowerCase().includes(globalSearchTerm) ||
+                   employee.employeeId.toLowerCase().includes(globalSearchTerm) ||
+                   employee.department.toLowerCase().includes(globalSearchTerm) ||
+                   employee.position.toLowerCase().includes(globalSearchTerm);
+        });
+    }
+    
     // Calculate payroll summary
     const totalPayroll = timesheets.reduce((sum, ts) => sum + ts.totalPay, 0);
     const totalHours = timesheets.reduce((sum, ts) => sum + ts.hoursWorked, 0);
@@ -1019,6 +1074,69 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Global search functionality
+let globalSearchTerm = '';
+
+function performGlobalSearch() {
+    const searchInput = document.getElementById('global-search');
+    const clearButton = document.getElementById('clear-search');
+    if (!searchInput) return;
+    
+    globalSearchTerm = searchInput.value.toLowerCase().trim();
+    
+    // Show/hide clear button
+    if (clearButton) {
+        clearButton.style.display = globalSearchTerm ? 'block' : 'none';
+    }
+    
+    // Get the currently active tab
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (!activeTab) return;
+    
+    const activeTabName = activeTab.textContent.toLowerCase();
+    
+    // Refresh the current tab's content with search filtering
+    switch(activeTabName) {
+        case 'employees':
+            loadEmployees();
+            break;
+        case 'schedule':
+            loadSchedule();
+            break;
+        case 'timesheet':
+            loadTimesheets();
+            break;
+        case 'payroll':
+            loadPayroll();
+            break;
+        case 'w2':
+            loadW2Employees();
+            break;
+    }
+    
+    // Show search feedback
+    if (globalSearchTerm) {
+        showNotification(`Searching for: "${globalSearchTerm}"`, 'info');
+    }
+}
+
+function clearGlobalSearch() {
+    globalSearchTerm = '';
+    const searchInput = document.getElementById('global-search');
+    const clearButton = document.getElementById('clear-search');
+    
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    if (clearButton) {
+        clearButton.style.display = 'none';
+    }
+    
+    // Refresh current tab to show all data
+    performGlobalSearch();
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize data
@@ -1035,11 +1153,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusFilter = document.getElementById('status-filter');
     const employeeFilter = document.getElementById('employee-filter');
     const weekFilter = document.getElementById('week-filter');
+    const globalSearch = document.getElementById('global-search');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const w2Search = document.getElementById('w2-employee-search');
+    const w2YearFilter = document.getElementById('w2-year-filter');
     
     if (departmentFilter) departmentFilter.addEventListener('change', loadEmployees);
     if (statusFilter) statusFilter.addEventListener('change', loadEmployees);
     if (employeeFilter) employeeFilter.addEventListener('change', loadTimesheets);
     if (weekFilter) weekFilter.addEventListener('change', loadTimesheets);
+    
+    // Global search functionality
+    if (globalSearch) {
+        globalSearch.addEventListener('input', performGlobalSearch);
+        globalSearch.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performGlobalSearch();
+            }
+        });
+    }
+    
+    // Clear search functionality
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', clearGlobalSearch);
+    }
+    
+    // W2 search functionality
+    if (w2Search) {
+        w2Search.addEventListener('input', filterW2Employees);
+        w2Search.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                filterW2Employees();
+            }
+        });
+    }
+    
+    if (w2YearFilter) {
+        w2YearFilter.addEventListener('change', filterW2Employees);
+    }
     
     // Load initial data (employees tab is default)
     loadEmployees();
@@ -1194,22 +1345,46 @@ function createTimesheetEditModal(timesheet) {
     hoursInput.addEventListener('input', calculatePay);
     overtimeInput.addEventListener('input', calculatePay);
     
-    document.getElementById('timesheet-edit-form').addEventListener('submit', function(e) {
+    document.getElementById('timesheet-edit-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const updates = {
-            hoursWorked: parseFloat(formData.get('hoursWorked')),
-            overtimeHours: parseFloat(formData.get('overtimeHours')) || 0,
-            regularPay: parseFloat(formData.get('regularPay')),
-            overtimePay: parseFloat(formData.get('overtimePay')),
-            totalPay: parseFloat(formData.get('regularPay')) + parseFloat(formData.get('overtimePay')),
-            status: formData.get('status')
-        };
         
-        PayrollSchedulingData.timesheets.update(timesheet.id, updates);
-        loadTimesheets();
-        closeTimesheetEditModal();
-        showNotification('Timesheet updated successfully!', 'success');
+        const form = e.target;
+        const submitButton = form.querySelector('button[type="submit"]');
+        
+        // Show loading states
+        if (typeof LoadingManager !== 'undefined') {
+            LoadingManager.showFormLoading(form);
+            LoadingManager.showButtonLoading(submitButton, 'Updating...');
+        }
+        
+        try {
+            const formData = new FormData(e.target);
+            const updates = {
+                hoursWorked: parseFloat(formData.get('hoursWorked')),
+                overtimeHours: parseFloat(formData.get('overtimeHours')) || 0,
+                regularPay: parseFloat(formData.get('regularPay')),
+                overtimePay: parseFloat(formData.get('overtimePay')),
+                totalPay: parseFloat(formData.get('regularPay')) + parseFloat(formData.get('overtimePay')),
+                status: formData.get('status')
+            };
+            
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            PayrollSchedulingData.timesheets.update(timesheet.id, updates);
+            loadTimesheets();
+            closeTimesheetEditModal();
+            showNotification('Timesheet updated successfully!', 'success');
+        } catch (error) {
+            console.error('Error updating timesheet:', error);
+            showNotification('Error updating timesheet: ' + error.message, 'error');
+        } finally {
+            // Hide loading states
+            if (typeof LoadingManager !== 'undefined') {
+                LoadingManager.hideFormLoading(form);
+                LoadingManager.hideButtonLoading(submitButton);
+            }
+        }
     });
 }
 
@@ -1324,8 +1499,20 @@ function loadW2Employees() {
     const container = document.getElementById('w2-employee-list');
     if (!container) return;
     
-    const employees = PayrollSchedulingData.employees.getAll();
+    let employees = PayrollSchedulingData.employees.getAll();
     const year = document.getElementById('w2-year-filter')?.value || '2024';
+    
+    // Apply global search filter first
+    if (globalSearchTerm) {
+        employees = employees.filter(emp => 
+            emp.firstName.toLowerCase().includes(globalSearchTerm) ||
+            emp.lastName.toLowerCase().includes(globalSearchTerm) ||
+            emp.employeeId.toLowerCase().includes(globalSearchTerm) ||
+            emp.department.toLowerCase().includes(globalSearchTerm) ||
+            emp.position.toLowerCase().includes(globalSearchTerm) ||
+            emp.email.toLowerCase().includes(globalSearchTerm)
+        );
+    }
     
     container.innerHTML = employees.map(employee => {
         const estimatedAnnualHours = employee.employmentType === 'full-time' ? 2080 : 1040;
@@ -1375,7 +1562,19 @@ function filterW2Employees() {
     
     let employees = PayrollSchedulingData.employees.getAll();
     
-    // Filter by search term
+    // Apply global search filter first
+    if (globalSearchTerm) {
+        employees = employees.filter(emp => 
+            emp.firstName.toLowerCase().includes(globalSearchTerm) ||
+            emp.lastName.toLowerCase().includes(globalSearchTerm) ||
+            emp.employeeId.toLowerCase().includes(globalSearchTerm) ||
+            emp.department.toLowerCase().includes(globalSearchTerm) ||
+            emp.position.toLowerCase().includes(globalSearchTerm) ||
+            emp.email.toLowerCase().includes(globalSearchTerm)
+        );
+    }
+    
+    // Filter by W2-specific search term
     if (searchTerm) {
         employees = employees.filter(emp => 
             emp.firstName.toLowerCase().includes(searchTerm) ||

@@ -1,4 +1,4 @@
-// Date filtering utilities for AutoConnect
+// Date filtering utilities for TheOnePages
 // This module provides date range filtering functionality for all data types
 
 const DateFilterUtils = {

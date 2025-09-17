@@ -29,17 +29,14 @@ function populateDealsTable() {
             case 'Pending':
                 statusBadgeHtml = '<span class="status-badge pending">Pending</span>';
                 break;
-            case 'Negotiation':
-                statusBadgeHtml = '<span class="status-badge negotiation">Negotiation</span>';
+            case 'In Progress':
+                statusBadgeHtml = '<span class="status-badge in-progress">In Progress</span>';
                 break;
-            case 'Approved':
-                statusBadgeHtml = '<span class="status-badge approved">Approved</span>';
+            case 'Closed Won':
+                statusBadgeHtml = '<span class="status-badge closed-won">Closed Won</span>';
                 break;
-            case 'Closed':
-                statusBadgeHtml = '<span class="status-badge closed">Closed</span>';
-                break;
-            case 'Cancelled':
-                statusBadgeHtml = '<span class="status-badge cancelled">Cancelled</span>';
+            case 'Closed Lost':
+                statusBadgeHtml = '<span class="status-badge closed-lost">Closed Lost</span>';
                 break;
             default:
                 statusBadgeHtml = '<span class="status-badge">' + deal.status + '</span>';
@@ -47,17 +44,13 @@ function populateDealsTable() {
         
         // Create row HTML
         row.innerHTML = `
-            <td>
-                <input type="checkbox" id="deal-${deal.id}" name="selected-deals">
-                <label for="deal-${deal.id}"></label>
-            </td>
-            <td>${deal.customer.name}</td>
-            <td>${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model}</td>
-            <td>$${deal.vehicle.price.toLocaleString()}</td>
-            <td>${deal.dealType}</td>
+            <td>${deal.customerName}</td>
+            <td>${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}</td>
             <td>${statusBadgeHtml}</td>
+            <td>$${deal.value.toLocaleString()}</td>
             <td>${deal.salesperson}</td>
             <td>${formatDate(deal.dateCreated)}</td>
+            <td>${formatDate(deal.expectedCloseDate)}</td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-icon" title="View Details">
@@ -258,17 +251,14 @@ function applyDealsFilters() {
             case 'Pending':
                 statusBadgeHtml = '<span class="status-badge pending">Pending</span>';
                 break;
-            case 'Negotiation':
-                statusBadgeHtml = '<span class="status-badge negotiation">Negotiation</span>';
+            case 'In Progress':
+                statusBadgeHtml = '<span class="status-badge in-progress">In Progress</span>';
                 break;
-            case 'Approved':
-                statusBadgeHtml = '<span class="status-badge approved">Approved</span>';
+            case 'Closed Won':
+                statusBadgeHtml = '<span class="status-badge closed-won">Closed Won</span>';
                 break;
-            case 'Closed':
-                statusBadgeHtml = '<span class="status-badge closed">Closed</span>';
-                break;
-            case 'Cancelled':
-                statusBadgeHtml = '<span class="status-badge cancelled">Cancelled</span>';
+            case 'Closed Lost':
+                statusBadgeHtml = '<span class="status-badge closed-lost">Closed Lost</span>';
                 break;
             default:
                 statusBadgeHtml = '<span class="status-badge">' + deal.status + '</span>';
@@ -276,17 +266,13 @@ function applyDealsFilters() {
         
         // Create row HTML
         row.innerHTML = `
-            <td>
-                <input type="checkbox" id="deal-${deal.id}" name="selected-deals">
-                <label for="deal-${deal.id}"></label>
-            </td>
-            <td>${deal.customer.name}</td>
-            <td>${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model}</td>
-            <td>$${deal.vehicle.price.toLocaleString()}</td>
-            <td>${deal.dealType}</td>
+            <td>${deal.customerName}</td>
+            <td>${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}</td>
             <td>${statusBadgeHtml}</td>
+            <td>$${deal.value.toLocaleString()}</td>
             <td>${deal.salesperson}</td>
             <td>${formatDate(deal.dateCreated)}</td>
+            <td>${formatDate(deal.expectedCloseDate)}</td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-icon" title="View Details">
@@ -441,4 +427,168 @@ function showMoreOptions(customer, vehicle, buttonElement) {
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Search and Filter Functionality
+function applyDealsSearch() {
+    // Get search values
+    const searchInput = document.getElementById('deal-search');
+    const searchCriteriaSelect = document.getElementById('search-criteria');
+    const dealFilter = document.getElementById('deal-filter');
+    
+    if (!searchInput || !searchCriteriaSelect) return;
+    
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const criteria = searchCriteriaSelect.value;
+    const filterStatus = dealFilter ? dealFilter.value : '';
+    
+    // Get all deals
+    const allDeals = DataService.deals.getAll();
+    
+    // Filter deals
+    let filteredDeals = allDeals;
+    
+    // Apply search filter based on selected criteria
+    if (searchTerm) {
+        filteredDeals = filteredDeals.filter(deal => {
+            switch (criteria) {
+                case 'customer':
+                    return deal.customerName.toLowerCase().includes(searchTerm) ||
+                           (deal.customerEmail && deal.customerEmail.toLowerCase().includes(searchTerm));
+                case 'phone':
+                    // Look up customer phone by customerId
+                    if (deal.customerId) {
+                        const customer = DataService.customers.get(deal.customerId);
+                        if (customer && customer.phone) {
+                            const customerPhoneDigits = customer.phone.replace(/\D/g, '');
+                            const searchDigits = searchTerm.replace(/\D/g, '');
+                            return customerPhoneDigits.includes(searchDigits);
+                        }
+                    }
+                    return false;
+                case 'vehicle':
+                    return deal.vehicleMake.toLowerCase().includes(searchTerm) ||
+                           deal.vehicleModel.toLowerCase().includes(searchTerm) ||
+                           deal.vehicleYear.toString().includes(searchTerm);
+                case 'salesperson':
+                    return deal.salesperson.toLowerCase().includes(searchTerm);
+                case 'value':
+                    // Remove currency symbols and commas for value search
+                    const dealValue = deal.value.toString().replace(/[$,]/g, '');
+                    const searchValue = searchTerm.replace(/[$,]/g, '');
+                    return dealValue.includes(searchValue);
+                case 'all':
+                default:
+                    // Search across all fields including phone
+                    const dealValue = deal.value.toString().replace(/[$,]/g, '');
+                    const searchValue = searchTerm.replace(/[$,]/g, '');
+                    
+                    // Check phone number if customerId exists
+                    let phoneMatch = false;
+                    if (deal.customerId) {
+                        const customer = DataService.customers.get(deal.customerId);
+                        if (customer && customer.phone) {
+                            const customerPhoneDigits = customer.phone.replace(/\D/g, '');
+                            const searchDigits = searchTerm.replace(/\D/g, '');
+                            phoneMatch = customerPhoneDigits.includes(searchDigits);
+                        }
+                    }
+                    
+                    return deal.customerName.toLowerCase().includes(searchTerm) ||
+                           (deal.customerEmail && deal.customerEmail.toLowerCase().includes(searchTerm)) ||
+                           deal.vehicleMake.toLowerCase().includes(searchTerm) ||
+                           deal.vehicleModel.toLowerCase().includes(searchTerm) ||
+                           deal.vehicleYear.toString().includes(searchTerm) ||
+                           deal.salesperson.toLowerCase().includes(searchTerm) ||
+                           dealValue.includes(searchValue) ||
+                           deal.status.toLowerCase().includes(searchTerm) ||
+                           phoneMatch;
+            }
+        });
+    }
+    
+    // Apply status filter
+    if (filterStatus && filterStatus !== '') {
+        filteredDeals = filteredDeals.filter(deal => deal.status === filterStatus);
+    }
+    
+    // Update table with filtered deals
+    updateDealsTable(filteredDeals);
+    
+    return filteredDeals.length;
+}
+
+// Update deals table with filtered data
+function updateDealsTable(deals) {
+    const tableBody = document.querySelector('.deals-table tbody');
+    
+    if (!tableBody) return;
+    
+    // Clear existing rows
+    tableBody.innerHTML = '';
+    
+    // Add filtered deals to the table
+    deals.forEach(deal => {
+        const row = document.createElement('tr');
+        
+        // Create status badge HTML
+        let statusBadgeHtml = '';
+        switch(deal.status) {
+            case 'Pending':
+                statusBadgeHtml = '<span class="status-badge pending">Pending</span>';
+                break;
+            case 'In Progress':
+                statusBadgeHtml = '<span class="status-badge in-progress">In Progress</span>';
+                break;
+            case 'Closed Won':
+                statusBadgeHtml = '<span class="status-badge closed-won">Closed Won</span>';
+                break;
+            case 'Closed Lost':
+                statusBadgeHtml = '<span class="status-badge closed-lost">Closed Lost</span>';
+                break;
+            default:
+                statusBadgeHtml = '<span class="status-badge">' + deal.status + '</span>';
+        }
+        
+        // Create row HTML
+        row.innerHTML = `
+            <td>${deal.customerName}</td>
+            <td>${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}</td>
+            <td>${statusBadgeHtml}</td>
+            <td>$${deal.value.toLocaleString()}</td>
+            <td>${deal.salesperson}</td>
+            <td>${formatDate(deal.dateCreated)}</td>
+            <td>${formatDate(deal.expectedCloseDate)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon" title="More Options">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // If no deals, show a message
+    if (deals.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="8" style="text-align: center; padding: 2rem;">No deals found matching the search criteria</td>';
+        tableBody.appendChild(row);
+    }
+    
+    // Re-initialize event listeners for the new elements
+    initDealsEventListeners();
+}
+
+// Wrapper function for HTML event listeners
+function filterDeals() {
+    applyDealsSearch();
 }

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll & Scheduling - AutoConnect</title>
+    <title>Payroll & Scheduling - TheOnePages</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/loading.css">
     <link rel="stylesheet" href="styles/modal.css">
     <link rel="stylesheet" href="styles/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,8 +15,8 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
-                <h2>AutoConnect</h2>
+                <img src="assets/logo.png" alt="TheOnePages Logo" class="logo">
+                <h2>TheOnePages</h2>
             </div>
             
             <nav class="sidebar-nav">
@@ -79,7 +80,10 @@
             <header class="top-nav">
                 <div class="search-container">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search employees, schedules...">
+                    <input type="text" id="global-search" placeholder="Search employees, schedules...">
+                    <button type="button" id="clear-search" class="clear-search-btn" style="display: none;" title="Clear search">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 
                 <div class="top-nav-actions">

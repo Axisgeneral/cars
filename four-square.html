@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Four Square (Pencil) - AutoConnect</title>
+    <title>Four Square (Pencil) - TheOnePages</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/loading.css">
     <link rel="stylesheet" href="styles/modal.css">
     <link rel="stylesheet" href="styles/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -394,8 +395,8 @@
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="assets/logo.png" alt="AutoConnect Logo" class="logo">
-                <h2>AutoConnect</h2>
+                <img src="assets/logo.png" alt="TheOnePages Logo" class="logo">
+                <h2>TheOnePages</h2>
             </div>
             
             <nav class="sidebar-nav">
@@ -1144,7 +1145,7 @@
             }
             
             const subject = `Vehicle Purchase Details - ${currentDeal.vehicle.year} ${currentDeal.vehicle.make} ${currentDeal.vehicle.model}`;
-            const body = `Dear ${currentDeal.customer.name},\n\nHere are the details for your vehicle purchase:\n\nVehicle: ${currentDeal.vehicle.year} ${currentDeal.vehicle.make} ${currentDeal.vehicle.model}\nSelling Price: $${document.getElementById('selling-price').value}\nTrade-In Value: $${document.getElementById('trade-in-value').value}\nDown Payment: $${document.getElementById('down-payment').value}\nMonthly Payment: ${document.getElementById('monthly-payment-display').textContent}\n\nThank you for your business!\n\nBest regards,\nAutoConnect Team`;
+            const body = `Dear ${currentDeal.customer.name},\n\nHere are the details for your vehicle purchase:\n\nVehicle: ${currentDeal.vehicle.year} ${currentDeal.vehicle.make} ${currentDeal.vehicle.model}\nSelling Price: $${document.getElementById('selling-price').value}\nTrade-In Value: $${document.getElementById('trade-in-value').value}\nDown Payment: $${document.getElementById('down-payment').value}\nMonthly Payment: ${document.getElementById('monthly-payment-display').textContent}\n\nThank you for your business!\n\nBest regards,\nTheOnePages Team`;
             
             window.location.href = `mailto:${customerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         }

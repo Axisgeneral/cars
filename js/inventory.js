@@ -181,37 +181,48 @@ function getModelsByMake(make) {
 }
 
 // Perform Search
-function performSearch(searchTerm) {
-    // Get all inventory
-    const allInventory = DataService.inventory.getAll();
+async function performSearch(searchTerm) {
+    const inventoryTable = document.querySelector('.inventory-table');
     
-    // If search term is empty, show all vehicles
-    if (!searchTerm || searchTerm.trim() === '') {
-        populateInventoryTableWithData(allInventory);
-        updateSearchResultsMessage('');
-        return;
+    // Show table loading for search
+    if (typeof LoadingManager !== 'undefined' && inventoryTable) {
+        LoadingManager.showTableLoading(inventoryTable);
     }
     
-    // Convert search term to lowercase for case-insensitive search
-    const searchLower = searchTerm.toLowerCase().trim();
-    
-    // Filter inventory based on search term
-    const filteredInventory = allInventory.filter(vehicle => {
-        // Search in multiple fields
-        const searchableFields = [
-            vehicle.vin,
-            vehicle.stockNumber,
-            vehicle.make,
-            vehicle.model,
-            vehicle.trim,
-            vehicle.color,
-            vehicle.year?.toString(),
-            vehicle.type,
-            vehicle.status
-        ];
+    try {
+        // Simulate search delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        // Check if any field contains the search term
-        return searchableFields.some(field => {
+        // Get all inventory
+        const allInventory = DataService.inventory.getAll();
+        
+        // If search term is empty, show all vehicles
+        if (!searchTerm || searchTerm.trim() === '') {
+            populateInventoryTableWithData(allInventory);
+            updateSearchResultsMessage('');
+            return;
+        }
+        
+        // Convert search term to lowercase for case-insensitive search
+        const searchLower = searchTerm.toLowerCase().trim();
+        
+        // Filter inventory based on search term
+        const filteredInventory = allInventory.filter(vehicle => {
+            // Search in multiple fields
+            const searchableFields = [
+                vehicle.vin,
+                vehicle.stockNumber,
+                vehicle.make,
+                vehicle.model,
+                vehicle.trim,
+                vehicle.color,
+                vehicle.year?.toString(),
+                vehicle.type,
+                vehicle.status
+            ];
+            
+            // Check if any field contains the search term
+            return searchableFields.some(field => {
             if (field) {
                 return field.toString().toLowerCase().includes(searchLower);
             }
@@ -219,11 +230,19 @@ function performSearch(searchTerm) {
         });
     });
     
-    // Update table with search results
-    populateInventoryTableWithData(filteredInventory);
-    
-    // Update search results message
-    updateSearchResultsMessage(searchTerm, filteredInventory.length);
+        // Update table with search results
+        populateInventoryTableWithData(filteredInventory);
+        
+        // Update search results message
+        updateSearchResultsMessage(searchTerm, filteredInventory.length);
+    } catch (error) {
+        console.error('Error performing search:', error);
+    } finally {
+        // Hide table loading
+        if (typeof LoadingManager !== 'undefined' && inventoryTable) {
+            LoadingManager.hideTableLoading(inventoryTable);
+        }
+    }
 }
 
 // Update Search Results Message
@@ -887,6 +906,15 @@ function createAddVehicleModal() {
     document.getElementById('add-vehicle-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        const form = e.target;
+        const submitButton = form.querySelector('button[type="submit"]');
+        
+        // Show loading states
+        if (typeof LoadingManager !== 'undefined') {
+            LoadingManager.showFormLoading(form);
+            LoadingManager.showButtonLoading(submitButton, 'Adding Vehicle...');
+        }
+        
         const formData = new FormData(e.target);
         const vehicleData = {
             stockNumber: formData.get('stockNumber'),
@@ -906,6 +934,9 @@ function createAddVehicleModal() {
         };
         
         try {
+            // Simulate API delay for better UX
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
             // Add vehicle using DataService
             if (typeof DataService !== 'undefined') {
                 DataService.inventory.add(vehicleData);
@@ -924,6 +955,12 @@ function createAddVehicleModal() {
         } catch (error) {
             console.error('Error adding vehicle:', error);
             showNotification('Error adding vehicle: ' + error.message, 'error');
+        } finally {
+            // Hide loading states
+            if (typeof LoadingManager !== 'undefined') {
+                LoadingManager.hideFormLoading(form);
+                LoadingManager.hideButtonLoading(submitButton);
+            }
         }
     });
 }

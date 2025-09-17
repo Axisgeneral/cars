@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .results { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .error { color: red; }
+        .success { color: green; }
+        input, select, button { margin: 5px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Search Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>Leads Search Test</h2>
+        <div>
+            <input type="text" id="lead-search" placeholder="Search leads..." value="Michael">
+            <select id="search-criteria">
+                <option value="all">All Fields</option>
+                <option value="name">Name</option>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+                <option value="company">Company</option>
+                <option value="interest">Interest</option>
+                <option value="source">Source</option>
+            </select>
+            <select id="lead-filter">
+                <option value="">All Leads</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Qualified">Qualified</option>
+                <option value="Proposal">Proposal</option>
+                <option value="Converted">Converted</option>
+            </select>
+            <button onclick="testLeadsSearch()">Test Leads Search</button>
+        </div>
+        <div id="leads-results" class="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Deals Search Test</h2>
+        <div>
+            <input type="text" id="deal-search" placeholder="Search deals..." value="Toyota">
+            <select id="deal-search-criteria">
+                <option value="all">All Fields</option>
+                <option value="customer">Customer</option>
+                <option value="vehicle">Vehicle</option>
+                <option value="salesperson">Salesperson</option>
+                <option value="value">Value</option>
+            </select>
+            <select id="deal-filter">
+                <option value="">All Deals</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed Won">Closed Won</option>
+                <option value="Closed Lost">Closed Lost</option>
+            </select>
+            <button onclick="testDealsSearch()">Test Deals Search</button>
+        </div>
+        <div id="deals-results" class="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Data Verification</h2>
+        <button onclick="verifyData()">Verify Data Structure</button>
+        <div id="data-results" class="results"></div>
+    </div>
+
+    <script src="js/data-service.js"></script>
+    <script src="js/leads-data.js"></script>
+    <script src="js/deals-data.js"></script>
+    <script>
+        // Initialize data
+        DataService.initializeAllData();
+        
+        function testLeadsSearch() {
+            try {
+                console.log('Testing leads search...');
+                const results = applyLeadsSearch();
+                document.getElementById('leads-results').innerHTML = `<span class="success">✓ Found ${results} leads</span>`;
+                console.log('Leads search completed, found:', results);
+            } catch (error) {
+                console.error('Leads search error:', error);
+                document.getElementById('leads-results').innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+        
+        function testDealsSearch() {
+            try {
+                console.log('Testing deals search...');
+                // Temporarily change the search criteria ID for deals test
+                const originalId = document.getElementById('deal-search-criteria').id;
+                document.getElementById('deal-search-criteria').id = 'search-criteria';
+                
+                const results = applyDealsSearch();
+                document.getElementById('deals-results').innerHTML = `<span class="success">✓ Found ${results} deals</span>`;
+                console.log('Deals search completed, found:', results);
+                
+                // Restore original ID
+                document.getElementById('search-criteria').id = originalId;
+            } catch (error) {
+                console.error('Deals search error:', error);
+                document.getElementById('deals-results').innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+        
+        function verifyData() {
+            try {
+                const leads = DataService.leads.getAll();
+                const deals = DataService.deals.getAll();
+                const customers = DataService.customers.getAll();
+                
+                let html = `
+                    <div><strong>Data Summary:</strong></div>
+                    <div>Leads: ${leads.length} records</div>
+                    <div>Deals: ${deals.length} records</div>
+                    <div>Customers: ${customers.length} records</div>
+                    <br>
+                `;
+                
+                if (leads.length > 0) {
+                    const lead = leads[0];
+                    html += `<div><strong>Sample Lead Structure:</strong></div>`;
+                    html += `<div>Fields: ${Object.keys(lead).join(', ')}</div><br>`;
+                }
+                
+                if (deals.length > 0) {
+                    const deal = deals[0];
+                    html += `<div><strong>Sample Deal Structure:</strong></div>`;
+                    html += `<div>Fields: ${Object.keys(deal).join(', ')}</div><br>`;
+                }
+                
+                document.getElementById('data-results').innerHTML = html;
+            } catch (error) {
+                document.getElementById('data-results').innerHTML = `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+        
+        // Test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, testing search functions...');
+            
+            setTimeout(() => {
+                verifyData();
+                testLeadsSearch();
+                testDealsSearch();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

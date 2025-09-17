@@ -1,4 +1,4 @@
-// Modal Functions for AutoConnect
+// Modal Functions for TheOnePages
 // Contains functions for opening various modal dialogs
 
 // New Lead Modal

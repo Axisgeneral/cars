@@ -1,4 +1,4 @@
-// Global Error Handler for AutoConnect
+// Global Error Handler for TheOnePages
 // Suppresses browser extension errors and provides better error handling
 
 (function() {

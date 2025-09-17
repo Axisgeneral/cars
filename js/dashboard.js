@@ -1,21 +1,44 @@
 // Dashboard JavaScript
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Data Services
-    DataService.utils.initializeAllData();
+document.addEventListener('DOMContentLoaded', async function() {
+    // Show loading for dashboard cards
+    const kpiCards = document.querySelectorAll('.kpi-card');
+    const chartContainers = document.querySelectorAll('.chart-container');
     
-    // Initialize Dashboard Data
-    initDashboardData();
+    if (typeof LoadingManager !== 'undefined') {
+        kpiCards.forEach(card => LoadingManager.showCardLoading(card));
+        chartContainers.forEach(container => LoadingManager.showCardLoading(container));
+    }
     
-    // Update KPIs with current data
-    updateDashboardKPIs();
-    
-    // Initialize Charts
-    initSalesChart();
-    initLeadSourceChart();
-    
-    // Initialize Event Listeners
-    initEventListeners();
+    try {
+        // Initialize Data Services
+        DataService.utils.initializeAllData();
+        
+        // Simulate data loading delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Initialize Dashboard Data
+        initDashboardData();
+        
+        // Update KPIs with current data
+        updateDashboardKPIs();
+        
+        // Initialize Charts
+        initSalesChart();
+        initLeadSourceChart();
+        
+        // Initialize Event Listeners
+        initEventListeners();
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    } finally {
+        // Hide loading states
+        if (typeof LoadingManager !== 'undefined') {
+            kpiCards.forEach(card => LoadingManager.hideCardLoading(card));
+            chartContainers.forEach(container => LoadingManager.hideCardLoading(container));
+        }
+    }
 });
 
 // Initialize Sales Performance Chart

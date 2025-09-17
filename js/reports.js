@@ -1,4 +1,4 @@
-// Reports functionality for AutoConnect
+// Reports functionality for TheOnePages
 // Handles report display, filtering, and generation
 
 const ReportsManager = {

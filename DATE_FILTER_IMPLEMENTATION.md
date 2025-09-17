@@ -1,7 +1,7 @@
 # Date Range Filter Implementation
 
 ## Overview
-The date range dropdown filtering functionality has been implemented across all major pages in the AutoConnect CRM system.
+The date range dropdown filtering functionality has been implemented across all major pages in the TheOnePages CRM system.
 
 ## Files Modified/Created
 

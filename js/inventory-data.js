@@ -1,7 +1,7 @@
 // Inventory Data Service
 
 // Initialize Inventory Data
-function initInventoryData() {
+async function initInventoryData() {
     try {
         // Initialize inventory data if it doesn't exist
         DataService.inventory.init();
@@ -10,7 +10,9 @@ function initInventoryData() {
         populateInventoryTable();
     } catch (error) {
         console.error('Error initializing inventory data:', error);
-        showNotification('Error loading inventory data', 'error');
+        if (typeof showNotification === 'function') {
+            showNotification('Error loading inventory data', 'error');
+        }
     }
 }
 
@@ -19,33 +21,54 @@ function populateInventoryTable() {
     try {
         const inventory = DataService.inventory.getAll();
         
-        // Use the pagination-enabled function from inventory.js
+        // Try pagination-enabled function first, but with fallback to direct population
         if (typeof populateInventoryTableWithData === 'function') {
             populateInventoryTableWithData(inventory);
+            
+            // Verify that data was actually displayed after a short delay
+            setTimeout(() => {
+                const tableBody = document.querySelector('.inventory-table tbody');
+                const rows = tableBody ? tableBody.querySelectorAll('tr') : [];
+                
+                // If no data rows are visible (only empty message or no rows), fall back to direct population
+                if (rows.length === 0 || (rows.length === 1 && rows[0].textContent.includes('No vehicles found'))) {
+                    populateInventoryTableDirect(inventory);
+                }
+            }, 200);
             return;
         }
         
-        // Fallback for direct table population (if pagination function not available)
-        const tableBody = document.querySelector('.inventory-table tbody');
+        // Direct table population fallback
+        populateInventoryTableDirect(inventory);
         
-        if (!tableBody) return;
-        
-        // Clear existing rows
-        tableBody.innerHTML = '';
-        
-        if (inventory.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="15" class="text-center" style="padding: 2rem; color: #6b7280;">
-                        No vehicles found. <a href="#" onclick="openAddVehicleModal()" style="color: #3b82f6;">Add your first vehicle</a>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        // Add vehicles to the table
-        inventory.forEach(vehicle => {
+    } catch (error) {
+        console.error('Error populating inventory table:', error);
+        showNotification('Error loading inventory data', 'error');
+    }
+}
+
+// Direct table population (guaranteed to work)
+function populateInventoryTableDirect(inventory) {
+    const tableBody = document.querySelector('.inventory-table tbody');
+    
+    if (!tableBody) return;
+    
+    // Clear existing rows
+    tableBody.innerHTML = '';
+    
+    if (inventory.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="15" class="text-center" style="padding: 2rem; color: #6b7280;">
+                    No vehicles found. <a href="#" onclick="openAddVehicleModal()" style="color: #3b82f6;">Add your first vehicle</a>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Add vehicles to the table
+    inventory.forEach(vehicle => {
         const row = document.createElement('tr');
         
         // Create status badge HTML
@@ -108,27 +131,18 @@ function populateInventoryTable() {
             </td>
         `;
         
-            tableBody.appendChild(row);
-        });
-        
-        // Update inventory stats
-        updateInventoryStats();
-        
-        // Re-initialize event listeners for the new elements
-        initInventoryEventListeners();
-    } catch (error) {
-        console.error('Error populating inventory table:', error);
-        const tableBody = document.querySelector('.inventory-table tbody');
-        if (tableBody) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="15" class="text-center" style="padding: 2rem; color: #ef4444;">
-                        Error loading inventory data. Please try refreshing the page.
-                    </td>
-                </tr>
-            `;
-        }
-        throw error;
+        tableBody.appendChild(row);
+    });
+    
+    // Update inventory stats
+    updateInventoryStats();
+    
+    // Re-initialize event listeners for the new elements
+    initInventoryEventListeners();
+    
+    // Also populate mobile cards for responsive design
+    if (typeof populateMobileCards === 'function') {
+        populateMobileCards(inventory);
     }
 }
 

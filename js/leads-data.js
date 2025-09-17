@@ -29,14 +29,14 @@ function populateLeadsTable() {
             case 'New':
                 statusBadgeHtml = '<span class="status-badge new">New</span>';
                 break;
-            case 'In Progress':
-                statusBadgeHtml = '<span class="status-badge in-progress">In Progress</span>';
+            case 'Contacted':
+                statusBadgeHtml = '<span class="status-badge contacted">Contacted</span>';
                 break;
-            case 'Hot':
-                statusBadgeHtml = '<span class="status-badge hot">Hot</span>';
+            case 'Qualified':
+                statusBadgeHtml = '<span class="status-badge qualified">Qualified</span>';
                 break;
-            case 'Cold':
-                statusBadgeHtml = '<span class="status-badge cold">Cold</span>';
+            case 'Proposal':
+                statusBadgeHtml = '<span class="status-badge proposal">Proposal</span>';
                 break;
             case 'Converted':
                 statusBadgeHtml = '<span class="status-badge converted">Converted</span>';
@@ -57,7 +57,7 @@ function populateLeadsTable() {
             <td>${lead.source}</td>
             <td>${statusBadgeHtml}</td>
             <td>${lead.assignedTo}</td>
-            <td>${formatDate(lead.dateCreated)}</td>
+            <td>${formatDate(lead.dateAdded)}</td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-icon" title="View Details">
@@ -97,9 +97,9 @@ function updateLeadsStats() {
     // Calculate stats
     const totalLeads = leads.length;
     const newLeads = leads.filter(lead => lead.status === 'New').length;
-    const inProgressLeads = leads.filter(lead => lead.status === 'In Progress').length;
-    const hotLeads = leads.filter(lead => lead.status === 'Hot').length;
-    const coldLeads = leads.filter(lead => lead.status === 'Cold').length;
+    const contactedLeads = leads.filter(lead => lead.status === 'Contacted').length;
+    const qualifiedLeads = leads.filter(lead => lead.status === 'Qualified').length;
+    const proposalLeads = leads.filter(lead => lead.status === 'Proposal').length;
     const convertedLeads = leads.filter(lead => lead.status === 'Converted').length;
     
     // Update DOM elements
@@ -115,16 +115,16 @@ function updateLeadsStats() {
                 <span class="stat-value">${newLeads}</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">In Progress:</span>
-                <span class="stat-value">${inProgressLeads}</span>
+                <span class="stat-label">Contacted:</span>
+                <span class="stat-value">${contactedLeads}</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Hot:</span>
-                <span class="stat-value">${hotLeads}</span>
+                <span class="stat-label">Qualified:</span>
+                <span class="stat-value">${qualifiedLeads}</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Cold:</span>
-                <span class="stat-value">${coldLeads}</span>
+                <span class="stat-label">Proposal:</span>
+                <span class="stat-value">${proposalLeads}</span>
             </div>
             <div class="stat-item">
                 <span class="stat-label">Converted:</span>
@@ -243,14 +243,14 @@ function applyLeadsFilters() {
             case 'New':
                 statusBadgeHtml = '<span class="status-badge new">New</span>';
                 break;
-            case 'In Progress':
-                statusBadgeHtml = '<span class="status-badge in-progress">In Progress</span>';
+            case 'Contacted':
+                statusBadgeHtml = '<span class="status-badge contacted">Contacted</span>';
                 break;
-            case 'Hot':
-                statusBadgeHtml = '<span class="status-badge hot">Hot</span>';
+            case 'Qualified':
+                statusBadgeHtml = '<span class="status-badge qualified">Qualified</span>';
                 break;
-            case 'Cold':
-                statusBadgeHtml = '<span class="status-badge cold">Cold</span>';
+            case 'Proposal':
+                statusBadgeHtml = '<span class="status-badge proposal">Proposal</span>';
                 break;
             case 'Converted':
                 statusBadgeHtml = '<span class="status-badge converted">Converted</span>';
@@ -271,7 +271,7 @@ function applyLeadsFilters() {
             <td>${lead.source}</td>
             <td>${statusBadgeHtml}</td>
             <td>${lead.assignedTo}</td>
-            <td>${formatDate(lead.dateCreated)}</td>
+            <td>${formatDate(lead.dateAdded)}</td>
             <td>
                 <div class="action-buttons">
                     <button class="btn-icon" title="View Details">
@@ -384,6 +384,154 @@ function showMoreOptions(name, buttonElement) {
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Search and Filter Functionality
+function applyLeadsSearch() {
+    // Get search values
+    const searchInput = document.getElementById('lead-search');
+    const searchCriteriaSelect = document.getElementById('search-criteria');
+    const leadFilter = document.getElementById('lead-filter');
+    
+    if (!searchInput || !searchCriteriaSelect) return;
+    
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const criteria = searchCriteriaSelect.value;
+    const filterStatus = leadFilter ? leadFilter.value : '';
+    
+    // Get all leads
+    const allLeads = DataService.leads.getAll();
+    
+    // Filter leads
+    let filteredLeads = allLeads;
+    
+    // Apply search filter based on selected criteria
+    if (searchTerm) {
+        filteredLeads = filteredLeads.filter(lead => {
+            switch (criteria) {
+                case 'name':
+                    return lead.firstName.toLowerCase().includes(searchTerm) ||
+                           lead.lastName.toLowerCase().includes(searchTerm);
+                case 'phone':
+                    // Normalize both phone and searchTerm to digits only for matching
+                    const leadPhoneDigits = (lead.phone || '').replace(/\D/g, '');
+                    const searchDigits = searchTerm.replace(/\D/g, '');
+                    return leadPhoneDigits.includes(searchDigits);
+                case 'email':
+                    return lead.email.toLowerCase().includes(searchTerm);
+                case 'company':
+                    return (lead.company && lead.company.toLowerCase().includes(searchTerm)) || false;
+                case 'interest':
+                    return lead.interest && lead.interest.toLowerCase().includes(searchTerm);
+                case 'source':
+                    return lead.source && lead.source.toLowerCase().includes(searchTerm);
+                case 'all':
+                default:
+                    // Search across all fields
+                    const leadPhoneDigitsAll = (lead.phone || '').replace(/\D/g, '');
+                    const searchDigitsAll = searchTerm.replace(/\D/g, '');
+                    return lead.firstName.toLowerCase().includes(searchTerm) ||
+                           lead.lastName.toLowerCase().includes(searchTerm) ||
+                           lead.email.toLowerCase().includes(searchTerm) ||
+                           leadPhoneDigitsAll.includes(searchDigitsAll) ||
+                           (lead.company && lead.company.toLowerCase().includes(searchTerm)) ||
+                           (lead.source && lead.source.toLowerCase().includes(searchTerm)) ||
+                           (lead.interest && lead.interest.toLowerCase().includes(searchTerm));
+            }
+        });
+    }
+    
+    // Apply status filter
+    if (filterStatus && filterStatus !== '') {
+        filteredLeads = filteredLeads.filter(lead => lead.status === filterStatus);
+    }
+    
+    // Update table with filtered leads
+    updateLeadsTable(filteredLeads);
+    
+    return filteredLeads.length;
+}
+
+// Update leads table with filtered data
+function updateLeadsTable(leads) {
+    const tableBody = document.querySelector('.leads-table tbody');
+    
+    if (!tableBody) return;
+    
+    // Clear existing rows
+    tableBody.innerHTML = '';
+    
+    // Add filtered leads to the table
+    leads.forEach(lead => {
+        const row = document.createElement('tr');
+        
+        // Create status badge HTML
+        let statusBadgeHtml = '';
+        switch(lead.status) {
+            case 'New':
+                statusBadgeHtml = '<span class="status-badge new">New</span>';
+                break;
+            case 'Contacted':
+                statusBadgeHtml = '<span class="status-badge contacted">Contacted</span>';
+                break;
+            case 'Qualified':
+                statusBadgeHtml = '<span class="status-badge qualified">Qualified</span>';
+                break;
+            case 'Proposal':
+                statusBadgeHtml = '<span class="status-badge proposal">Proposal</span>';
+                break;
+            case 'Converted':
+                statusBadgeHtml = '<span class="status-badge converted">Converted</span>';
+                break;
+            default:
+                statusBadgeHtml = '<span class="status-badge">' + lead.status + '</span>';
+        }
+        
+        // Create row HTML
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" id="lead-${lead.id}" name="selected-leads">
+                <label for="lead-${lead.id}"></label>
+            </td>
+            <td>${lead.firstName} ${lead.lastName}</td>
+            <td>${lead.email}</td>
+            <td>${lead.phone}</td>
+            <td>${lead.source}</td>
+            <td>${statusBadgeHtml}</td>
+            <td>${lead.assignedTo}</td>
+            <td>${formatDate(lead.dateAdded)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon" title="More Options">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+    
+    // If no leads, show a message
+    if (leads.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="9" style="text-align: center; padding: 2rem;">No leads found matching the search criteria</td>';
+        tableBody.appendChild(row);
+    }
+    
+    // Re-initialize event listeners for the new elements
+    initLeadsEventListeners();
+}
+
+// Wrapper function for HTML event listeners
+function filterLeads() {
+    applyLeadsSearch();
 }
 
 // Import/Export Functions
