@@ -361,8 +361,40 @@ class LoadingManager {
     }
 }
 
-// Create global instance
-window.LoadingManager = new LoadingManager();
+// Create global instance with error handling
+try {
+    window.LoadingManager = new LoadingManager();
+    console.log('LoadingManager initialized successfully');
+} catch (error) {
+    console.error('Error initializing LoadingManager:', error);
+    // Create a fallback object
+    window.LoadingManager = {
+        showButtonLoading: function(button, text) {
+            if (button) {
+                button.disabled = true;
+                button.textContent = text || 'Loading...';
+            }
+        },
+        hideButtonLoading: function(button) {
+            if (button && button.dataset.originalText) {
+                button.disabled = false;
+                button.textContent = button.dataset.originalText;
+            }
+        },
+        showFormLoading: function(form) {
+            if (form) form.style.opacity = '0.7';
+        },
+        hideFormLoading: function(form) {
+            if (form) form.style.opacity = '1';
+        },
+        showPageLoading: function(message) {
+            console.log('Page loading:', message);
+        },
+        hidePageLoading: function() {
+            console.log('Page loading hidden');
+        }
+    };
+}
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {

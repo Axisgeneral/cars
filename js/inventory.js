@@ -1,5 +1,29 @@
 // Inventory Management JavaScript
 
+// Get vehicle primary image (shared function)
+function getVehiclePrimaryImage(vehicle) {
+    // Check if vehicle has uploaded images
+    if (vehicle.images && vehicle.images.length > 0) {
+        // Find primary image or use first image
+        const primaryImage = vehicle.images.find(img => img.isPrimary) || vehicle.images[0];
+        return primaryImage.data;
+    }
+    
+    // Fallback to default images based on vehicle ID or random
+    const defaultImages = [
+        'assets/vehicles/car1.jpg',
+        'assets/vehicles/car2.jpg',
+        'assets/vehicles/car3.jpg',
+        'assets/vehicles/car4.jpg',
+        'assets/vehicles/car5.jpg',
+        'assets/vehicles/car6.jpg'
+    ];
+    
+    // Use vehicle ID to consistently assign the same image to the same vehicle
+    const imageIndex = vehicle.id ? parseInt(vehicle.id) % defaultImages.length : 0;
+    return defaultImages[imageIndex];
+}
+
 // Pagination state
 let currentPage = 1;
 let itemsPerPage = 6;
@@ -186,7 +210,7 @@ async function performSearch(searchTerm) {
     
     // Show table loading for search
     if (typeof LoadingManager !== 'undefined' && inventoryTable) {
-        LoadingManager.showTableLoading(inventoryTable);
+    window.LoadingManager.showTableLoading(inventoryTable);
     }
     
     try {
@@ -240,7 +264,7 @@ async function performSearch(searchTerm) {
     } finally {
         // Hide table loading
         if (typeof LoadingManager !== 'undefined' && inventoryTable) {
-            LoadingManager.hideTableLoading(inventoryTable);
+            window.LoadingManager.hideTableLoading(inventoryTable);
         }
     }
 }
@@ -475,7 +499,7 @@ function populateInventoryTableWithPageData(pageData) {
             </td>
             <td>
                 <div class="vehicle-photo">
-                    <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
+                    <img src="${getVehiclePrimaryImage(vehicle)}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
             </td>
             <td>${vehicle.stockNumber || '-'}</td>
@@ -591,7 +615,7 @@ function populateMobileCards(inventory) {
                     <label for="mobile-vehicle-${vehicle.id}"></label>
                 </div>
                 <div class="mobile-card-photo">
-                    <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
+                    <img src="${getVehiclePrimaryImage(vehicle)}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
                 <div class="mobile-card-title">
                     <h3>${vehicle.year} ${vehicle.make} ${vehicle.model}</h3>
@@ -755,6 +779,11 @@ function createAddVehicleModal() {
                                 <div class="form-group">
                                     <label for="stockNumber">Stock Number *</label>
                                     <input type="text" id="stockNumber" name="stockNumber" required>
+                                <div class="form-group">
+                                    <label for="vehicleImages">Vehicle Images</label>
+                                    <input type="file" id="vehicleImages" name="vehicleImages" accept="image/*" multiple>
+                                    <small>You can upload multiple images. First image will be primary.</small>
+                                </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="vin">VIN *</label>
@@ -911,8 +940,7 @@ function createAddVehicleModal() {
         
         // Show loading states
         if (typeof LoadingManager !== 'undefined') {
-            LoadingManager.showFormLoading(form);
-            LoadingManager.showButtonLoading(submitButton, 'Adding Vehicle...');
+            window.LoadingManager.showButtonLoading(submitButton, 'Adding Vehicle...');
         }
         
         const formData = new FormData(e.target);
@@ -930,8 +958,32 @@ function createAddVehicleModal() {
             status: formData.get('status'),
             location: formData.get('location') || 'Main Lot',
             features: formData.get('features') ? formData.get('features').split(',').map(f => f.trim()) : [],
-            description: formData.get('description') || ''
+            description: formData.get('description') || '',
+            images: []
         };
+
+        // Handle uploaded images
+        const imageInput = document.getElementById('vehicleImages');
+        if (imageInput && imageInput.files.length > 0) {
+            const files = Array.from(imageInput.files);
+            const readFilePromises = files.map((file, idx) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve({
+                            data: e.target.result,
+                            name: file.name,
+                            isPrimary: idx === 0 // First image is primary
+                        });
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+            await Promise.all(readFilePromises).then(images => {
+                vehicleData.images = images;
+            });
+        }
         
         try {
             // Simulate API delay for better UX
@@ -958,8 +1010,8 @@ function createAddVehicleModal() {
         } finally {
             // Hide loading states
             if (typeof LoadingManager !== 'undefined') {
-                LoadingManager.hideFormLoading(form);
-                LoadingManager.hideButtonLoading(submitButton);
+                window.LoadingManager.hideFormLoading(form);
+                window.LoadingManager.hideButtonLoading(submitButton);
             }
         }
     });

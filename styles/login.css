@@ -225,9 +225,9 @@ a:hover {
 /* Right Side - Image and Features */
 .login-right {
     flex: 1;
-    background-image: url('../assets/dealership.jpg');
-    background-size: cover;
-    background-position: center;
+    background-image: url('../assets/dealership.jpg'), url('../assets/dealership.svg'), linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    background-size: cover, cover, cover;
+    background-position: center, center, center;
     position: relative;
     display: flex;
     align-items: center;

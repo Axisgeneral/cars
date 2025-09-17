@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Deals Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .search-box { margin: 10px 0; }
+        .search-box input, .search-box select { padding: 8px; margin: 5px; }
+        .results { margin-top: 15px; }
+        .deal-item { padding: 10px; margin: 5px 0; background: #f5f5f5; border-radius: 4px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Test Deals Search Functionality</h1>
+    
+    <div class="test-section">
+        <h2>Search Test</h2>
+        <div class="search-box">
+            <select id="search-criteria">
+                <option value="all">All Fields</option>
+                <option value="customer">Customer</option>
+                <option value="phone">Phone Number</option>
+                <option value="vehicle">Vehicle</option>
+                <option value="salesperson">Salesperson</option>
+                <option value="value">Value</option>
+            </select>
+            <input type="text" id="search-input" placeholder="Enter search term...">
+            <button onclick="testSearch()">Search</button>
+        </div>
+        <div id="results" class="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Sample Data</h2>
+        <div id="sample-data"></div>
+    </div>
+
+    <script src="js/data-service.js"></script>
+    <script>
+        // Initialize data
+        DataService.initAll();
+        
+        // Display sample data
+        function displaySampleData() {
+            const deals = DataService.deals.getAll();
+            const customers = DataService.customers.getAll();
+            const sampleDataDiv = document.getElementById('sample-data');
+            
+            let html = '<h3>Sample Deals with Customer Phone Numbers:</h3>';
+            deals.slice(0, 5).forEach(deal => {
+                const customer = DataService.customers.get(deal.customerId);
+                html += `
+                    <div class="deal-item">
+                        <strong>Deal ID:</strong> ${deal.id}<br>
+                        <strong>Customer:</strong> ${deal.customerName}<br>
+                        <strong>Phone:</strong> ${customer ? customer.phone : 'N/A'}<br>
+                        <strong>Vehicle:</strong> ${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}<br>
+                        <strong>Salesperson:</strong> ${deal.salesperson}<br>
+                        <strong>Value:</strong> $${deal.value.toLocaleString()}
+                    </div>
+                `;
+            });
+            sampleDataDiv.innerHTML = html;
+        }
+        
+        // Test search functionality
+        function testSearch() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const searchCriteria = document.getElementById('search-criteria').value;
+            const resultsDiv = document.getElementById('results');
+            
+            if (!searchTerm) {
+                resultsDiv.innerHTML = '<div class="error">Please enter a search term</div>';
+                return;
+            }
+            
+            const deals = DataService.deals.getAll();
+            let filteredDeals = deals;
+            
+            // Apply search filter based on selected criteria
+            if (searchTerm) {
+                filteredDeals = filteredDeals.filter(deal => {
+                    switch (searchCriteria) {
+                        case 'customer':
+                            return deal.customerName.toLowerCase().includes(searchTerm) ||
+                                   deal.customerEmail.toLowerCase().includes(searchTerm);
+                        case 'phone':
+                            // Look up customer phone number by customerId
+                            const customer = DataService.customers.get(deal.customerId);
+                            if (customer && customer.phone) {
+                                return customer.phone.toLowerCase().includes(searchTerm);
+                            }
+                            return false;
+                        case 'vehicle':
+                            return deal.vehicleMake.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleModel.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleYear.toString().includes(searchTerm);
+                        case 'salesperson':
+                            return deal.salesperson.toLowerCase().includes(searchTerm);
+                        case 'value':
+                            // Remove currency symbols and commas for value search
+                            const dealValue = deal.value.toString().replace(/[$,]/g, '');
+                            const searchValue = searchTerm.replace(/[$,]/g, '');
+                            return dealValue.includes(searchValue);
+                        case 'all':
+                        default:
+                            // For 'all' search, also include phone number search
+                            let matchesAll = deal.customerName.toLowerCase().includes(searchTerm) ||
+                                   deal.customerEmail.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleMake.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleModel.toLowerCase().includes(searchTerm) ||
+                                   deal.vehicleYear.toString().includes(searchTerm) ||
+                                   deal.salesperson.toLowerCase().includes(searchTerm) ||
+                                   deal.value.toString().replace(/[$,]/g, '').includes(searchTerm.replace(/[$,]/g, ''));
+                            
+                            // Also search phone number for 'all' criteria
+                            if (!matchesAll) {
+                                const customer = DataService.customers.get(deal.customerId);
+                                if (customer && customer.phone) {
+                                    matchesAll = customer.phone.toLowerCase().includes(searchTerm);
+                                }
+                            }
+                            
+                            return matchesAll;
+                    }
+                });
+            }
+            
+            // Display results
+            if (filteredDeals.length === 0) {
+                resultsDiv.innerHTML = '<div class="error">No deals found matching your search</div>';
+            } else {
+                let html = `<div class="success">Found ${filteredDeals.length} deal(s):</div>`;
+                filteredDeals.forEach(deal => {
+                    const customer = DataService.customers.get(deal.customerId);
+                    html += `
+                        <div class="deal-item">
+                            <strong>Customer:</strong> ${deal.customerName}<br>
+                            <strong>Phone:</strong> ${customer ? customer.phone : 'N/A'}<br>
+                            <strong>Vehicle:</strong> ${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel}<br>
+                            <strong>Salesperson:</strong> ${deal.salesperson}<br>
+                            <strong>Value:</strong> $${deal.value.toLocaleString()}
+                        </div>
+                    `;
+                });
+                resultsDiv.innerHTML = html;
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            displaySampleData();
+        });
+        
+        // Allow Enter key to trigger search
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testSearch();
+            }
+        });
+    </script>
+</body>
+</html>

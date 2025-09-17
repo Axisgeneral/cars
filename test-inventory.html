@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Inventory - Vehicle Images</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/loading.css">
+    <link rel="stylesheet" href="styles/inventory.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-car"></i> Vehicle Inventory</h1>
+                    <p>Manage your vehicle inventory with image upload capability</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="openAddVehicleModal()">
+                        <i class="fas fa-plus"></i> Add Vehicle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Content -->
+            <div class="content-section">
+                <div class="inventory-container">
+                    <!-- Inventory Table -->
+                    <div class="table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="select-all"></th>
+                                    <th>Photo</th>
+                                    <th>Stock #</th>
+                                    <th>VIN</th>
+                                    <th>Year</th>
+                                    <th>Make</th>
+                                    <th>Model</th>
+                                    <th>Trim</th>
+                                    <th>Color</th>
+                                    <th>Type</th>
+                                    <th>Mileage</th>
+                                    <th>Price</th>
+                                    <th>Days in Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Table content will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/loading-manager.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/inventory-data.js"></script>
+    <script src="js/inventory.js"></script>
+
+    <script>
+        // Initialize the page without login requirement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up fake user data for testing
+            localStorage.setItem('autocrm_user', JSON.stringify({
+                name: 'Test User',
+                email: 'test@example.com',
+                role: 'Sales Manager',
+                isLoggedIn: true
+            }));
+            
+            // Initialize inventory data
+            if (typeof initInventoryData === 'function') {
+                initInventoryData();
+            }
+            
+            console.log('Test inventory page loaded. Click "Add Vehicle" to see image upload feature.');
+            
+            // Debug: Check if functions are loaded
+            console.log('openAddVehicleModal function available:', typeof openAddVehicleModal);
+            console.log('DataService available:', typeof DataService);
+            console.log('ModalUtils available:', typeof ModalUtils);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test LoadingManager</title>
+    <link rel="stylesheet" href="styles/loading.css">
+</head>
+<body>
+    <h1>LoadingManager Test</h1>
+    <button id="test-btn">Test Button</button>
+    <div id="debug-info"></div>
+
+    <script src="js/loading-manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const debugInfo = document.getElementById('debug-info');
+            const testBtn = document.getElementById('test-btn');
+            
+            // Debug information
+            debugInfo.innerHTML = `
+                <h3>Debug Info:</h3>
+                <p>LoadingManager type: ${typeof LoadingManager}</p>
+                <p>window.LoadingManager type: ${typeof window.LoadingManager}</p>
+                <p>LoadingManager object: ${LoadingManager}</p>
+                <p>showButtonLoading method: ${typeof LoadingManager?.showButtonLoading}</p>
+            `;
+            
+            testBtn.addEventListener('click', function() {
+                try {
+                    if (window.LoadingManager && typeof window.LoadingManager.showButtonLoading === 'function') {
+                        window.LoadingManager.showButtonLoading(testBtn, 'Testing...');
+                        setTimeout(() => {
+                            window.LoadingManager.hideButtonLoading(testBtn);
+                        }, 2000);
+                    } else {
+                        alert('LoadingManager not available');
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

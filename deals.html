@@ -312,6 +312,9 @@
                         case 'customer':
                             searchInput.placeholder = 'Search by customer...';
                             break;
+                        case 'phone':
+                            searchInput.placeholder = 'Search by phone number...';
+                            break;
                         case 'vehicle':
                             searchInput.placeholder = 'Search by vehicle...';
                             break;
@@ -606,6 +609,13 @@
                                    deal.vehicleYear.toString().includes(searchTerm);
                         case 'salesperson':
                             return deal.salesperson.toLowerCase().includes(searchTerm);
+                        case 'phone':
+                            // Look up customer phone number by customerId
+                            const customer = DataService.customers.get(deal.customerId);
+                            if (customer && customer.phone) {
+                                return customer.phone.toLowerCase().includes(searchTerm);
+                            }
+                            return false;
                         case 'value':
                             // Remove currency symbols and commas for value search
                             const dealValue = deal.value.toString().replace(/[$,]/g, '');
@@ -613,13 +623,24 @@
                             return dealValue.includes(searchValue);
                         case 'all':
                         default:
-                            return deal.customerName.toLowerCase().includes(searchTerm) ||
+                            // For 'all' search, also include phone number search
+                            let matchesAll = deal.customerName.toLowerCase().includes(searchTerm) ||
                                    deal.customerEmail.toLowerCase().includes(searchTerm) ||
                                    deal.vehicleMake.toLowerCase().includes(searchTerm) ||
                                    deal.vehicleModel.toLowerCase().includes(searchTerm) ||
                                    deal.vehicleYear.toString().includes(searchTerm) ||
                                    deal.salesperson.toLowerCase().includes(searchTerm) ||
                                    deal.value.toString().replace(/[$,]/g, '').includes(searchTerm.replace(/[$,]/g, ''));
+                            
+                            // Also search phone number for 'all' criteria
+                            if (!matchesAll) {
+                                const customer = DataService.customers.get(deal.customerId);
+                                if (customer && customer.phone) {
+                                    matchesAll = customer.phone.toLowerCase().includes(searchTerm);
+                                }
+                            }
+                            
+                            return matchesAll;
                     }
                 });
             }

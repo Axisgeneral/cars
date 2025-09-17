@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Dealership Background</title>
+</head>
+<body>
+    <canvas id="canvas" width="1200" height="800" style="border: 1px solid #ccc;"></canvas>
+    <br>
+    <button onclick="downloadImage()">Download dealership.jpg</button>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, '#1e293b');
+        gradient.addColorStop(0.5, '#334155');
+        gradient.addColorStop(1, '#475569');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add some geometric shapes to simulate a modern dealership
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+        ctx.fillRect(0, 0, canvas.width, 200);
+        
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.2)';
+        ctx.fillRect(200, 300, 800, 300);
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(100, 100, 1000, 100);
+        ctx.fillRect(300, 500, 600, 150);
+        
+        // Add some car silhouettes
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        
+        // Simple car shape 1
+        ctx.fillRect(150, 600, 200, 60);
+        ctx.fillRect(170, 580, 160, 20);
+        
+        // Simple car shape 2
+        ctx.fillRect(450, 620, 180, 50);
+        ctx.fillRect(470, 605, 140, 15);
+        
+        // Simple car shape 3
+        ctx.fillRect(750, 610, 220, 65);
+        ctx.fillRect(770, 590, 180, 20);
+        
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'dealership.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 ## Current Setup
 - The application now uses `logo.svg` for the company logo
-- All references have been updated from "AutoCRM" to "AutoConnect"
+- All references have been updated from "AutoCRM" to "TheOnePages"
 - A placeholder logo has been created at `assets/logo.svg`
 
 ## To Add Your Own Logo:
@@ -33,12 +33,12 @@
 - **Colors**: Should work well on dark sidebar background
 
 ### Current Logo Location:
-All logos appear in the sidebar header next to "AutoConnect"
+All logos appear in the sidebar header next to "TheOnePages"
 
 ## Company Name Changes Made:
-✅ All page titles updated to "AutoConnect"
-✅ All sidebar headers updated to "AutoConnect"  
-✅ Login page updated to "AutoConnect"
-✅ All logo alt text updated to "AutoConnect Logo"
+✅ All page titles updated to "TheOnePages"
+✅ All sidebar headers updated to "TheOnePages"  
+✅ Login page updated to "TheOnePages"
+✅ All logo alt text updated to "TheOnePages Logo"
 
-The application is now fully branded as "AutoConnect" and ready for your custom logo!
+The application is now fully branded as "TheOnePages" and ready for your custom logo!

@@ -1,5 +1,29 @@
 // Inventory Data Service
 
+// Get vehicle primary image
+function getVehiclePrimaryImage(vehicle) {
+    // Check if vehicle has uploaded images
+    if (vehicle.images && vehicle.images.length > 0) {
+        // Find primary image or use first image
+        const primaryImage = vehicle.images.find(img => img.isPrimary) || vehicle.images[0];
+        return primaryImage.data;
+    }
+    
+    // Fallback to default images based on vehicle ID or random
+    const defaultImages = [
+        'assets/vehicles/car1.jpg',
+        'assets/vehicles/car2.jpg',
+        'assets/vehicles/car3.jpg',
+        'assets/vehicles/car4.jpg',
+        'assets/vehicles/car5.jpg',
+        'assets/vehicles/car6.jpg'
+    ];
+    
+    // Use vehicle ID to consistently assign the same image to the same vehicle
+    const imageIndex = vehicle.id ? parseInt(vehicle.id) % defaultImages.length : 0;
+    return defaultImages[imageIndex];
+}
+
 // Initialize Inventory Data
 async function initInventoryData() {
     try {
@@ -101,7 +125,7 @@ function populateInventoryTableDirect(inventory) {
             </td>
             <td>
                 <div class="vehicle-photo">
-                    <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
+                    <img src="${getVehiclePrimaryImage(vehicle)}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
             </td>
             <td>${vehicle.stockNumber || '-'}</td>
@@ -118,7 +142,7 @@ function populateInventoryTableDirect(inventory) {
             <td>${statusBadgeHtml}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-icon" title="View Details">
+                    <button class="btn-icon" title="View Details" onclick="viewVehicleDetails('${vehicle.id}')">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button class="btn-icon" title="Edit">
@@ -322,7 +346,7 @@ function applyInventoryFilters() {
             </td>
             <td>
                 <div class="vehicle-photo">
-                    <img src="assets/vehicles/car1.jpg" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
+                    <img src="${getVehiclePrimaryImage(vehicle)}" alt="${vehicle.year} ${vehicle.make} ${vehicle.model}">
                 </div>
             </td>
             <td>${vehicle.stockNumber || '-'}</td>
@@ -339,7 +363,7 @@ function applyInventoryFilters() {
             <td>${statusBadgeHtml}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-icon" title="View Details">
+                    <button class="btn-icon" title="View Details" onclick="viewVehicleDetails('${vehicle.id}')">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button class="btn-icon" title="Edit">
@@ -632,6 +656,23 @@ function openAddVehicleModal() {
             </div>
             
             <div class="form-section">
+                <h4 class="form-section-title">Vehicle Images</h4>
+                <div class="form-group">
+                    <label for="vehicle-images">Upload Images</label>
+                    <div class="image-upload-container">
+                        <input type="file" id="vehicle-images" name="vehicle-images" multiple accept="image/*" style="display: none;">
+                        <button type="button" class="btn btn-outline image-upload-btn" onclick="document.getElementById('vehicle-images').click()">
+                            <i class="fas fa-camera"></i> Add Images
+                        </button>
+                        <div class="image-preview-container" id="image-preview-container">
+                            <!-- Image previews will be displayed here -->
+                        </div>
+                    </div>
+                    <small class="form-help">You can upload multiple images. The first image will be used as the primary photo.</small>
+                </div>
+            </div>
+            
+            <div class="form-section">
                 <h4 class="form-section-title">Additional Information</h4>
                 <div class="form-group">
                     <label for="features">Features (comma-separated)</label>
@@ -661,6 +702,137 @@ function openAddVehicleModal() {
     
     ModalUtils.createModal('add-vehicle-modal', 'Add New Vehicle', modalContent, footerButtons);
     ModalUtils.openModal('add-vehicle-modal');
+    
+    // Initialize image upload functionality
+    initImageUpload();
+    
+    // Add modal close cleanup
+    const modal = document.getElementById('add-vehicle-modal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target.hasAttribute('data-modal-close') || e.target.classList.contains('modal-overlay')) {
+                // Clear images when modal is closed
+                window.vehicleImages = [];
+            }
+        });
+    }
+}
+
+// Initialize image upload functionality
+function initImageUpload() {
+    const imageInput = document.getElementById('vehicle-images');
+    const previewContainer = document.getElementById('image-preview-container');
+    
+    if (!imageInput || !previewContainer) return;
+    
+    // Store uploaded images data
+    window.vehicleImages = window.vehicleImages || [];
+    
+    imageInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        
+        files.forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        data: e.target.result,
+                        isPrimary: window.vehicleImages.length === 0 // First image is primary
+                    };
+                    
+                    window.vehicleImages.push(imageData);
+                    displayImagePreview(imageData);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Clear the input so the same file can be selected again
+        e.target.value = '';
+    });
+}
+
+// Display image preview
+function displayImagePreview(imageData) {
+    const previewContainer = document.getElementById('image-preview-container');
+    if (!previewContainer) return;
+    
+    const previewDiv = document.createElement('div');
+    previewDiv.className = 'image-preview-item';
+    previewDiv.dataset.imageId = imageData.id;
+    
+    previewDiv.innerHTML = `
+        <div class="image-preview-wrapper">
+            <img src="${imageData.data}" alt="${imageData.name}">
+            <div class="image-preview-overlay">
+                <button type="button" class="btn-icon btn-primary" onclick="setPrimaryImage('${imageData.id}')" title="Set as Primary">
+                    <i class="fas fa-star${imageData.isPrimary ? '' : '-o'}"></i>
+                </button>
+                <button type="button" class="btn-icon btn-danger" onclick="removeImage('${imageData.id}')" title="Remove">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            ${imageData.isPrimary ? '<div class="primary-badge">Primary</div>' : ''}
+        </div>
+        <div class="image-preview-name">${imageData.name}</div>
+    `;
+    
+    previewContainer.appendChild(previewDiv);
+}
+
+// Set primary image
+function setPrimaryImage(imageId) {
+    if (!window.vehicleImages) return;
+    
+    // Remove primary status from all images
+    window.vehicleImages.forEach(img => img.isPrimary = false);
+    
+    // Set the selected image as primary
+    const selectedImage = window.vehicleImages.find(img => img.id == imageId);
+    if (selectedImage) {
+        selectedImage.isPrimary = true;
+    }
+    
+    // Update the preview display
+    refreshImagePreviews();
+}
+
+// Remove image
+function removeImage(imageId) {
+    if (!window.vehicleImages) return;
+    
+    window.vehicleImages = window.vehicleImages.filter(img => img.id != imageId);
+    
+    // If we removed the primary image, make the first remaining image primary
+    if (window.vehicleImages.length > 0 && !window.vehicleImages.some(img => img.isPrimary)) {
+        window.vehicleImages[0].isPrimary = true;
+    }
+    
+    // Update the preview display
+    refreshImagePreviews();
+}
+
+// Refresh image previews
+function refreshImagePreviews() {
+    const previewContainer = document.getElementById('image-preview-container');
+    if (!previewContainer) {
+        console.log('Image preview container not found, skipping refresh');
+        return;
+    }
+    
+    previewContainer.innerHTML = '';
+    
+    if (window.vehicleImages && Array.isArray(window.vehicleImages)) {
+        window.vehicleImages.forEach(imageData => {
+            try {
+                displayImagePreview(imageData);
+            } catch (error) {
+                console.error('Error displaying image preview:', error);
+            }
+        });
+    }
 }
 
 function saveVehicle() {
@@ -691,7 +863,7 @@ function saveVehicle() {
         dateAdded: new Date().toISOString().split('T')[0],
         features: formData.features ? formData.features.split(',').map(f => f.trim()).filter(f => f) : [],
         description: formData.description || '',
-        images: []
+        images: window.vehicleImages || []
     };
     
     // Save vehicle
@@ -701,6 +873,9 @@ function saveVehicle() {
     ModalUtils.closeModal('add-vehicle-modal');
     ModalUtils.removeModal('add-vehicle-modal');
     ModalUtils.showSuccessMessage('Vehicle added successfully!');
+    
+    // Clear images data
+    window.vehicleImages = [];
     
     // Refresh the page data
     populateInventoryTable();
@@ -750,10 +925,21 @@ function editVehicleModal(vehicleId) {
         if (form) {
             const vehicleData = {
                 ...vehicle,
-                features: vehicle.features.join(', ')
+                features: vehicle.features && Array.isArray(vehicle.features) ? vehicle.features.join(', ') : ''
             };
             console.log('Populating form with vehicle data:', vehicleData);
             ModalUtils.populateForm(form, vehicleData);
+        }
+        
+        // Populate existing images
+        if (vehicle.images && vehicle.images.length > 0) {
+            window.vehicleImages = [...vehicle.images];
+            // Wait a bit more for the modal to be fully rendered
+            setTimeout(() => {
+                refreshImagePreviews();
+            }, 200);
+        } else {
+            window.vehicleImages = [];
         }
     }, 100);
 }
@@ -785,7 +971,8 @@ function updateVehicle(vehicleId) {
         status: formData.status || 'in-stock',
         location: formData.location || 'Main Lot',
         features: formData.features ? formData.features.split(',').map(f => f.trim()).filter(f => f) : [],
-        description: formData.description || ''
+        description: formData.description || '',
+        images: window.vehicleImages || []
     });
     
     // Save updated vehicle
@@ -796,8 +983,134 @@ function updateVehicle(vehicleId) {
     ModalUtils.removeModal('add-vehicle-modal');
     ModalUtils.showSuccessMessage('Vehicle updated successfully!');
     
+    // Clear images data
+    window.vehicleImages = [];
+    
     // Refresh the page data
     populateInventoryTable();
+}
+
+// View vehicle details with image gallery
+function viewVehicleDetails(vehicleId) {
+    const vehicle = DataService.inventory.get(vehicleId);
+    if (!vehicle) {
+        console.error('Vehicle not found for ID:', vehicleId);
+        return;
+    }
+    
+    // Create image gallery HTML
+    let imageGalleryHtml = '';
+    if (vehicle.images && vehicle.images.length > 0) {
+        imageGalleryHtml = `
+            <div class="vehicle-image-gallery">
+                <div class="main-image-container">
+                    <img id="main-vehicle-image" src="${vehicle.images[0].data}" alt="Vehicle Image">
+                </div>
+                <div class="thumbnail-container">
+                    ${vehicle.images.map((img, index) => `
+                        <div class="thumbnail ${index === 0 ? 'active' : ''}" onclick="selectMainImage('${img.data}', this)">
+                            <img src="${img.data}" alt="Thumbnail ${index + 1}">
+                            ${img.isPrimary ? '<div class="primary-indicator">Primary</div>' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } else {
+        imageGalleryHtml = `
+            <div class="vehicle-image-gallery">
+                <div class="main-image-container">
+                    <img src="${getVehiclePrimaryImage(vehicle)}" alt="Vehicle Image">
+                </div>
+                <p class="no-images-message">No additional images uploaded for this vehicle.</p>
+            </div>
+        `;
+    }
+    
+    const modalContent = `
+        <div class="vehicle-details-content">
+            <div class="vehicle-details-header">
+                <h3>${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim || ''}</h3>
+                <div class="vehicle-basic-info">
+                    <span class="info-item"><strong>Stock #:</strong> ${vehicle.stockNumber || '-'}</span>
+                    <span class="info-item"><strong>VIN:</strong> ${vehicle.vin || '-'}</span>
+                    <span class="info-item"><strong>Price:</strong> ${vehicle.price ? '$' + vehicle.price.toLocaleString() : '-'}</span>
+                </div>
+            </div>
+            
+            ${imageGalleryHtml}
+            
+            <div class="vehicle-details-info">
+                <div class="detail-section">
+                    <h4>Vehicle Information</h4>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Color:</span>
+                            <span class="detail-value">${vehicle.color || '-'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Mileage:</span>
+                            <span class="detail-value">${vehicle.mileage ? vehicle.mileage.toLocaleString() + ' miles' : '-'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value">${vehicle.status || '-'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">${vehicle.location || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${vehicle.features && vehicle.features.length > 0 ? `
+                <div class="detail-section">
+                    <h4>Features</h4>
+                    <div class="features-list">
+                        ${vehicle.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${vehicle.description ? `
+                <div class="detail-section">
+                    <h4>Description</h4>
+                    <p class="vehicle-description">${vehicle.description}</p>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    const footerButtons = [
+        {
+            text: 'Close',
+            class: 'btn-outline',
+            attributes: 'data-modal-close'
+        },
+        {
+            text: 'Edit Vehicle',
+            class: 'btn-primary',
+            icon: 'fas fa-edit',
+            attributes: `onclick="ModalUtils.closeModal('vehicle-details-modal'); editVehicleModal('${vehicleId}')"`
+        }
+    ];
+    
+    ModalUtils.createModal('vehicle-details-modal', 'Vehicle Details', modalContent, footerButtons);
+    ModalUtils.openModal('vehicle-details-modal');
+}
+
+// Select main image in gallery
+function selectMainImage(imageSrc, thumbnailElement) {
+    const mainImage = document.getElementById('main-vehicle-image');
+    if (mainImage) {
+        mainImage.src = imageSrc;
+    }
+    
+    // Update active thumbnail
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    thumbnails.forEach(thumb => thumb.classList.remove('active'));
+    thumbnailElement.classList.add('active');
 }
 
 function deleteVehicle(vehicleId) {
