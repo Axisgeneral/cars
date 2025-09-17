@@ -55,7 +55,13 @@ const DataService = {
     inventory: {
         getAll: function(filters = {}) {
             let vehicles = JSON.parse(localStorage.getItem('autocrm_inventory')) || [];
-            
+            // Ensure images array is always present and parsed
+            vehicles = vehicles.map(vehicle => {
+                if (!Array.isArray(vehicle.images)) {
+                    vehicle.images = [];
+                }
+                return vehicle;
+            });
             // Apply filters if provided
             if (Object.keys(filters).length > 0) {
                 vehicles = vehicles.filter(vehicle => {
@@ -67,7 +73,6 @@ const DataService = {
                     return true;
                 });
             }
-            
             return vehicles;
         },
         
@@ -82,6 +87,10 @@ const DataService = {
                 vehicle.id = Date.now().toString();
             }
             vehicle.dateAdded = new Date().toISOString();
+            // Ensure images array is present and is an array
+            if (!Array.isArray(vehicle.images)) {
+                vehicle.images = [];
+            }
             vehicles.push(vehicle);
             this.save(vehicles);
             return vehicle;

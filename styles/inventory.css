@@ -736,3 +736,119 @@
         height: 45px;
     }
 }
+
+/* Vehicle Options Dropdown */
+.vehicle-options-dropdown {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    min-width: 200px;
+    z-index: 1000;
+    animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: var(--font-size-sm);
+    color: var(--text-dark);
+}
+
+.dropdown-item:hover {
+    background-color: #f8fafc;
+}
+
+.dropdown-item:first-child {
+    border-top-left-radius: var(--border-radius-md);
+    border-top-right-radius: var(--border-radius-md);
+}
+
+.dropdown-item:last-child {
+    border-bottom-left-radius: var(--border-radius-md);
+    border-bottom-right-radius: var(--border-radius-md);
+}
+
+.dropdown-item i {
+    margin-right: var(--spacing-sm);
+    width: 16px;
+    text-align: center;
+    color: var(--text-medium);
+}
+
+.dropdown-item.danger {
+    color: var(--danger-color);
+}
+
+.dropdown-item.danger:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+.dropdown-item.danger i {
+    color: var(--danger-color);
+}
+
+.dropdown-separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: var(--spacing-xs) 0;
+}
+
+/* Delete confirmation modal styles */
+.delete-confirmation {
+    text-align: center;
+    padding: var(--spacing-lg);
+}
+
+.delete-confirmation .warning-icon {
+    font-size: 3rem;
+    color: var(--warning-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.delete-confirmation h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-dark);
+}
+
+.delete-confirmation p {
+    margin: var(--spacing-sm) 0;
+    color: var(--text-medium);
+}
+
+.delete-confirmation .warning-text {
+    color: var(--danger-color);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-sm);
+}
+
+/* Button danger style */
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+    border: 1px solid var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}

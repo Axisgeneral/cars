@@ -552,10 +552,332 @@ function showMoreOptionsById(vehicleId, buttonElement) {
         return;
     }
     
-    // For demo purposes, show an alert with options
-    const options = ['Delete', 'Duplicate', 'Print Details', 'Mark as Sold', 'Move to Different Lot'];
-    const vehicleIdentifier = vehicle.stockNumber || `ID: ${vehicleId}`;
-    alert(`Options for vehicle ${vehicleIdentifier}:\n\n${options.join('\n')}`);
+    // Close any existing dropdown
+    closeAllDropdowns();
+    
+    // Create dropdown menu
+    const dropdown = document.createElement('div');
+    dropdown.className = 'vehicle-options-dropdown';
+    dropdown.innerHTML = `
+        <div class="dropdown-item" data-action="edit" data-vehicle-id="${vehicleId}">
+            <i class="fas fa-edit"></i>
+            <span>Edit Vehicle</span>
+        </div>
+        <div class="dropdown-item" data-action="duplicate" data-vehicle-id="${vehicleId}">
+            <i class="fas fa-copy"></i>
+            <span>Duplicate</span>
+        </div>
+        <div class="dropdown-item" data-action="print" data-vehicle-id="${vehicleId}">
+            <i class="fas fa-print"></i>
+            <span>Print Details</span>
+        </div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item" data-action="mark-sold" data-vehicle-id="${vehicleId}">
+            <i class="fas fa-check-circle"></i>
+            <span>Mark as Sold</span>
+        </div>
+        <div class="dropdown-item" data-action="mark-hold" data-vehicle-id="${vehicleId}">
+            <i class="fas fa-pause-circle"></i>
+            <span>Put on Hold</span>
+        </div>
+        <div class="dropdown-separator"></div>
+        <div class="dropdown-item danger" data-action="delete" data-vehicle-id="${vehicleId}">
+            <i class="fas fa-trash"></i>
+            <span>Delete Vehicle</span>
+        </div>
+    `;
+    
+    // Position dropdown relative to button
+    const buttonRect = buttonElement.getBoundingClientRect();
+    dropdown.style.position = 'fixed';
+    dropdown.style.top = `${buttonRect.bottom + 5}px`;
+    dropdown.style.left = `${buttonRect.left - 150}px`; // Offset to the left since it's the last column
+    dropdown.style.zIndex = '1000';
+    
+    // Add dropdown to body
+    document.body.appendChild(dropdown);
+    
+    // Add event listeners to dropdown items
+    dropdown.addEventListener('click', function(e) {
+        const item = e.target.closest('.dropdown-item');
+        if (item) {
+            const action = item.dataset.action;
+            const vehicleId = item.dataset.vehicleId;
+            console.log('Dropdown item clicked:', action, 'for vehicle ID:', vehicleId);
+            handleVehicleAction(action, vehicleId);
+            closeAllDropdowns();
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    setTimeout(() => {
+        document.addEventListener('click', closeDropdownOnOutsideClick);
+    }, 0);
+}
+
+// Close all dropdowns
+function closeAllDropdowns() {
+    const dropdowns = document.querySelectorAll('.vehicle-options-dropdown');
+    dropdowns.forEach(dropdown => dropdown.remove());
+    document.removeEventListener('click', closeDropdownOnOutsideClick);
+}
+
+// Close dropdown when clicking outside
+function closeDropdownOnOutsideClick(e) {
+    if (!e.target.closest('.vehicle-options-dropdown') && !e.target.closest('.btn-icon[title="More Options"]')) {
+        closeAllDropdowns();
+    }
+}
+
+// Handle vehicle actions
+function handleVehicleAction(action, vehicleId) {
+    const vehicle = DataService.inventory.get(vehicleId);
+    if (!vehicle) {
+        ModalUtils.showErrorMessage('Vehicle not found');
+        return;
+    }
+    
+    switch (action) {
+        case 'edit':
+            editVehicleById(vehicleId);
+            break;
+            
+        case 'duplicate':
+            duplicateVehicle(vehicleId);
+            break;
+            
+        case 'print':
+            printVehicleDetails(vehicleId);
+            break;
+            
+        case 'mark-sold':
+            updateVehicleStatus(vehicleId, 'sold');
+            break;
+            
+        case 'mark-hold':
+            updateVehicleStatus(vehicleId, 'on-hold');
+            break;
+            
+        case 'delete':
+            console.log('Delete action triggered for vehicle ID:', vehicleId);
+            confirmDeleteVehicle(vehicleId);
+            break;
+            
+        default:
+            console.warn('Unknown action:', action);
+    }
+}
+
+// Duplicate vehicle
+function duplicateVehicle(vehicleId) {
+    const vehicle = DataService.inventory.get(vehicleId);
+    if (!vehicle) {
+        ModalUtils.showErrorMessage('Vehicle not found');
+        return;
+    }
+    
+    // Create a copy of the vehicle with a new ID and stock number
+    const duplicatedVehicle = {
+        ...vehicle,
+        id: Date.now().toString(), // Generate new ID
+        stockNumber: vehicle.stockNumber ? `${vehicle.stockNumber}-COPY` : `COPY-${Date.now()}`,
+        dateAdded: new Date().toISOString()
+    };
+    
+    // Add the duplicated vehicle
+    DataService.inventory.add(duplicatedVehicle);
+    
+    // Refresh the table
+    populateInventoryTable();
+    
+    ModalUtils.showSuccessMessage('Vehicle duplicated successfully');
+}
+
+// Print vehicle details
+function printVehicleDetails(vehicleId) {
+    const vehicle = DataService.inventory.get(vehicleId);
+    if (!vehicle) {
+        ModalUtils.showErrorMessage('Vehicle not found');
+        return;
+    }
+    
+    // Create a printable version of vehicle details
+    const printWindow = window.open('', '_blank');
+    const vehicleImage = getVehiclePrimaryImage(vehicle);
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Vehicle Details - ${vehicle.year} ${vehicle.make} ${vehicle.model}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .vehicle-image { max-width: 300px; height: auto; margin: 20px auto; display: block; }
+                .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                .detail-item { margin-bottom: 10px; }
+                .label { font-weight: bold; }
+                .value { margin-left: 10px; }
+                @media print { body { margin: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Vehicle Details</h1>
+                <h2>${vehicle.year} ${vehicle.make} ${vehicle.model}</h2>
+            </div>
+            
+            <img src="${vehicleImage}" alt="Vehicle Photo" class="vehicle-image" />
+            
+            <div class="details-grid">
+                <div>
+                    <div class="detail-item">
+                        <span class="label">Stock Number:</span>
+                        <span class="value">${vehicle.stockNumber || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">VIN:</span>
+                        <span class="value">${vehicle.vin || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Year:</span>
+                        <span class="value">${vehicle.year || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Make:</span>
+                        <span class="value">${vehicle.make || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Model:</span>
+                        <span class="value">${vehicle.model || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Trim:</span>
+                        <span class="value">${vehicle.trim || 'N/A'}</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="detail-item">
+                        <span class="label">Color:</span>
+                        <span class="value">${vehicle.color || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Type:</span>
+                        <span class="value">${vehicle.type || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Mileage:</span>
+                        <span class="value">${vehicle.mileage ? vehicle.mileage.toLocaleString() : 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Price:</span>
+                        <span class="value">${vehicle.price ? '$' + vehicle.price.toLocaleString() : 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status:</span>
+                        <span class="value">${vehicle.status || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Date Added:</span>
+                        <span class="value">${vehicle.dateAdded ? new Date(vehicle.dateAdded).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() {
+                        window.close();
+                    };
+                };
+            </script>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+}
+
+// Update vehicle status
+function updateVehicleStatus(vehicleId, newStatus) {
+    const vehicle = DataService.inventory.get(vehicleId);
+    if (!vehicle) {
+        ModalUtils.showErrorMessage('Vehicle not found');
+        return;
+    }
+    
+    // Update the vehicle status
+    vehicle.status = newStatus;
+    DataService.inventory.update(vehicleId, vehicle);
+    
+    // Refresh the table
+    populateInventoryTable();
+    
+    const statusText = newStatus === 'sold' ? 'sold' : 'put on hold';
+    ModalUtils.showSuccessMessage(`Vehicle ${statusText} successfully`);
+}
+
+// Confirm delete vehicle (Simple approach)
+function confirmDeleteVehicle(vehicleId) {
+    console.log('confirmDeleteVehicle called with ID:', vehicleId);
+    
+    const vehicle = DataService.inventory.get(vehicleId);
+    if (!vehicle) {
+        console.error('Vehicle not found for confirmation:', vehicleId);
+        ModalUtils.showErrorMessage('Vehicle not found');
+        return;
+    }
+    
+    console.log('Vehicle found for deletion confirmation:', vehicle);
+    const vehicleIdentifier = vehicle.stockNumber || `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+    
+    // Simple confirmation dialog
+    const confirmMessage = `Are you sure you want to delete this vehicle?\n\n${vehicleIdentifier}${vehicle.vin ? `\nVIN: ${vehicle.vin}` : ''}\n\nThis action cannot be undone.`;
+    
+    if (window.confirm(confirmMessage)) {
+        console.log('User confirmed deletion, proceeding...');
+        deleteVehicle(vehicleId);
+    } else {
+        console.log('User cancelled deletion');
+    }
+}
+
+// Delete vehicle
+function deleteVehicle(vehicleId) {
+    console.log('Attempting to delete vehicle with ID:', vehicleId);
+    
+    try {
+        // Check if vehicle exists before deletion
+        const vehicle = DataService.inventory.get(vehicleId);
+        if (!vehicle) {
+            console.error('Vehicle not found for deletion:', vehicleId);
+            ModalUtils.showErrorMessage('Vehicle not found');
+            return;
+        }
+        
+        console.log('Vehicle found, proceeding with deletion:', vehicle);
+        
+        // Perform deletion
+        const deleteResult = DataService.inventory.delete(vehicleId);
+        console.log('Delete result:', deleteResult);
+        
+        if (deleteResult) {
+            // Refresh the table
+            populateInventoryTable();
+            console.log('Table refreshed after deletion');
+            
+            // Show success message
+            ModalUtils.showSuccessMessage('Vehicle deleted successfully');
+            console.log('Vehicle deleted successfully');
+        } else {
+            console.error('Delete operation returned false');
+            ModalUtils.showErrorMessage('Failed to delete vehicle');
+        }
+    } catch (error) {
+        console.error('Error deleting vehicle:', error);
+        ModalUtils.showErrorMessage('Error deleting vehicle: ' + error.message);
+    }
 }
 
 // Show More Options (legacy function for backward compatibility)
