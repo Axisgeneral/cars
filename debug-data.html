@@ -3,67 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debug Data - TheOnePages</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .data-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .data-section h3 { margin-top: 0; color: #333; }
-        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        .count { font-weight: bold; color: #007bff; }
-    </style>
+    <title>Data Debug</title>
 </head>
 <body>
-    <h1>TheOnePages Data Debug</h1>
-    
-    <div class="data-section">
-        <h3>Current Data Counts</h3>
-        <div id="counts"></div>
-    </div>
-    
-    <div class="data-section">
-        <h3>Raw localStorage Data</h3>
-        <div id="raw-data"></div>
-    </div>
-    
-    <button onclick="location.reload()">Refresh</button>
-    <button onclick="window.open('reset-data.html')">Open Reset Page</button>
+    <h1>Data Service Debug</h1>
+    <button onclick="clearAndInit()">Clear & Initialize Data</button>
+    <button onclick="checkData()">Check Data</button>
+    <div id="output"></div>
 
     <script src="js/data-service.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show counts
-            const countsDiv = document.getElementById('counts');
-            const rawDataDiv = document.getElementById('raw-data');
+        function clearAndInit() {
+            console.log('Clearing all data...');
+            DataService.utils.clearAllData();
             
-            if (typeof DataService !== 'undefined') {
-                const inventoryCount = DataService.inventory.getAll().length;
-                const leadsCount = DataService.leads.getAll().length;
-                const dealsCount = DataService.deals.getAll().length;
-                const tasksCount = DataService.tasks.getAll().length;
+            console.log('Initializing all data...');
+            DataService.utils.initializeAllData();
+            
+            document.getElementById('output').innerHTML = '<p>Data cleared and initialized!</p>';
+        }
+
+        function checkData() {
+            const output = document.getElementById('output');
+            let html = '<h2>Data Check Results:</h2>';
+            
+            try {
+                const customers = DataService.customers.getAll();
+                const inventory = DataService.inventory.getAll();
+                const leads = DataService.leads.getAll();
+                const deals = DataService.deals.getAll();
+                const tasks = DataService.tasks.getAll();
                 
-                countsDiv.innerHTML = `
-                    <p><span class="count">Vehicles:</span> ${inventoryCount}</p>
-                    <p><span class="count">Leads:</span> ${leadsCount}</p>
-                    <p><span class="count">Deals:</span> ${dealsCount}</p>
-                    <p><span class="count">Tasks:</span> ${tasksCount}</p>
-                `;
+                html += `<p><strong>Customers:</strong> ${customers.length} records</p>`;
+                html += `<p><strong>Inventory:</strong> ${inventory.length} records</p>`;
+                html += `<p><strong>Leads:</strong> ${leads.length} records</p>`;
+                html += `<p><strong>Deals:</strong> ${deals.length} records</p>`;
+                html += `<p><strong>Tasks:</strong> ${tasks.length} records</p>`;
                 
-                // Show first few vehicles for debugging
-                const vehicles = DataService.inventory.getAll();
-                rawDataDiv.innerHTML = `
-                    <h4>First 5 Vehicles:</h4>
-                    <pre>${JSON.stringify(vehicles.slice(0, 5), null, 2)}</pre>
-                `;
-            } else {
-                countsDiv.innerHTML = '<p style="color: red;">DataService not loaded!</p>';
+                if (customers.length > 0) {
+                    html += `<p><strong>Sample Customer:</strong> ${customers[0].firstName} ${customers[0].lastName}</p>`;
+                }
+                
+                if (inventory.length > 0) {
+                    html += `<p><strong>Sample Vehicle:</strong> ${inventory[0].year} ${inventory[0].make} ${inventory[0].model}</p>`;
+                }
+                
+            } catch (error) {
+                html += `<p style="color: red;"><strong>Error:</strong> ${error.message}</p>`;
+                console.error('Error checking data:', error);
             }
             
-            // Show localStorage keys
-            const keys = Object.keys(localStorage).filter(key => key.startsWith('autocrm_'));
-            rawDataDiv.innerHTML += `
-                <h4>localStorage Keys:</h4>
-                <pre>${JSON.stringify(keys, null, 2)}</pre>
-            `;
+            output.innerHTML = html;
+        }
+
+        // Auto-initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Debug page loaded, checking if data exists...');
+            checkData();
         });
     </script>
 </body>

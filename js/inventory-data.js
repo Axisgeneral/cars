@@ -558,6 +558,35 @@ function showMoreOptionsById(vehicleId, buttonElement) {
     // Create dropdown menu
     const dropdown = document.createElement('div');
     dropdown.className = 'vehicle-options-dropdown';
+    
+    // Build status action options based on current status
+    let statusActions = '';
+    const currentStatus = vehicle.status;
+    
+    if (currentStatus !== 'sold') {
+        statusActions += `
+            <div class="dropdown-item" data-action="mark-sold" data-vehicle-id="${vehicleId}">
+                <i class="fas fa-check-circle"></i>
+                <span>Mark as Sold</span>
+            </div>`;
+    }
+    
+    if (currentStatus !== 'on-hold') {
+        statusActions += `
+            <div class="dropdown-item" data-action="mark-hold" data-vehicle-id="${vehicleId}">
+                <i class="fas fa-pause-circle"></i>
+                <span>Put on Hold</span>
+            </div>`;
+    }
+    
+    if (currentStatus !== 'in-stock' && (currentStatus === 'sold' || currentStatus === 'on-hold')) {
+        statusActions += `
+            <div class="dropdown-item" data-action="mark-available" data-vehicle-id="${vehicleId}">
+                <i class="fas fa-undo"></i>
+                <span>Back in Stock</span>
+            </div>`;
+    }
+    
     dropdown.innerHTML = `
         <div class="dropdown-item" data-action="edit" data-vehicle-id="${vehicleId}">
             <i class="fas fa-edit"></i>
@@ -571,15 +600,7 @@ function showMoreOptionsById(vehicleId, buttonElement) {
             <i class="fas fa-print"></i>
             <span>Print Details</span>
         </div>
-        <div class="dropdown-separator"></div>
-        <div class="dropdown-item" data-action="mark-sold" data-vehicle-id="${vehicleId}">
-            <i class="fas fa-check-circle"></i>
-            <span>Mark as Sold</span>
-        </div>
-        <div class="dropdown-item" data-action="mark-hold" data-vehicle-id="${vehicleId}">
-            <i class="fas fa-pause-circle"></i>
-            <span>Put on Hold</span>
-        </div>
+        ${statusActions ? '<div class="dropdown-separator"></div>' + statusActions : ''}
         <div class="dropdown-separator"></div>
         <div class="dropdown-item danger" data-action="delete" data-vehicle-id="${vehicleId}">
             <i class="fas fa-trash"></i>
@@ -656,6 +677,10 @@ function handleVehicleAction(action, vehicleId) {
             
         case 'mark-hold':
             updateVehicleStatus(vehicleId, 'on-hold');
+            break;
+            
+        case 'mark-available':
+            updateVehicleStatus(vehicleId, 'in-stock');
             break;
             
         case 'delete':
@@ -814,7 +839,20 @@ function updateVehicleStatus(vehicleId, newStatus) {
     // Refresh the table
     populateInventoryTable();
     
-    const statusText = newStatus === 'sold' ? 'sold' : 'put on hold';
+    let statusText;
+    switch(newStatus) {
+        case 'sold':
+            statusText = 'marked as sold';
+            break;
+        case 'on-hold':
+            statusText = 'put on hold';
+            break;
+        case 'in-stock':
+            statusText = 'marked as available';
+            break;
+        default:
+            statusText = `status updated to ${newStatus}`;
+    }
     ModalUtils.showSuccessMessage(`Vehicle ${statusText} successfully`);
 }
 

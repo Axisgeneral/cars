@@ -26,19 +26,27 @@ function updateDashboardStats() {
     const totalVehicles = inventory.length;
     const inStockVehicles = inventory.filter(item => item.status === 'in-stock').length;
     const soldVehicles = inventory.filter(item => item.status === 'sold').length;
-    const totalRevenue = deals.filter(deal => deal.status === 'Closed')
-                             .reduce((sum, deal) => sum + deal.vehicle.price, 0);
-    const totalProfit = deals.filter(deal => deal.status === 'Closed')
+    const totalRevenue = deals.filter(deal => deal.status === 'Closed' || deal.status === 'Closed Won')
+                             .reduce((sum, deal) => sum + (deal.value || 0), 0);
+    const totalProfit = deals.filter(deal => deal.status === 'Closed' || deal.status === 'Closed Won')
                             .reduce((sum, deal) => sum + (deal.profit || 0), 0);
     const totalLeads = leads.length;
     const newLeads = leads.filter(lead => lead.status === 'New').length;
     const hotLeads = leads.filter(lead => lead.status === 'Hot').length;
     
-    // Update DOM elements
-    document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = soldVehicles;
-    document.querySelector('.kpi-card:nth-child(2) .kpi-value').textContent = '$' + formatNumber(totalRevenue);
-    document.querySelector('.kpi-card:nth-child(3) .kpi-value').textContent = totalLeads;
-    document.querySelector('.kpi-card:nth-child(4) .kpi-value').textContent = Math.round((soldVehicles / totalLeads) * 100) + '%';
+    // Update DOM elements using the correct IDs
+    const vehiclesSoldElement = document.getElementById('kpi-vehicles-sold');
+    const revenueElement = document.getElementById('kpi-revenue');
+    const newLeadsElement = document.getElementById('kpi-new-leads');
+    const conversionRateElement = document.getElementById('kpi-conversion-rate');
+    
+    if (vehiclesSoldElement) vehiclesSoldElement.textContent = soldVehicles;
+    if (revenueElement) revenueElement.textContent = '$' + formatNumber(totalRevenue);
+    if (newLeadsElement) newLeadsElement.textContent = totalLeads;
+    if (conversionRateElement) {
+        const conversionRate = totalLeads > 0 ? Math.round((soldVehicles / totalLeads) * 100) : 0;
+        conversionRateElement.textContent = conversionRate + '%';
+    }
     
     // Update inventory stats
     const inventoryStatsElement = document.querySelector('.inventory-stats');
@@ -158,16 +166,16 @@ function updateActivityFeed() {
             activities.push({
                 type: 'deal',
                 date: deal.dateClosed,
-                title: `Deal closed with ${deal.customer.name}`,
-                description: `${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model} - $${formatNumber(deal.vehicle.price)}`,
+                title: `Deal closed with ${deal.customerName}`,
+                description: `${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel} - $${formatNumber(deal.value)}`,
                 icon: 'handshake'
             });
         } else if (deal.dateCreated) {
             activities.push({
                 type: 'deal',
                 date: deal.dateCreated,
-                title: `New deal created with ${deal.customer.name}`,
-                description: `${deal.vehicle.year} ${deal.vehicle.make} ${deal.vehicle.model} - $${formatNumber(deal.vehicle.price)}`,
+                title: `New deal created with ${deal.customerName}`,
+                description: `${deal.vehicleYear} ${deal.vehicleMake} ${deal.vehicleModel} - $${formatNumber(deal.value)}`,
                 icon: 'handshake'
             });
         }

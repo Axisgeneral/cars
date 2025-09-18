@@ -3,7 +3,9 @@
 const ModalUtils = {
     // Create modal HTML structure
     createModal: function(id, title, content, footerButtons = []) {
-        const modalHTML = `
+    // Remove any existing modal with the same ID
+    this.removeModal(id);
+    const modalHTML = `
             <div id="${id}" class="modal-overlay">
                 <div class="modal">
                     <div class="modal-header">
@@ -190,12 +192,33 @@ const ModalUtils = {
     // Populate form with data
     populateForm: function(formElement, data) {
         Object.keys(data).forEach(key => {
-            const field = formElement.querySelector(`[name="${key}"]`);
+            // Special handling for address object and top-level address fields
+            if (key === 'address' && typeof data.address === 'object') {
+                const address = data.address;
+                if (formElement.querySelector('[name="street"]')) {
+                    formElement.querySelector('[name="street"]').value = data.street || address.street || '';
+                }
+                if (formElement.querySelector('[name="city"]')) {
+                    formElement.querySelector('[name="city"]').value = data.city || address.city || '';
+                }
+                if (formElement.querySelector('[name="state"]')) {
+                    formElement.querySelector('[name="state"]').value = data.state || address.state || '';
+                }
+                if (formElement.querySelector('[name="zip"]')) {
+                    formElement.querySelector('[name="zip"]').value = data.zip || address.zip || address.zipCode || '';
+                }
+                return;
+            }
+            // Map company, type, zip fields to form field names
+            let formKey = key;
+            if (key === 'type') formKey = 'customerType';
+            if (key === 'zip' || key === 'zipCode') formKey = 'zip';
+            const field = formElement.querySelector(`[name="${formKey}"]`);
             if (field) {
                 if (field.type === 'checkbox') {
                     field.checked = data[key];
                 } else if (field.type === 'radio') {
-                    const radioButton = formElement.querySelector(`[name="${key}"][value="${data[key]}"]`);
+                    const radioButton = formElement.querySelector(`[name="${formKey}"][value="${data[key]}"]`);
                     if (radioButton) radioButton.checked = true;
                 } else {
                     field.value = data[key] || '';

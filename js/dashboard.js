@@ -45,13 +45,45 @@ document.addEventListener('DOMContentLoaded', async function() {
 function initSalesChart() {
     const ctx = document.getElementById('salesChart').getContext('2d');
     
-    // Sample data - would be replaced with actual data from API
+    // Get real data from DataService
+    const deals = DataService.deals.getAll();
+    const inventory = DataService.inventory.getAll();
+    
+    // Process data by month
+    const monthlyData = {};
+    const currentYear = new Date().getFullYear();
+    
+    // Initialize months
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    months.forEach(month => {
+        monthlyData[month] = { new: 0, used: 0 };
+    });
+    
+    // Process closed deals
+    const closedDeals = deals.filter(deal => deal.status === 'Closed Won' || deal.status === 'Closed');
+    
+    closedDeals.forEach(deal => {
+        const dealDate = new Date(deal.dateCreated);
+        if (dealDate.getFullYear() === currentYear) {
+            const monthName = months[dealDate.getMonth()];
+            // Find the vehicle to determine if it's new or used
+            const vehicle = inventory.find(v => v.id === deal.vehicleId);
+            if (vehicle) {
+                if (vehicle.type === 'New') {
+                    monthlyData[monthName].new++;
+                } else {
+                    monthlyData[monthName].used++;
+                }
+            }
+        }
+    });
+    
     const salesData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels: months,
         datasets: [
             {
                 label: 'New Vehicles',
-                data: [42, 38, 45, 50, 55, 60, 58, 65, 70, 68, 72, 75],
+                data: months.map(month => monthlyData[month].new),
                 backgroundColor: 'rgba(37, 99, 235, 0.2)',
                 borderColor: 'rgba(37, 99, 235, 1)',
                 borderWidth: 2,
@@ -59,7 +91,7 @@ function initSalesChart() {
             },
             {
                 label: 'Used Vehicles',
-                data: [28, 32, 30, 35, 40, 45, 50, 48, 52, 55, 58, 60],
+                data: months.map(month => monthlyData[month].used),
                 backgroundColor: 'rgba(16, 185, 129, 0.2)',
                 borderColor: 'rgba(16, 185, 129, 1)',
                 borderWidth: 2,
@@ -116,18 +148,39 @@ function initSalesChart() {
 function initLeadSourceChart() {
     const ctx = document.getElementById('leadSourceChart').getContext('2d');
     
-    // Sample data - would be replaced with actual data from API
+    // Get real data from DataService
+    const leads = DataService.leads.getAll();
+    
+    // Count leads by source
+    const sourceCount = {};
+    leads.forEach(lead => {
+        const source = lead.source || 'Unknown';
+        sourceCount[source] = (sourceCount[source] || 0) + 1;
+    });
+    
+    // Prepare data for chart
+    const labels = Object.keys(sourceCount);
+    const data = Object.values(sourceCount);
+    
+    // If no data, show placeholder
+    if (labels.length === 0) {
+        labels.push('No Data');
+        data.push(1);
+    }
+    
     const leadSourceData = {
-        labels: ['Website', 'Referral', 'Walk-in', 'Phone', 'Social Media', 'Third-party'],
+        labels: labels,
         datasets: [{
-            data: [35, 20, 15, 10, 12, 8],
+            data: data,
             backgroundColor: [
                 'rgba(37, 99, 235, 0.8)',
                 'rgba(16, 185, 129, 0.8)',
                 'rgba(245, 158, 11, 0.8)',
                 'rgba(99, 102, 241, 0.8)',
                 'rgba(239, 68, 68, 0.8)',
-                'rgba(100, 116, 139, 0.8)'
+                'rgba(100, 116, 139, 0.8)',
+                'rgba(236, 72, 153, 0.8)',
+                'rgba(168, 85, 247, 0.8)'
             ],
             borderWidth: 0
         }]
@@ -149,7 +202,7 @@ function initLeadSourceChart() {
                             const label = context.label || '';
                             const value = context.raw || 0;
                             const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
-                            const percentage = Math.round((value / total) * 100);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
                             return `${label}: ${value} (${percentage}%)`;
                         }
                     }
@@ -230,57 +283,55 @@ function refreshDashboardData(dateRange) {
 
 // Function to update dashboard KPIs
 function updateDashboardKPIs(dateRange = 'This Month') {
-    // Get filtered data based on date range
-    const filteredLeads = DateFilterUtils.getFilteredData('leads', dateRange);
-    const filteredDeals = DateFilterUtils.getFilteredData('deals', dateRange);
-    const filteredCustomers = DateFilterUtils.getFilteredData('customers', dateRange);
+    // Get data directly from DataService
+    const inventory = DataService.inventory.getAll();
+    const deals = DataService.deals.getAll();
+    const leads = DataService.leads.getAll();
+    const customers = DataService.customers.getAll();
     
     // Calculate stats
-    const leadsStats = DateFilterUtils.calculateStats('leads', dateRange);
-    const dealsStats = DateFilterUtils.calculateStats('deals', dateRange);
+    const soldVehicles = deals.filter(deal => deal.status === 'Closed Won' || deal.status === 'Closed').length;
+    const totalRevenue = deals.filter(deal => deal.status === 'Closed Won' || deal.status === 'Closed')
+                             .reduce((sum, deal) => sum + (deal.value || 0), 0);
+    const totalLeads = leads.length;
+    const conversionRate = totalLeads > 0 ? Math.round((soldVehicles / totalLeads) * 100) : 0;
     
-    // Update Vehicles Sold KPI (using closed deals)
-    const vehiclesSoldElement = document.querySelector('.kpi-card:nth-child(1) .kpi-value');
+    // Update Vehicles Sold KPI
+    const vehiclesSoldElement = document.getElementById('kpi-vehicles-sold');
     if (vehiclesSoldElement) {
-        vehiclesSoldElement.textContent = dealsStats.closed;
+        vehiclesSoldElement.textContent = soldVehicles;
     }
-    
+
     // Update Revenue KPI
-    const revenueElement = document.querySelector('.kpi-card:nth-child(2) .kpi-value');
+    const revenueElement = document.getElementById('kpi-revenue');
     if (revenueElement) {
         const formattedRevenue = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
-        }).format(dealsStats.closedValue);
+        }).format(totalRevenue);
         revenueElement.textContent = formattedRevenue;
     }
-    
+
     // Update New Leads KPI
-    const newLeadsElement = document.querySelector('.kpi-card:nth-child(3) .kpi-value');
+    const newLeadsElement = document.getElementById('kpi-new-leads');
     if (newLeadsElement) {
-        newLeadsElement.textContent = leadsStats.total;
+        newLeadsElement.textContent = totalLeads;
     }
-    
+
     // Update Conversion Rate KPI
-    const conversionRateElement = document.querySelector('.kpi-card:nth-child(4) .kpi-value');
+    const conversionRateElement = document.getElementById('kpi-conversion-rate');
     if (conversionRateElement) {
-        conversionRateElement.textContent = leadsStats.conversionRate + '%';
+        conversionRateElement.textContent = conversionRate + '%';
     }
 }
 
 // Function to update charts with filtered data
 function updateChartsWithFilteredData(dateRange) {
-    // For now, we'll keep the static charts but this is where you would
-    // update the charts with filtered data in a real implementation
-    console.log('Charts would be updated with filtered data for:', dateRange);
-    
-    // Example of how you might update charts:
-    // const filteredDeals = DateFilterUtils.getFilteredData('deals', dateRange);
-    // const filteredLeads = DateFilterUtils.getFilteredData('leads', dateRange);
-    // updateSalesChart(filteredDeals);
-    // updateLeadSourceChart(filteredLeads);
+    // Always re-initialize charts to ensure they display
+    initSalesChart();
+    initLeadSourceChart();
 }
 
 // Function to update task status (would be implemented with actual API calls)

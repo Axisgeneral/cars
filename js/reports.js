@@ -482,7 +482,7 @@ const ReportsManager = {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize data service first
-    DataService.initAll();
+    DataService.utils.initializeAllData();
     
     // Then initialize reports manager
     ReportsManager.init();

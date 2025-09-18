@@ -655,7 +655,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize data
-            DataService.initAll();
+            DataService.utils.initializeAllData();
             
             // Force reinitialize deals with correct structure for four-square compatibility
             DataService.deals.forceInit();

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Back in Stock Feature</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/loading.css">
+    <link rel="stylesheet" href="styles/inventory.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-car"></i> Test: Back in Stock Feature</h1>
+                    <p>Testing the ability to change vehicle status back to "in-stock"</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="test-info" style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                    <h3><i class="fas fa-info-circle"></i> Test Instructions</h3>
+                    <ol>
+                        <li>Look for vehicles with "Sold" or "On Hold" status</li>
+                        <li>Click the "More Options" button (three dots) for those vehicles</li>
+                        <li>You should see a "Back in Stock" option in the dropdown</li>
+                        <li>Click "Back in Stock" to change the status to "In Stock"</li>
+                        <li>Verify the status badge updates and success message appears</li>
+                    </ol>
+                    <p><strong>Note:</strong> The "Back in Stock" option only appears for vehicles that are currently "Sold" or "On Hold".</p>
+                </div>
+
+                <div class="inventory-container">
+                    <div class="table-container">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="select-all"></th>
+                                    <th>Photo</th>
+                                    <th>Stock #</th>
+                                    <th>VIN</th>
+                                    <th>Year</th>
+                                    <th>Make</th>
+                                    <th>Model</th>
+                                    <th>Trim</th>
+                                    <th>Color</th>
+                                    <th>Type</th>
+                                    <th>Mileage</th>
+                                    <th>Price</th>
+                                    <th>Days in Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Table content will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/loading-manager.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/inventory-data.js"></script>
+    <script src="js/inventory.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up fake user data for testing
+            localStorage.setItem('autocrm_user', JSON.stringify({
+                name: 'Test User',
+                email: 'test@example.com',
+                role: 'Sales Manager',
+                isLoggedIn: true
+            }));
+            
+            // Initialize DataService
+            if (typeof DataService !== 'undefined') {
+                DataService.utils.initializeAllData();
+            }
+            
+            // Create some test vehicles with different statuses for testing
+            setTimeout(() => {
+                const testVehicles = [
+                    {
+                        id: 'test-sold-1',
+                        stockNumber: 'SOLD001',
+                        vin: '1HGBH41JXMN109186',
+                        year: 2022,
+                        make: 'Honda',
+                        model: 'Civic',
+                        trim: 'LX',
+                        color: 'Silver',
+                        type: 'Used',
+                        mileage: 25000,
+                        price: 22000,
+                        status: 'sold',
+                        dateAdded: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'test-hold-1',
+                        stockNumber: 'HOLD001',
+                        vin: '1FTFW1ET5DFC10312',
+                        year: 2021,
+                        make: 'Ford',
+                        model: 'F-150',
+                        trim: 'XLT',
+                        color: 'Blue',
+                        type: 'Used',
+                        mileage: 35000,
+                        price: 35000,
+                        status: 'on-hold',
+                        dateAdded: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'test-stock-1',
+                        stockNumber: 'STOCK001',
+                        vin: '1G1ZD5ST8HF123456',
+                        year: 2023,
+                        make: 'Chevrolet',
+                        model: 'Malibu',
+                        trim: 'LS',
+                        color: 'White',
+                        type: 'New',
+                        mileage: 100,
+                        price: 28000,
+                        status: 'in-stock',
+                        dateAdded: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                
+                // Add test vehicles to DataService
+                testVehicles.forEach(vehicle => {
+                    DataService.inventory.add(vehicle);
+                });
+                
+                // Initialize inventory data
+                if (typeof initInventoryData === 'function') {
+                    initInventoryData();
+                }
+                
+                console.log('✅ Test vehicles created with different statuses');
+                console.log('🔍 Look for vehicles with "Sold" or "On Hold" status to test the "Back in Stock" feature');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -52,7 +52,7 @@
         
         function initializeData() {
             try {
-                DataService.initAll();
+                DataService.utils.initializeAllData();
                 const customers = DataService.customers.getAll();
                 document.getElementById('init-results').innerHTML += `
                     <div class="debug-result success">✅ Data initialized successfully</div>

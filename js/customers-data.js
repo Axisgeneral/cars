@@ -1,3 +1,12 @@
+// Ensure formatDate is globally available
+if (typeof window.formatDate !== 'function') {
+    window.formatDate = function(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+}
 // Customers Data Service
 
 // Initialize Customers Data
@@ -51,9 +60,18 @@ function populateCustomersTable() {
                     <button class="btn-icon" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon" title="More Options">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
+                    <div class="dropdown-menu-wrapper">
+                        <button class="btn-icon" title="More Options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu" style="display:none;position:absolute;right:0;z-index:10;min-width:120px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                            <button class="dropdown-item delete-action" style="color:#e53e3e;width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Delete</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Create New Deal</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Send Email</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Log Call</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Add Note</button>
+                        </div>
+                    </div>
                 </div>
             </td>
         `;
@@ -78,10 +96,10 @@ function populateCustomersTable() {
 // Update Customers Stats
 function updateCustomersStats() {
     const customers = DataService.customers.getAll();
-    
+
     // Calculate stats
     const totalCustomers = customers.length;
-    
+
     // Calculate total revenue
     const totalRevenue = customers.reduce((sum, customer) => {
         if (customer.purchaseHistory) {
@@ -90,42 +108,27 @@ function updateCustomersStats() {
         }
         return sum;
     }, 0);
-    
+
     // Calculate average purchase value
     const totalPurchases = customers.reduce((sum, customer) => 
         sum + (customer.purchaseHistory ? customer.purchaseHistory.length : 0), 0);
-    
+
     const avgPurchaseValue = totalPurchases > 0 ? totalRevenue / totalPurchases : 0;
-    
+
     // Calculate new customers (added in the last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    const newCustomers = customers.filter(customer => 
-        new Date(customer.dateAdded) >= thirtyDaysAgo).length;
-    
-    // Update DOM elements
-    const statsContainer = document.querySelector('.customers-stats');
-    if (statsContainer) {
-        statsContainer.innerHTML = `
-            <div class="stat-item">
-                <span class="stat-label">Total Customers:</span>
-                <span class="stat-value">${totalCustomers}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">New Customers (30d):</span>
-                <span class="stat-value">${newCustomers}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Total Revenue:</span>
-                <span class="stat-value">$${totalRevenue.toLocaleString()}</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Avg. Purchase:</span>
-                <span class="stat-value">$${Math.round(avgPurchaseValue).toLocaleString()}</span>
-            </div>
-        `;
-    }
+    const newCustomers = customers.filter(c => new Date(c.dateAdded) >= thirtyDaysAgo).length;
+
+    // Update stats in DOM (assumes stat-value elements exist)
+    const totalCustomersEl = document.getElementById('total-customers');
+    if (totalCustomersEl) totalCustomersEl.textContent = totalCustomers;
+    const newCustomersEl = document.getElementById('new-customers');
+    if (newCustomersEl) newCustomersEl.textContent = newCustomers;
+    const totalRevenueEl = document.getElementById('total-revenue');
+    if (totalRevenueEl) totalRevenueEl.textContent = `$${totalRevenue.toLocaleString()}`;
+    const avgPurchaseValueEl = document.getElementById('avg-purchase-value');
+    if (avgPurchaseValueEl) avgPurchaseValueEl.textContent = `$${Math.round(avgPurchaseValue).toLocaleString()}`;
 }
 
 // Initialize Customers Event Listeners
@@ -144,19 +147,64 @@ function initCustomersEventListeners() {
     editButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const row = this.closest('tr');
-            const name = row.cells[1].textContent;
-            editCustomer(name);
+            // Get customer ID from checkbox id (format: customer-<id>)
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            let customerId = null;
+            if (checkbox && checkbox.id.startsWith('customer-')) {
+                customerId = checkbox.id.replace('customer-', '');
+            }
+            if (customerId) {
+                if (window.editCustomer) {
+                    window.editCustomer(customerId);
+                }
+            } else {
+                alert('Customer ID not found for editing.');
+            }
         });
     });
     
-    const moreButtons = document.querySelectorAll('.action-buttons .btn-icon[title="More Options"]');
+    const moreButtons = document.querySelectorAll('.action-buttons .dropdown-menu-wrapper .btn-icon[title="More Options"]');
     moreButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const row = this.closest('tr');
-            const name = row.cells[1].textContent;
-            showMoreOptions(name, this);
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const wrapper = this.parentElement;
+            const menu = wrapper.querySelector('.dropdown-menu');
+            // Hide any other open menus
+            document.querySelectorAll('.dropdown-menu').forEach(m => { if (m !== menu) m.style.display = 'none'; });
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         });
     });
+
+    // Hide menu when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => menu.style.display = 'none');
+    });
+
+    // Handle delete action in dropdown
+    const deleteActions = document.querySelectorAll('.dropdown-menu .delete-action');
+    deleteActions.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const row = this.closest('tr');
+            const name = row.cells[1].textContent;
+            // Call deleteCustomer by name
+            deleteCustomerByName(name);
+        });
+    });
+// Delete customer by name (used for dropdown menu)
+function deleteCustomerByName(name) {
+    const customers = DataService.customers.getAll();
+    const customer = customers.find(c => `${c.firstName} ${c.lastName}` === name);
+    if (!customer) {
+        alert(`Customer with name ${name} not found.`);
+        return;
+    }
+    if (confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}? This action cannot be undone.`)) {
+        DataService.customers.remove(customer.id);
+        ModalUtils.showSuccessMessage('Customer deleted successfully!');
+        populateCustomersTable();
+    }
+}
 }
 
 // Apply Filters
@@ -289,9 +337,18 @@ function applyCustomersFilters() {
                     <button class="btn-icon" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon" title="More Options">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
+                    <div class="dropdown-menu-wrapper">
+                        <button class="btn-icon" title="More Options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu" style="display:none;position:absolute;right:0;z-index:10;min-width:120px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                            <button class="dropdown-item delete-action" style="color:#e53e3e;width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Delete</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Create New Deal</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Send Email</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Log Call</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Add Note</button>
+                        </div>
+                    </div>
                 </div>
             </td>
         `;
@@ -361,18 +418,42 @@ function viewCustomerDetails(name) {
 }
 
 // Edit Customer
-function editCustomer(name) {
-    // Find the customer by name
-    const customers = DataService.customers.getAll();
-    const customer = customers.find(c => `${c.firstName} ${c.lastName}` === name);
-    
+function editCustomer(customerId) {
+    const customer = DataService.customers.get(customerId);
     if (!customer) {
-        alert(`Customer with name ${name} not found.`);
+        alert(`Customer with ID ${customerId} not found.`);
         return;
     }
-    
-    // For demo purposes, show an alert
-    alert(`Editing customer ${name}. This would open an edit form in a real application.`);
+    // Flatten address fields for form population
+    const customerForForm = {
+        ...customer,
+        street: customer.address && customer.address.street ? customer.address.street : '',
+        city: customer.address && customer.address.city ? customer.address.city : '',
+        state: customer.address && customer.address.state ? customer.address.state : '',
+        zip: customer.address && (customer.address.zip || customer.address.zipCode) ? (customer.address.zip || customer.address.zipCode) : '',
+        company: customer.company || ''
+    };
+    if (typeof openAddCustomerModal === 'function') {
+        openAddCustomerModal();
+        document.querySelector('#add-customer-modal .modal-title').textContent = 'Edit Customer';
+        document.querySelector('#add-customer-modal .btn-primary').textContent = 'Update Customer';
+        document.querySelector('#add-customer-modal .btn-primary').setAttribute('onclick', `updateCustomer('${customerId}')`);
+        const form = document.getElementById('add-customer-form');
+        if (form && typeof ModalUtils !== 'undefined' && ModalUtils.populateForm) {
+            ModalUtils.populateForm(form, customerForForm);
+        }
+        // Trigger change events if needed (for dependent fields)
+        if (form) {
+            const cityEl = form.querySelector('[name="city"]');
+            if (cityEl) cityEl.dispatchEvent(new Event('change'));
+            const stateEl = form.querySelector('[name="state"]');
+            if (stateEl) stateEl.dispatchEvent(new Event('change'));
+        }
+    } else if (window.editCustomer) {
+        window.editCustomer(customerId);
+    } else {
+        alert('Edit form/modal function not found.');
+    }
 }
 
 // Show More Options
@@ -608,32 +689,41 @@ function showCustomersPreview(data) {
     const tbody = table.querySelector('tbody');
     
     // Clear existing content
-    thead.innerHTML = '';
-    tbody.innerHTML = '';
-    
-    // Create header row
-    const headerRow = document.createElement('tr');
-    const sampleRow = data[0];
-    Object.keys(sampleRow).forEach(key => {
-        const th = document.createElement('th');
-        th.textContent = key;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    
-    // Create preview rows (first 5)
-    const previewData = data.slice(0, 5);
-    previewData.forEach(row => {
-        const tr = document.createElement('tr');
-        Object.values(row).forEach(value => {
-            const td = document.createElement('td');
-            td.textContent = value || '';
-            tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-    });
-    
-    preview.style.display = 'block';
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" id="customer-${customer.id}" name="selected-customers">
+                <label for="customer-${customer.id}"></label>
+            </td>
+            <td>${customer.firstName} ${customer.lastName}</td>
+            <td>${customer.email}</td>
+            <td>${customer.phone}</td>
+            <td>${customer.address.city}, ${customer.address.state}</td>
+            <td>${totalPurchases}</td>
+            <td>$${totalSpent.toLocaleString()}</td>
+            <td>${formatDate(customer.dateAdded)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <div class="dropdown-menu-wrapper">
+                        <button class="btn-icon" title="More Options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu" style="display:none;position:absolute;right:0;z-index:10;min-width:120px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                            <button class="dropdown-item delete-action" style="color:#e53e3e;width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Delete</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Create New Deal</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Send Email</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Log Call</button>
+                            <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;">Add Note</button>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
 }
 
 // Confirm Import

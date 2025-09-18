@@ -1,3 +1,66 @@
+// Always assign a single instance of LoadingManager to window
+// and ensure all required methods exist
+
+class LoadingManager {
+    constructor() {
+        this.pageLoadingOverlay = null;
+        this.init();
+    }
+
+    init() {
+        this.createPageLoadingOverlay();
+        this.setupPageTransitionListeners();
+    }
+
+    // ...existing code...
+}
+
+// Create global instance with error handling
+try {
+    window.LoadingManager = new LoadingManager();
+    console.log('LoadingManager initialized successfully');
+} catch (error) {
+    console.error('Error initializing LoadingManager:', error);
+    // Fallback: assign minimal object only if class fails
+    window.LoadingManager = {
+        showButtonLoading: function(button, text) {
+            if (button) {
+                button.disabled = true;
+                button.textContent = text || 'Loading...';
+            }
+        },
+        hideButtonLoading: function(button) {
+            if (button && button.dataset.originalText) {
+                button.disabled = false;
+                button.textContent = button.dataset.originalText;
+            }
+        },
+        showFormLoading: function(form) {
+            if (form) form.style.opacity = '0.7';
+        },
+        hideFormLoading: function(form) {
+            if (form) form.style.opacity = '1';
+        },
+        showPageLoading: function(message) {
+            console.log('Page loading:', message);
+        },
+        hidePageLoading: function() {
+            console.log('Page loading hidden');
+        },
+        showCardLoading: function(element) {
+            if (element) element.classList.add('card-loading');
+        },
+        hideCardLoading: function(element) {
+            if (element) element.classList.remove('card-loading');
+        },
+        showTableLoading: function(table) {
+            if (table) table.classList.add('table-loading');
+        },
+        hideTableLoading: function(table) {
+            if (table) table.classList.remove('table-loading');
+        }
+    };
+}
 /**
  * Loading Manager - Handles loading states for forms, buttons, and page transitions
  */
@@ -392,6 +455,12 @@ try {
         },
         hidePageLoading: function() {
             console.log('Page loading hidden');
+        },
+        showCardLoading: function(element) {
+            if (element) element.classList.add('card-loading');
+        },
+        hideCardLoading: function(element) {
+            if (element) element.classList.remove('card-loading');
         }
     };
 }

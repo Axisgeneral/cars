@@ -559,13 +559,36 @@ const DataService = {
     
     // Customers Methods
     customers: {
+        // Remove method for backward compatibility
+        remove: function(id) {
+            return this.delete(id);
+        },
         getAll: function() {
-            return JSON.parse(localStorage.getItem('autocrm_customers')) || [];
+            try {
+                const data = localStorage.getItem('autocrm_customers');
+                if (!data) return [];
+                const parsed = JSON.parse(data);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.error('Error parsing customers data from localStorage:', error);
+                // Clear corrupted data
+                localStorage.removeItem('autocrm_customers');
+                return [];
+            }
         },
         
         get: function(id) {
-            const customers = this.getAll();
-            return customers.find(customer => customer.id === id) || null;
+            try {
+                const customers = this.getAll();
+                if (!Array.isArray(customers)) {
+                    console.error('Customers data is not an array:', customers);
+                    return null;
+                }
+                return customers.find(customer => customer && customer.id === id) || null;
+            } catch (error) {
+                console.error('Error in customers.get:', error);
+                return null;
+            }
         },
         
         add: function(customer) {
@@ -598,7 +621,28 @@ const DataService = {
         },
         
         save: function(customersData) {
-            localStorage.setItem('autocrm_customers', JSON.stringify(customersData));
+            try {
+                // Remove any circular references by creating clean objects
+                const cleanData = customersData.map(customer => ({
+                    id: customer.id,
+                    firstName: customer.firstName,
+                    lastName: customer.lastName,
+                    email: customer.email,
+                    phone: customer.phone,
+                    company: customer.company || '',
+                    address: customer.address || {},
+                    type: customer.type || 'Regular',
+                    source: customer.source || '',
+                    notes: customer.notes || '',
+                    dateAdded: customer.dateAdded,
+                    lastContact: customer.lastContact,
+                    purchaseHistory: customer.purchaseHistory || [],
+                    updatedAt: customer.updatedAt
+                }));
+                localStorage.setItem('autocrm_customers', JSON.stringify(cleanData));
+            } catch (error) {
+                console.error('Error saving customers data:', error);
+            }
         },
         
         // Initialize with sample data if empty
@@ -1248,6 +1292,10 @@ const DataService = {
     
     // Leads Methods
     leads: {
+        // Remove method for backward compatibility
+        remove: function(id) {
+            return this.delete(id);
+        },
         getAll: function() {
             return JSON.parse(localStorage.getItem('autocrm_leads')) || [];
         },
@@ -1654,6 +1702,10 @@ const DataService = {
     
     // Deals Methods
     deals: {
+        // Remove method for backward compatibility
+        remove: function(id) {
+            return this.delete(id);
+        },
         getAll: function() {
             return JSON.parse(localStorage.getItem('autocrm_deals')) || [];
         },
@@ -2212,6 +2264,10 @@ const DataService = {
     
     // Tasks Methods (keeping localStorage for now)
     tasks: {
+        // Remove method for backward compatibility
+        remove: function(id) {
+            return this.delete(id);
+        },
         getAll: function() {
             return JSON.parse(localStorage.getItem('autocrm_tasks')) || [];
         },
@@ -2789,28 +2845,20 @@ const DataService = {
                         type: 'scheduled',
                         frequency: 'Monthly',
                         lastGenerated: new Date().toISOString(),
-                        nextScheduled: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'Thomas Morales',
-                        dateCreated: new Date().toISOString(),
                         parameters: {
+                            dateRange: 'current-month',
                             includeCharts: true,
-                            includeComparisons: true,
-                            emailRecipients: ['manager@autoconnect.com']
+                            format: 'pdf'
                         }
                     },
                     {
                         id: '2',
                         title: 'Inventory Aging Report',
-                        description: 'Analysis of vehicle inventory showing aging patterns, slow-moving stock, and recommendations for pricing adjustments.',
+                        description: 'Analysis of vehicle inventory aging with recommendations for pricing adjustments and promotional strategies.',
                         category: 'Inventory',
-                        type: 'scheduled',
+                        type: 'on-demand',
                         frequency: 'Weekly',
                         lastGenerated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: new Date(Date.now() + 0 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'Sarah Johnson',
-                        dateCreated: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
                         parameters: {
                             agingThreshold: 60,
                             includePhotos: false,
@@ -2820,128 +2868,15 @@ const DataService = {
                     {
                         id: '3',
                         title: 'Lead Conversion Analysis',
-                        description: 'Detailed breakdown of lead sources, conversion rates, and sales funnel performance with actionable insights.',
+                        description: 'Detailed breakdown of lead sources, conversion rates, and sales funnel performance.',
                         category: 'Marketing',
-                        type: 'on-demand',
-                        frequency: 'As Needed',
-                        lastGenerated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: null,
-                        status: 'Active',
-                        createdBy: 'Mike Rodriguez',
-                        dateCreated: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            timeframe: '90days',
-                            includeSourceBreakdown: true,
-                            includeROI: true
-                        }
-                    },
-                    {
-                        id: '4',
-                        title: 'Customer Satisfaction Survey Results',
-                        description: 'Compilation and analysis of customer feedback, satisfaction scores, and improvement recommendations.',
-                        category: 'Customer Service',
                         type: 'scheduled',
                         frequency: 'Quarterly',
-                        lastGenerated: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'Lisa Chen',
-                        dateCreated: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+                        lastGenerated: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
                         parameters: {
-                            includeComments: true,
-                            minimumResponses: 10,
-                            includeNPS: true
-                        }
-                    },
-                    {
-                        id: '5',
-                        title: 'Financial Performance Dashboard',
-                        description: 'Executive summary of key financial metrics including revenue, profit margins, expenses, and cash flow analysis.',
-                        category: 'Financial',
-                        type: 'scheduled',
-                        frequency: 'Monthly',
-                        lastGenerated: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'Thomas Morales',
-                        dateCreated: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            includeProjections: true,
-                            compareToLastYear: true,
-                            includeExpenseBreakdown: true
-                        }
-                    },
-                    {
-                        id: '6',
-                        title: 'Service Department Performance',
-                        description: 'Analysis of service department metrics including job completion times, customer wait times, and revenue per service.',
-                        category: 'Service',
-                        type: 'scheduled',
-                        frequency: 'Weekly',
-                        lastGenerated: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'David Wilson',
-                        dateCreated: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            includeEfficiencyMetrics: true,
-                            includeCustomerFeedback: true,
-                            includePartsCost: true
-                        }
-                    },
-                    {
-                        id: '7',
-                        title: 'Sales Team Performance Review',
-                        description: 'Individual and team performance metrics for sales staff including deals closed, revenue generated, and customer satisfaction.',
-                        category: 'HR',
-                        type: 'scheduled',
-                        frequency: 'Monthly',
-                        lastGenerated: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'Jennifer Adams',
-                        dateCreated: new Date(Date.now() - 75 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            includeIndividualMetrics: true,
-                            includeTeamComparisons: true,
-                            includeGoalTracking: true
-                        }
-                    },
-                    {
-                        id: '8',
-                        title: 'Market Trends and Competitive Analysis',
-                        description: 'Analysis of local market conditions, competitor pricing, and industry trends affecting dealership performance.',
-                        category: 'Market Research',
-                        type: 'on-demand',
-                        frequency: 'As Needed',
-                        lastGenerated: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: null,
-                        status: 'Active',
-                        createdBy: 'Robert Kim',
-                        dateCreated: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            includeCompetitorPricing: true,
-                            includeMarketShare: true,
-                            includeIndustryTrends: true
-                        }
-                    },
-                    {
-                        id: '9',
-                        title: 'IT Systems and Support Performance',
-                        description: 'Technical support metrics including system uptime, help desk tickets, software issues, and IT infrastructure performance.',
-                        category: 'Tech Support',
-                        type: 'scheduled',
-                        frequency: 'Weekly',
-                        lastGenerated: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                        nextScheduled: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
-                        status: 'Active',
-                        createdBy: 'Alex Thompson',
-                        dateCreated: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            includeSystemUptime: true,
-                            includeTicketResolution: true,
-                            includeUserSatisfaction: true,
-                            includeSecurityMetrics: true
+                            includeSourceBreakdown: true,
+                            compareToLastPeriod: true,
+                            format: 'excel'
                         }
                     }
                 ];
@@ -2950,88 +2885,60 @@ const DataService = {
         }
     },
     
-    // Settings Methods (keeping localStorage for now)
-    settings: {
-        get: function() {
-            return JSON.parse(localStorage.getItem('autocrm_settings')) || {
-                theme: 'light',
-                notifications: true,
-                autoSave: true,
-                currency: 'USD',
-                dateFormat: 'MM/DD/YYYY'
-            };
-        },
-        
-        save: function(settings) {
-            localStorage.setItem('autocrm_settings', JSON.stringify(settings));
-        },
-        
-        update: function(key, value) {
-            const settings = this.get();
-            settings[key] = value;
-            this.save(settings);
-            return settings;
-        }
-    },
-    
     // Utility Methods
     utils: {
-        // Initialize all data stores with sample data if empty
+        // Initialize all data stores with sample data if they don't exist
         initializeAllData: function() {
-            DataService.inventory.init();
-            DataService.customers.init();
-            DataService.leads.init();
-            DataService.deals.init();
-            DataService.sales.init();
-            DataService.tasks.init();
-            DataService.reports.init();
+            console.log('Initializing all data stores...');
+            
+            try {
+                // Initialize each data store
+                DataService.customers.init();
+                DataService.inventory.init();
+                DataService.leads.init();
+                DataService.deals.init();
+                DataService.tasks.init();
+                DataService.reports.init();
+                
+                console.log('All data stores initialized successfully');
+            } catch (error) {
+                console.error('Error initializing data stores:', error);
+            }
         },
         
-        // Clear all data (for testing purposes)
+        // Clear all data (useful for testing)
         clearAllData: function() {
-            localStorage.removeItem('autocrm_inventory');
             localStorage.removeItem('autocrm_customers');
+            localStorage.removeItem('autocrm_inventory');
             localStorage.removeItem('autocrm_leads');
             localStorage.removeItem('autocrm_deals');
-            localStorage.removeItem('autocrm_sales');
             localStorage.removeItem('autocrm_tasks');
             localStorage.removeItem('autocrm_reports');
-            localStorage.removeItem('autocrm_settings');
+            console.log('All data cleared');
         },
         
         // Export all data
         exportAllData: function() {
             return {
-                inventory: DataService.inventory.getAll(),
                 customers: DataService.customers.getAll(),
+                inventory: DataService.inventory.getAll(),
                 leads: DataService.leads.getAll(),
                 deals: DataService.deals.getAll(),
-                sales: DataService.sales.getAll(),
                 tasks: DataService.tasks.getAll(),
                 reports: DataService.reports.getAll(),
-                settings: DataService.settings.get(),
                 exportDate: new Date().toISOString()
             };
         },
         
         // Import all data
         importAllData: function(data) {
-            if (data.inventory) DataService.inventory.save(data.inventory);
             if (data.customers) DataService.customers.save(data.customers);
+            if (data.inventory) DataService.inventory.save(data.inventory);
             if (data.leads) DataService.leads.save(data.leads);
             if (data.deals) DataService.deals.save(data.deals);
-            if (data.sales) DataService.sales.save(data.sales);
             if (data.tasks) DataService.tasks.save(data.tasks);
             if (data.reports) DataService.reports.save(data.reports);
-            if (data.settings) DataService.settings.save(data.settings);
+            console.log('All data imported successfully');
         }
     }
 };
-
-// Add a convenience method for initializing all data
-DataService.initAll = function() {
-    this.utils.initializeAllData();
-};
-
-// Make DataService globally available
-window.DataService = DataService;

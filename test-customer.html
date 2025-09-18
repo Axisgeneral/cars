@@ -78,13 +78,13 @@
             const results = document.getElementById('dataservice-results');
             try {
                 // Initialize data
-                DataService.initAll();
+                DataService.utils.initializeAllData();
                 
                 // Get customers
                 const customers = DataService.customers.getAll();
                 
                 results.innerHTML = `
-                    <div class="test-result">✅ DataService.initAll() executed successfully</div>
+                    <div class="test-result">✅ DataService.utils.initializeAllData() executed successfully</div>
                     <div class="test-result">✅ Found ${customers.length} customers in data</div>
                     <div class="test-result">Sample customer: ${customers[0] ? customers[0].firstName + ' ' + customers[0].lastName : 'None'}</div>
                 `;

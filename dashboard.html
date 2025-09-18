@@ -125,41 +125,38 @@
                         </div>
                         <div class="kpi-details">
                             <h3>Vehicles Sold</h3>
-                            <p class="kpi-value">42</p>
-                            <p class="kpi-trend positive"><i class="fas fa-arrow-up"></i> 12% vs last month</p>
+                            <p class="kpi-value" id="kpi-vehicles-sold">0</p>
+                            <p class="kpi-trend positive" id="kpi-vehicles-sold-trend"><i class="fas fa-arrow-up"></i></p>
                         </div>
                     </div>
-                    
                     <div class="kpi-card">
                         <div class="kpi-icon bg-green">
                             <i class="fas fa-dollar-sign"></i>
                         </div>
                         <div class="kpi-details">
                             <h3>Revenue</h3>
-                            <p class="kpi-value">$1.2M</p>
-                            <p class="kpi-trend positive"><i class="fas fa-arrow-up"></i> 8% vs last month</p>
+                            <p class="kpi-value" id="kpi-revenue">$0</p>
+                            <p class="kpi-trend positive" id="kpi-revenue-trend"><i class="fas fa-arrow-up"></i></p>
                         </div>
                     </div>
-                    
                     <div class="kpi-card">
                         <div class="kpi-icon bg-orange">
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <div class="kpi-details">
                             <h3>New Leads</h3>
-                            <p class="kpi-value">128</p>
-                            <p class="kpi-trend negative"><i class="fas fa-arrow-down"></i> 3% vs last month</p>
+                            <p class="kpi-value" id="kpi-new-leads">0</p>
+                            <p class="kpi-trend negative" id="kpi-new-leads-trend"><i class="fas fa-arrow-down"></i></p>
                         </div>
                     </div>
-                    
                     <div class="kpi-card">
                         <div class="kpi-icon bg-purple">
                             <i class="fas fa-handshake"></i>
                         </div>
                         <div class="kpi-details">
                             <h3>Conversion Rate</h3>
-                            <p class="kpi-value">24%</p>
-                            <p class="kpi-trend positive"><i class="fas fa-arrow-up"></i> 5% vs last month</p>
+                            <p class="kpi-value" id="kpi-conversion-rate">0%</p>
+                            <p class="kpi-trend positive" id="kpi-conversion-rate-trend"><i class="fas fa-arrow-up"></i></p>
                         </div>
                     </div>
                 </div>
@@ -174,7 +171,7 @@
                                 <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
                             </div>
                         </div>
-                        <canvas id="salesChart"></canvas>
+                        <canvas id="salesChart" style="height:300px;width:100%"></canvas>
                     </div>
                     
                     <div class="chart-container">
@@ -323,9 +320,10 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/loading-manager.js"></script>
     <script src="js/theme-manager.js"></script>
     <script src="js/error-handler.js"></script>
-    <script src="js/loading-manager.js"></script>
     <script src="js/data-service.js"></script>
     <script src="js/date-filter-utils.js"></script>
     <script src="js/auth.js"></script>

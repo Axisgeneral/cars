@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Data</title>
+</head>
+<body>
+    <h1>Dashboard Data Test</h1>
+    <div id="test-results"></div>
+
+    <script src="js/data-service.js"></script>
+    <script>
+        // Test data initialization
+        console.log('Testing data initialization...');
+        
+        // Initialize data
+        DataService.utils.initializeAllData();
+        
+        // Get data
+        const inventory = DataService.inventory.getAll();
+        const deals = DataService.deals.getAll();
+        const leads = DataService.leads.getAll();
+        const customers = DataService.customers.getAll();
+        
+        // Display results
+        const results = document.getElementById('test-results');
+        results.innerHTML = `
+            <h2>Data Counts:</h2>
+            <p>Inventory: ${inventory.length} items</p>
+            <p>Deals: ${deals.length} items</p>
+            <p>Leads: ${leads.length} items</p>
+            <p>Customers: ${customers.length} items</p>
+            
+            <h2>Sample Data:</h2>
+            <h3>First Deal:</h3>
+            <pre>${JSON.stringify(deals[0], null, 2)}</pre>
+            
+            <h3>First Lead:</h3>
+            <pre>${JSON.stringify(leads[0], null, 2)}</pre>
+        `;
+        
+        console.log('Inventory:', inventory);
+        console.log('Deals:', deals);
+        console.log('Leads:', leads);
+        console.log('Customers:', customers);
+    </script>
+</body>
+</html>

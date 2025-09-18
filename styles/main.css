@@ -579,7 +579,10 @@ button {
 
 .chart-container canvas {
     width: 100% !important;
-    height: 100% !important; /* Ensure canvas fills container height */
+    height: 100% !important;
+    max-width: 340px;
+    max-height: 340px;
+    margin: 0 auto;
     display: block;
 }
 
