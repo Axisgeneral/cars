@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Applications - TheOnePages</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <img src="assets/logo.png" alt="TheOnePages" class="logo">
+                <span class="brand-text">TheOnePages</span>
+            </div>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="inventory.html" class="nav-link">
+                    <i class="fas fa-car"></i>
+                    Inventory
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    Customers
+                </a>
+                <a href="leads.html" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    Leads
+                </a>
+                <a href="deals.html" class="nav-link">
+                    <i class="fas fa-handshake"></i>
+                    Deals
+                </a>
+                <a href="credit-applications.html" class="nav-link active">
+                    <i class="fas fa-credit-card"></i>
+                    Credit Applications
+                </a>
+            </div>
+            <div class="nav-user">
+                <div class="user-info">
+                    <span class="user-name">Thomas Morales</span>
+                    <span class="user-role">Sales Manager</span>
+                </div>
+                <button class="btn-icon" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="header-content">
+                    <h1 class="page-title">
+                        <i class="fas fa-credit-card"></i>
+                        Credit Applications
+                    </h1>
+                    <p class="page-subtitle">Manage and track customer credit applications</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="refreshApplications()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="exportApplications()">
+                        <i class="fas fa-download"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef3c7;">
+                        <i class="fas fa-clock" style="color: #f59e0b;"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="pending-count">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dbeafe;">
+                        <i class="fas fa-search" style="color: #3b82f6;"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="review-count">0</div>
+                        <div class="stat-label">Under Review</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dcfce7;">
+                        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="approved-count">0</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fee2e2;">
+                        <i class="fas fa-times-circle" style="color: #ef4444;"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-number" id="denied-count">0</div>
+                        <div class="stat-label">Denied</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+                <div class="filters-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+                    <div class="form-group">
+                        <label for="status-filter">Status</label>
+                        <select id="status-filter" onchange="filterApplications()">
+                            <option value="">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Under Review">Under Review</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Denied">Denied</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date-filter">Date Range</label>
+                        <select id="date-filter" onchange="filterApplications()">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="quarter">This Quarter</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="search-filter">Search</label>
+                        <input type="text" id="search-filter" placeholder="Search by customer name..." onkeyup="filterApplications()">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-outline" onclick="clearFilters()">
+                            <i class="fas fa-times"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Application ID</th>
+                            <th>Customer</th>
+                            <th>Date Submitted</th>
+                            <th>Monthly Income</th>
+                            <th>Credit Score</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applications-table-body">
+                        <!-- Applications will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3>No Credit Applications Found</h3>
+                <p>No credit applications match your current filters.</p>
+                <button class="btn btn-primary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Clear Filters
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data-service.js"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/auth.js"></script>
+
+    <script>
+        // Global variables
+        let allApplications = [];
+        let filteredApplications = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            if (!DataService.user.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Initialize data
+            DataService.utils.initializeAllData();
+            
+            // Load applications
+            loadApplications();
+            updateStats();
+        });
+
+        function loadApplications() {
+            allApplications = DataService.creditApplications.getAll();
+            filteredApplications = [...allApplications];
+            renderApplications();
+            updateStats();
+        }
+
+        function renderApplications() {
+            const tbody = document.getElementById('applications-table-body');
+            const emptyState = document.getElementById('empty-state');
+            const tableContainer = document.querySelector('.table-container');
+
+            if (filteredApplications.length === 0) {
+                tableContainer.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            tableContainer.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            tbody.innerHTML = filteredApplications.map(app => `
+                <tr>
+                    <td>
+                        <span class="application-id">#${app.id}</span>
+                    </td>
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-name">${app.customerName}</div>
+                            <div class="customer-email">${app.customerEmail}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="date">${formatDate(app.dateSubmitted)}</span>
+                    </td>
+                    <td>
+                        <span class="income">$${app.monthlyIncome ? app.monthlyIncome.toLocaleString() : 'N/A'}</span>
+                    </td>
+                    <td>
+                        <span class="credit-score">${app.creditScore || 'N/A'}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${app.status.toLowerCase().replace(' ', '-')}">${app.status}</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="viewApplicationDetails('${app.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="updateApplicationStatus('${app.id}')" title="Update Status">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="viewCustomer('${app.customerId}')" title="View Customer">
+                                <i class="fas fa-user"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const stats = {
+                pending: allApplications.filter(app => app.status === 'Pending').length,
+                review: allApplications.filter(app => app.status === 'Under Review').length,
+                approved: allApplications.filter(app => app.status === 'Approved').length,
+                denied: allApplications.filter(app => app.status === 'Denied').length
+            };
+
+            document.getElementById('pending-count').textContent = stats.pending;
+            document.getElementById('review-count').textContent = stats.review;
+            document.getElementById('approved-count').textContent = stats.approved;
+            document.getElementById('denied-count').textContent = stats.denied;
+        }
+
+        function filterApplications() {
+            const statusFilter = document.getElementById('status-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            const searchFilter = document.getElementById('search-filter').value.toLowerCase();
+
+            filteredApplications = allApplications.filter(app => {
+                // Status filter
+                if (statusFilter && app.status !== statusFilter) {
+                    return false;
+                }
+
+                // Date filter
+                if (dateFilter) {
+                    const appDate = new Date(app.dateSubmitted);
+                    const now = new Date();
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            if (appDate.toDateString() !== now.toDateString()) return false;
+                            break;
+                        case 'week':
+                            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            if (appDate < weekAgo) return false;
+                            break;
+                        case 'month':
+                            if (appDate.getMonth() !== now.getMonth() || appDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                        case 'quarter':
+                            const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+                            if (appDate < quarterStart) return false;
+                            break;
+                    }
+                }
+
+                // Search filter
+                if (searchFilter && !app.customerName.toLowerCase().includes(searchFilter)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            renderApplications();
+        }
+
+        function clearFilters() {
+            document.getElementById('status-filter').value = '';
+            document.getElementById('date-filter').value = '';
+            document.getElementById('search-filter').value = '';
+            filterApplications();
+        }
+
+        function refreshApplications() {
+            loadApplications();
+        }
+
+        function exportApplications() {
+            const data = filteredApplications.map(app => ({
+                'Application ID': app.id,
+                'Customer Name': app.customerName,
+                'Customer Email': app.customerEmail,
+                'Date Submitted': formatDate(app.dateSubmitted),
+                'Status': app.status,
+                'Employer': app.employer || '',
+                'Job Title': app.jobTitle || '',
+                'Monthly Income': app.monthlyIncome || '',
+                'Credit Score': app.creditScore || '',
+                'Down Payment': app.downPayment || '',
+                'Approved Amount': app.approvedAmount || '',
+                'Interest Rate': app.interestRate || '',
+                'Processing Notes': app.processingNotes || ''
+            }));
+
+            const csv = convertToCSV(data);
+            downloadCSV(csv, 'credit-applications.csv');
+        }
+
+        function convertToCSV(data) {
+            if (data.length === 0) return '';
+            
+            const headers = Object.keys(data[0]);
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
+            ].join('\n');
+            
+            return csvContent;
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Application management functions (reused from customers.html)
+        function viewApplicationDetails(applicationId) {
+            const application = DataService.creditApplications.get(applicationId);
+            if (!application) {
+                ModalUtils.showErrorMessage('Application not found.');
+                return;
+            }
+            
+            const modalContent = `
+                <div class="application-details">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Application Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Application ID</label>
+                                <input type="text" value="${application.id}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <input type="text" value="${application.status}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Date Submitted</label>
+                                <input type="text" value="${formatDate(application.dateSubmitted)}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            ${application.dateProcessed ? `
+                                <div class="form-group">
+                                    <label>Date Processed</label>
+                                    <input type="text" value="${formatDate(application.dateProcessed)}" readonly style="background-color: #f5f5f5;">
+                                </div>
+                            ` : '<div class="form-group"></div>'}
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Customer Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Customer Name</label>
+                                <input type="text" value="${application.customerName}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="text" value="${application.customerEmail}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Employment Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Employer</label>
+                                <input type="text" value="${application.employer || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Job Title</label>
+                                <input type="text" value="${application.jobTitle || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Employment Length</label>
+                                <input type="text" value="${application.employmentLength || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Income</label>
+                                <input type="text" value="$${application.monthlyIncome ? application.monthlyIncome.toLocaleString() : 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Financial Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Housing Status</label>
+                                <input type="text" value="${application.housingStatus || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Housing Payment</label>
+                                <input type="text" value="$${application.monthlyPayment ? application.monthlyPayment.toLocaleString() : 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Credit Score Range</label>
+                                <input type="text" value="${application.creditScore || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Down Payment</label>
+                                <input type="text" value="$${application.downPayment ? application.downPayment.toLocaleString() : 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        ${application.tradeVehicle ? `
+                            <div class="form-group">
+                                <label>Trade-in Vehicle</label>
+                                <input type="text" value="${application.tradeVehicle}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${application.status === 'Approved' && (application.approvedAmount || application.interestRate) ? `
+                        <div class="form-section">
+                            <h4 class="form-section-title">Approval Details</h4>
+                            <div class="form-row">
+                                ${application.approvedAmount ? `
+                                    <div class="form-group">
+                                        <label>Approved Amount</label>
+                                        <input type="text" value="$${application.approvedAmount.toLocaleString()}" readonly style="background-color: #dcfce7;">
+                                    </div>
+                                ` : ''}
+                                ${application.interestRate ? `
+                                    <div class="form-group">
+                                        <label>Interest Rate</label>
+                                        <input type="text" value="${application.interestRate}% APR" readonly style="background-color: #dcfce7;">
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${application.additionalNotes || application.processingNotes ? `
+                        <div class="form-section">
+                            <h4 class="form-section-title">Notes</h4>
+                            ${application.additionalNotes ? `
+                                <div class="form-group">
+                                    <label>Customer Notes</label>
+                                    <textarea readonly style="background-color: #f5f5f5;" rows="3">${application.additionalNotes}</textarea>
+                                </div>
+                            ` : ''}
+                            ${application.processingNotes ? `
+                                <div class="form-group">
+                                    <label>Processing Notes</label>
+                                    <textarea readonly style="background-color: #f5f5f5;" rows="3">${application.processingNotes}</textarea>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Update Status',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('application-details-modal'); updateApplicationStatus('${applicationId}')"`
+                }
+            ];
+            
+            ModalUtils.createModal('application-details-modal', `Credit Application Details - #${application.id}`, modalContent, footerButtons);
+            ModalUtils.openModal('application-details-modal');
+        }
+
+        function updateApplicationStatus(applicationId) {
+            const application = DataService.creditApplications.get(applicationId);
+            if (!application) {
+                ModalUtils.showErrorMessage('Application not found.');
+                return;
+            }
+            
+            const modalContent = `
+                <form id="update-status-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Update Application Status</h4>
+                        <div class="form-group">
+                            <label>Application ID</label>
+                            <input type="text" value="#${application.id}" readonly style="background-color: #f5f5f5;">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer</label>
+                            <input type="text" value="${application.customerName}" readonly style="background-color: #f5f5f5;">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <select id="status" name="status" required>
+                                <option value="Pending" ${application.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Under Review" ${application.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                                <option value="Approved" ${application.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                                <option value="Denied" ${application.status === 'Denied' ? 'selected' : ''}>Denied</option>
+                                <option value="Cancelled" ${application.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="approval-fields" style="display: ${application.status === 'Approved' ? 'block' : 'none'};">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="approved-amount">Approved Amount</label>
+                                    <input type="number" id="approved-amount" name="approvedAmount" value="${application.approvedAmount || ''}" placeholder="0" min="0" step="1000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="interest-rate">Interest Rate (%)</label>
+                                    <input type="number" id="interest-rate" name="interestRate" value="${application.interestRate || ''}" placeholder="0.0" min="0" max="30" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="processing-notes">Processing Notes</label>
+                            <textarea id="processing-notes" name="processingNotes" rows="3" placeholder="Add notes about the decision...">${application.processingNotes || ''}</textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Update Status',
+                    class: 'btn-primary',
+                    icon: 'fas fa-save',
+                    attributes: `onclick="saveApplicationStatus('${applicationId}')"`
+                }
+            ];
+            
+            ModalUtils.createModal('update-status-modal', 'Update Application Status', modalContent, footerButtons);
+            ModalUtils.openModal('update-status-modal');
+            
+            // Add event listener to show/hide approval fields
+            const statusSelect = document.getElementById('status');
+            const approvalFields = document.getElementById('approval-fields');
+            
+            statusSelect.addEventListener('change', function() {
+                if (this.value === 'Approved') {
+                    approvalFields.style.display = 'block';
+                } else {
+                    approvalFields.style.display = 'none';
+                }
+            });
+        }
+
+        function saveApplicationStatus(applicationId) {
+            const form = document.getElementById('update-status-form');
+            const formData = ModalUtils.getFormData(form);
+            
+            const updateData = {
+                status: formData.status,
+                processingNotes: formData.processingNotes,
+                dateProcessed: new Date().toISOString()
+            };
+            
+            if (formData.status === 'Approved') {
+                if (formData.approvedAmount) {
+                    updateData.approvedAmount = parseFloat(formData.approvedAmount);
+                }
+                if (formData.interestRate) {
+                    updateData.interestRate = parseFloat(formData.interestRate);
+                }
+            }
+            
+            try {
+                DataService.creditApplications.update(applicationId, updateData);
+                ModalUtils.showSuccessMessage('Application status updated successfully!');
+                ModalUtils.closeModal('update-status-modal');
+                ModalUtils.removeModal('update-status-modal');
+                
+                // Refresh the applications list
+                loadApplications();
+            } catch (error) {
+                console.error('Error updating application status:', error);
+                ModalUtils.showErrorMessage('Error updating application status. Please try again.');
+            }
+        }
+
+        function viewCustomer(customerId) {
+            // Redirect to customers page with the specific customer
+            window.location.href = `customers.html?customer=${customerId}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function logout() {
+            DataService.user.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <style>
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-under-review {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-denied {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-cancelled {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .customer-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .customer-email {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .application-id {
+            font-family: monospace;
+            font-weight: 500;
+            color: #3b82f6;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</body>
+</html>

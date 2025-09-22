@@ -227,7 +227,7 @@
     <input type="file" id="customers-file-input" accept=".csv,.json" style="display: none;">
 
     <!-- Import Modal -->
-    <div id="import-customers-modal" class="modal-overlay">
+    <div id="import-customers-modal" class="modal-overlay" style="display: none;">
         <div class="modal">
             <div class="modal-content">
             <div class="modal-header">
@@ -293,8 +293,799 @@
     <script src="js/customers-data.js"></script>
     <script src="js/mobile-nav.js"></script>
     <script>
+        // Global functions for customer actions - Define these first before they're used
+        window.viewCustomer = function(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) {
+                alert('Customer not found');
+                return;
+            }
+            
+            const modalContent = `
+                <div class="customer-details">
+                    <div class="customer-header">
+                        <div class="customer-avatar">
+                            ${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}
+                        </div>
+                        <div class="customer-info">
+                            <h3>${customer.firstName} ${customer.lastName}</h3>
+                            <p class="customer-type">${customer.type || 'Regular'} Customer</p>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-details-grid">
+                        <div class="detail-section">
+                            <h4>Contact Information</h4>
+                            <div class="detail-item">
+                                <label>Email:</label>
+                                <span>${customer.email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Phone:</label>
+                                <span>${customer.phone}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Address:</label>
+                                <span>${customer.street || ''}<br>${customer.city || ''}, ${customer.state || ''} ${customer.zip || ''}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>Customer Information</h4>
+                            <div class="detail-item">
+                                <label>Type:</label>
+                                <span class="badge badge-${(customer.type || 'regular').toLowerCase()}">${customer.type || 'Regular'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Company:</label>
+                                <span>${customer.company || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Date Added:</label>
+                                <span>${formatDate(customer.dateAdded)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Last Contact:</label>
+                                <span>${formatDate(customer.lastContact)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section full-width">
+                            <h4>Notes</h4>
+                            <div class="notes-content">
+                                ${customer.notes || 'No notes available'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Edit Customer',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('view-customer-modal'); ModalUtils.removeModal('view-customer-modal'); editCustomer('${customerId}')"`
+                }
+            ];
+            
+            ModalUtils.createModal('view-customer-modal', 'Customer Details', modalContent, footerButtons);
+            ModalUtils.openModal('view-customer-modal');
+        };
+
+        window.addNoteToCustomer = function(customerId) {
+            alert('Add Note for customer ID: ' + customerId);
+        };
+
+        window.deleteCustomer = function(customerId) {
+            // Use the same logic as your main deleteCustomer function
+            const customer = DataService.customers.get(customerId);
+            if (!customer) return;
+            if (confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}? This action cannot be undone.`)) {
+                DataService.customers.remove(customerId);
+                ModalUtils.showSuccessMessage('Customer deleted successfully!');
+                loadCustomers();
+                updateStats();
+            }
+        };
+
+        window.createDealForCustomer = function(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) {
+                alert('Customer not found');
+                return;
+            }
+            // Redirect to deals page with customer pre-selected
+            window.location.href = `deals.html?customerId=${customerId}&customerName=${encodeURIComponent(customer.firstName + ' ' + customer.lastName)}`;
+        };
+
+        window.sendEmailToCustomer = function(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) {
+                alert('Customer not found');
+                return;
+            }
+            if (customer.email) {
+                window.location.href = `mailto:${customer.email}?subject=Follow up from TheOnePages`;
+            } else {
+                alert('No email address found for this customer');
+            }
+        };
+
+        window.logCallForCustomer = function(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) {
+                alert('Customer not found');
+                return;
+            }
+            
+            const modalContent = `
+                <form id="log-call-form">
+                    <div class="form-group">
+                        <label for="call-type">Call Type</label>
+                        <select id="call-type" name="callType" required>
+                            <option value="">Select call type</option>
+                            <option value="outbound">Outbound Call</option>
+                            <option value="inbound">Inbound Call</option>
+                            <option value="follow-up">Follow-up Call</option>
+                            <option value="sales">Sales Call</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="call-duration">Duration (minutes)</label>
+                        <input type="number" id="call-duration" name="duration" min="1" placeholder="e.g., 15">
+                    </div>
+                    <div class="form-group">
+                        <label for="call-notes">Call Notes</label>
+                        <textarea id="call-notes" name="notes" rows="4" placeholder="What was discussed during the call?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="follow-up-required">
+                            <input type="checkbox" id="follow-up-required" name="followUpRequired">
+                            Follow-up required
+                        </label>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Log Call',
+                    class: 'btn-primary',
+                    icon: 'fas fa-phone',
+                    attributes: 'onclick="saveCallLog()"'
+                }
+            ];
+            
+            ModalUtils.createModal('log-call-modal', `Log Call - ${customer.firstName} ${customer.lastName}`, modalContent, footerButtons);
+            ModalUtils.openModal('log-call-modal');
+        };
+
+        window.saveCallLog = function() {
+            const form = document.getElementById('log-call-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            
+            // Here you would typically save the call log to your data service
+            // For now, we'll just show a success message
+            ModalUtils.showSuccessMessage('Call logged successfully!');
+            ModalUtils.closeModal('log-call-modal');
+            ModalUtils.removeModal('log-call-modal');
+        };
+
+        window.openCreditApplication = function(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) {
+                alert('Customer not found');
+                return;
+            }
+            
+            const modalContent = `
+                <form id="credit-application-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Customer Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Customer Name</label>
+                                <input type="text" value="${customer.firstName} ${customer.lastName}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="text" value="${customer.email}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="text" value="${customer.phone}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" value="${customer.street || ''} ${customer.city || ''}, ${customer.state || ''} ${customer.zip || ''}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Employment Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employer">Employer *</label>
+                                <input type="text" id="employer" name="employer" required placeholder="Current employer">
+                            </div>
+                            <div class="form-group">
+                                <label for="job-title">Job Title *</label>
+                                <input type="text" id="job-title" name="jobTitle" required placeholder="Position/Title">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employment-length">Length of Employment *</label>
+                                <select id="employment-length" name="employmentLength" required>
+                                    <option value="">Select duration</option>
+                                    <option value="less-than-1">Less than 1 year</option>
+                                    <option value="1-2">1-2 years</option>
+                                    <option value="2-5">2-5 years</option>
+                                    <option value="5-10">5-10 years</option>
+                                    <option value="more-than-10">More than 10 years</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="monthly-income">Monthly Income *</label>
+                                <input type="number" id="monthly-income" name="monthlyIncome" required placeholder="0" min="0" step="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Financial Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ssn">Social Security Number *</label>
+                                <input type="text" id="ssn" name="ssn" required placeholder="XXX-XX-XXXX" maxlength="11">
+                            </div>
+                            <div class="form-group">
+                                <label for="date-of-birth">Date of Birth *</label>
+                                <input type="date" id="date-of-birth" name="dateOfBirth" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="housing-status">Housing Status *</label>
+                                <select id="housing-status" name="housingStatus" required>
+                                    <option value="">Select status</option>
+                                    <option value="own">Own</option>
+                                    <option value="rent">Rent</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="monthly-payment">Monthly Housing Payment *</label>
+                                <input type="number" id="monthly-payment" name="monthlyPayment" required placeholder="0" min="0" step="50">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Credit Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="credit-score">Estimated Credit Score</label>
+                                <select id="credit-score" name="creditScore">
+                                    <option value="">Select range</option>
+                                    <option value="excellent">Excellent (750+)</option>
+                                    <option value="good">Good (700-749)</option>
+                                    <option value="fair">Fair (650-699)</option>
+                                    <option value="poor">Poor (600-649)</option>
+                                    <option value="very-poor">Very Poor (Below 600)</option>
+                                    <option value="unknown">Don't Know</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="down-payment">Down Payment Amount</label>
+                                <input type="number" id="down-payment" name="downPayment" placeholder="0" min="0" step="500">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="trade-vehicle">Trade-in Vehicle</label>
+                            <input type="text" id="trade-vehicle" name="tradeVehicle" placeholder="Year Make Model (if applicable)">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Additional Information</h4>
+                        <div class="form-group">
+                            <label for="bankruptcy">
+                                <input type="checkbox" id="bankruptcy" name="bankruptcy">
+                                Has filed for bankruptcy in the last 7 years
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="cosigner">
+                                <input type="checkbox" id="cosigner" name="cosigner">
+                                Will have a co-signer
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="additional-notes">Additional Notes</label>
+                            <textarea id="additional-notes" name="additionalNotes" rows="3" placeholder="Any additional information that might help with the credit application..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Submit Application',
+                    class: 'btn-primary',
+                    icon: 'fas fa-credit-card',
+                    attributes: 'onclick="submitCreditApplication()"'
+                }
+            ];
+            
+            ModalUtils.createModal('credit-application-modal', `Credit Application - ${customer.firstName} ${customer.lastName}`, modalContent, footerButtons);
+            ModalUtils.openModal('credit-application-modal');
+            
+            // Add SSN formatting
+            const ssnInput = document.getElementById('ssn');
+            if (ssnInput) {
+                ssnInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 6) {
+                        value = value.substring(0,3) + '-' + value.substring(3,5) + '-' + value.substring(5,9);
+                    } else if (value.length >= 3) {
+                        value = value.substring(0,3) + '-' + value.substring(3);
+                    }
+                    e.target.value = value;
+                });
+            }
+        };
+
+        window.viewCreditApplications = function(customerId) {
+            const customer = DataService.customers.get(customerId);
+            if (!customer) {
+                alert('Customer not found');
+                return;
+            }
+            
+            const applications = DataService.creditApplications.getByCustomerId(customerId);
+            
+            if (applications.length === 0) {
+                ModalUtils.showErrorMessage('No credit applications found for this customer.');
+                return;
+            }
+            
+            const modalContent = `
+                <div class="credit-applications-list">
+                    <h4 style="margin-bottom: 1rem; color: #1f2937;">Credit Applications for ${customer.firstName} ${customer.lastName}</h4>
+                    ${applications.map(app => `
+                        <div class="application-card" style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #f9fafb;">
+                            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
+                                <h5 style="margin: 0; color: #374151;">Application #${app.id}</h5>
+                                <span class="status-badge status-${app.status.toLowerCase().replace(' ', '-')}" style="
+                                    padding: 0.25rem 0.75rem; 
+                                    border-radius: 9999px; 
+                                    font-size: 0.75rem; 
+                                    font-weight: 500;
+                                    ${app.status === 'Approved' ? 'background: #dcfce7; color: #166534;' : 
+                                      app.status === 'Pending' ? 'background: #fef3c7; color: #92400e;' : 
+                                      app.status === 'Under Review' ? 'background: #dbeafe; color: #1e40af;' : 
+                                      'background: #fee2e2; color: #dc2626;'}
+                                ">${app.status}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+                                <div><strong>Submitted:</strong> ${formatDate(app.dateSubmitted)}</div>
+                                <div><strong>Monthly Income:</strong> $${app.monthlyIncome ? app.monthlyIncome.toLocaleString() : 'N/A'}</div>
+                                <div><strong>Employer:</strong> ${app.employer || 'N/A'}</div>
+                                <div><strong>Credit Score:</strong> ${app.creditScore || 'N/A'}</div>
+                            </div>
+                            ${app.status === 'Approved' && app.approvedAmount ? `
+                                <div style="background: #dcfce7; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem;">
+                                    <strong style="color: #166534;">Approved Amount:</strong> $${app.approvedAmount.toLocaleString()}
+                                    ${app.interestRate ? ` at ${app.interestRate}% APR` : ''}
+                                </div>
+                            ` : ''}
+                            ${app.processingNotes ? `
+                                <div style="margin-top: 0.5rem;">
+                                    <strong>Notes:</strong> ${app.processingNotes}
+                                </div>
+                            ` : ''}
+                            <div style="margin-top: 1rem;">
+                                <button class="btn btn-outline" onclick="viewApplicationDetails('${app.id}')" style="margin-right: 0.5rem;">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                                ${app.status === 'Pending' || app.status === 'Under Review' ? `
+                                    <button class="btn btn-outline" onclick="updateApplicationStatus('${app.id}')" style="margin-right: 0.5rem;">
+                                        <i class="fas fa-edit"></i> Update Status
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'New Application',
+                    class: 'btn-primary',
+                    icon: 'fas fa-plus',
+                    attributes: `onclick="ModalUtils.closeModal('view-credit-applications-modal'); openCreditApplication('${customerId}')"`
+                }
+            ];
+            
+            ModalUtils.createModal('view-credit-applications-modal', 'Credit Applications', modalContent, footerButtons);
+            ModalUtils.openModal('view-credit-applications-modal');
+        };
+
+        window.viewApplicationDetails = function(applicationId) {
+            const application = DataService.creditApplications.get(applicationId);
+            if (!application) {
+                ModalUtils.showErrorMessage('Application not found.');
+                return;
+            }
+            
+            const modalContent = `
+                <div class="application-details">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Application Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Application ID</label>
+                                <input type="text" value="${application.id}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <input type="text" value="${application.status}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Date Submitted</label>
+                                <input type="text" value="${formatDate(application.dateSubmitted)}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            ${application.dateProcessed ? `
+                                <div class="form-group">
+                                    <label>Date Processed</label>
+                                    <input type="text" value="${formatDate(application.dateProcessed)}" readonly style="background-color: #f5f5f5;">
+                                </div>
+                            ` : '<div class="form-group"></div>'}
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Customer Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Customer Name</label>
+                                <input type="text" value="${application.customerName}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="text" value="${application.customerEmail}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Employment Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Employer</label>
+                                <input type="text" value="${application.employer || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Job Title</label>
+                                <input type="text" value="${application.jobTitle || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Employment Length</label>
+                                <input type="text" value="${application.employmentLength || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Income</label>
+                                <input type="text" value="$${application.monthlyIncome ? application.monthlyIncome.toLocaleString() : 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="form-section-title">Financial Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Housing Status</label>
+                                <input type="text" value="${application.housingStatus || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Housing Payment</label>
+                                <input type="text" value="$${application.monthlyPayment ? application.monthlyPayment.toLocaleString() : 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Credit Score Range</label>
+                                <input type="text" value="${application.creditScore || 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                            <div class="form-group">
+                                <label>Down Payment</label>
+                                <input type="text" value="$${application.downPayment ? application.downPayment.toLocaleString() : 'N/A'}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        </div>
+                        ${application.tradeVehicle ? `
+                            <div class="form-group">
+                                <label>Trade-in Vehicle</label>
+                                <input type="text" value="${application.tradeVehicle}" readonly style="background-color: #f5f5f5;">
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${application.status === 'Approved' && (application.approvedAmount || application.interestRate) ? `
+                        <div class="form-section">
+                            <h4 class="form-section-title">Approval Details</h4>
+                            <div class="form-row">
+                                ${application.approvedAmount ? `
+                                    <div class="form-group">
+                                        <label>Approved Amount</label>
+                                        <input type="text" value="$${application.approvedAmount.toLocaleString()}" readonly style="background-color: #dcfce7;">
+                                    </div>
+                                ` : ''}
+                                ${application.interestRate ? `
+                                    <div class="form-group">
+                                        <label>Interest Rate</label>
+                                        <input type="text" value="${application.interestRate}% APR" readonly style="background-color: #dcfce7;">
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${application.additionalNotes || application.processingNotes ? `
+                        <div class="form-section">
+                            <h4 class="form-section-title">Notes</h4>
+                            ${application.additionalNotes ? `
+                                <div class="form-group">
+                                    <label>Customer Notes</label>
+                                    <textarea readonly style="background-color: #f5f5f5;" rows="3">${application.additionalNotes}</textarea>
+                                </div>
+                            ` : ''}
+                            ${application.processingNotes ? `
+                                <div class="form-group">
+                                    <label>Processing Notes</label>
+                                    <textarea readonly style="background-color: #f5f5f5;" rows="3">${application.processingNotes}</textarea>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Close',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Update Status',
+                    class: 'btn-primary',
+                    icon: 'fas fa-edit',
+                    attributes: `onclick="ModalUtils.closeModal('application-details-modal'); updateApplicationStatus('${applicationId}')"`
+                }
+            ];
+            
+            ModalUtils.createModal('application-details-modal', `Credit Application Details - #${application.id}`, modalContent, footerButtons);
+            ModalUtils.openModal('application-details-modal');
+        };
+
+        window.updateApplicationStatus = function(applicationId) {
+            const application = DataService.creditApplications.get(applicationId);
+            if (!application) {
+                ModalUtils.showErrorMessage('Application not found.');
+                return;
+            }
+            
+            const modalContent = `
+                <form id="update-status-form">
+                    <div class="form-section">
+                        <h4 class="form-section-title">Update Application Status</h4>
+                        <div class="form-group">
+                            <label>Application ID</label>
+                            <input type="text" value="#${application.id}" readonly style="background-color: #f5f5f5;">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer</label>
+                            <input type="text" value="${application.customerName}" readonly style="background-color: #f5f5f5;">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <select id="status" name="status" required>
+                                <option value="Pending" ${application.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Under Review" ${application.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                                <option value="Approved" ${application.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                                <option value="Denied" ${application.status === 'Denied' ? 'selected' : ''}>Denied</option>
+                                <option value="Cancelled" ${application.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="approval-fields" style="display: ${application.status === 'Approved' ? 'block' : 'none'};">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="approved-amount">Approved Amount</label>
+                                    <input type="number" id="approved-amount" name="approvedAmount" value="${application.approvedAmount || ''}" placeholder="0" min="0" step="1000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="interest-rate">Interest Rate (%)</label>
+                                    <input type="number" id="interest-rate" name="interestRate" value="${application.interestRate || ''}" placeholder="0.0" min="0" max="30" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="processing-notes">Processing Notes</label>
+                            <textarea id="processing-notes" name="processingNotes" rows="3" placeholder="Add notes about the decision...">${application.processingNotes || ''}</textarea>
+                        </div>
+                    </div>
+                </form>
+            `;
+            
+            const footerButtons = [
+                {
+                    text: 'Cancel',
+                    class: 'btn-outline',
+                    attributes: 'data-modal-close'
+                },
+                {
+                    text: 'Update Status',
+                    class: 'btn-primary',
+                    icon: 'fas fa-save',
+                    attributes: `onclick="saveApplicationStatus('${applicationId}')"`
+                }
+            ];
+            
+            ModalUtils.createModal('update-status-modal', 'Update Application Status', modalContent, footerButtons);
+            ModalUtils.openModal('update-status-modal');
+            
+            // Add event listener to show/hide approval fields
+            const statusSelect = document.getElementById('status');
+            const approvalFields = document.getElementById('approval-fields');
+            
+            statusSelect.addEventListener('change', function() {
+                if (this.value === 'Approved') {
+                    approvalFields.style.display = 'block';
+                } else {
+                    approvalFields.style.display = 'none';
+                }
+            });
+        };
+
+        window.saveApplicationStatus = function(applicationId) {
+            const form = document.getElementById('update-status-form');
+            const formData = ModalUtils.getFormData(form);
+            
+            const updateData = {
+                status: formData.status,
+                processingNotes: formData.processingNotes,
+                dateProcessed: new Date().toISOString()
+            };
+            
+            if (formData.status === 'Approved') {
+                if (formData.approvedAmount) {
+                    updateData.approvedAmount = parseFloat(formData.approvedAmount);
+                }
+                if (formData.interestRate) {
+                    updateData.interestRate = parseFloat(formData.interestRate);
+                }
+            }
+            
+            try {
+                DataService.creditApplications.update(applicationId, updateData);
+                ModalUtils.showSuccessMessage('Application status updated successfully!');
+                ModalUtils.closeModal('update-status-modal');
+                ModalUtils.removeModal('update-status-modal');
+                
+                // Refresh any open views
+                if (document.getElementById('view-credit-applications-modal')) {
+                    ModalUtils.closeModal('view-credit-applications-modal');
+                    ModalUtils.removeModal('view-credit-applications-modal');
+                }
+            } catch (error) {
+                console.error('Error updating application status:', error);
+                ModalUtils.showErrorMessage('Error updating application status. Please try again.');
+            }
+        };
+
+        window.submitCreditApplication = function() {
+            const form = document.getElementById('credit-application-form');
+            const errors = ModalUtils.validateForm(form);
+            
+            if (Object.keys(errors).length > 0) {
+                ModalUtils.displayFormErrors(errors);
+                return;
+            }
+            
+            const formData = ModalUtils.getFormData(form);
+            
+            // Get customer information from the modal
+            const modalTitle = document.querySelector('#credit-application-modal .modal-title').textContent;
+            const customerName = modalTitle.replace('Credit Application - ', '');
+            
+            // Find customer ID by name (this is a simple approach - in production you'd pass the ID more directly)
+            const customers = DataService.customers.getAll();
+            const customer = customers.find(c => `${c.firstName} ${c.lastName}` === customerName);
+            
+            if (!customer) {
+                ModalUtils.showErrorMessage('Customer information not found. Please try again.');
+                return;
+            }
+            
+            // Prepare credit application data
+            const creditApplication = {
+                customerId: customer.id,
+                customerName: customerName,
+                customerEmail: customer.email,
+                ...formData,
+                status: 'Pending'
+            };
+            
+            // Save the credit application
+            try {
+                DataService.creditApplications.add(creditApplication);
+                ModalUtils.showSuccessMessage('Credit application submitted successfully! You will be notified of the decision within 24 hours.');
+                ModalUtils.closeModal('credit-application-modal');
+                ModalUtils.removeModal('credit-application-modal');
+                
+                // Refresh the customer view to show the new application
+                if (typeof loadCustomers === 'function') {
+                    loadCustomers();
+                }
+            } catch (error) {
+                console.error('Error saving credit application:', error);
+                ModalUtils.showErrorMessage('Error submitting credit application. Please try again.');
+            }
+        };
+
+        // Utility function for date formatting
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
         // Customer Management functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Clean up any existing modals first
+            cleanupExistingModals();
+            
             // Initialize data
             DataService.utils.initializeAllData();
             
@@ -305,6 +1096,17 @@
             // Event listeners
             setupEventListeners();
         });
+
+        function cleanupExistingModals() {
+            // Remove any existing customer modals that might be left over
+            const existingModals = ['add-customer-modal', 'view-customer-modal', 'edit-customer-modal'];
+            existingModals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.remove();
+                }
+            });
+        }
 
         function setupEventListeners() {
             console.log('Setting up customer event listeners...');
@@ -526,11 +1328,13 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu" style="display:none;position:absolute;right:0;z-index:10;min-width:120px;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                                        <button class="dropdown-item" style="color:#e53e3e;width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="deleteCustomer('${customer.id}')">Delete</button>
                                         <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="createDealForCustomer('${customer.id}')">Create New Deal</button>
+                                        <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="openCreditApplication('${customer.id}')">Credit Application</button>
+                                        <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="viewCreditApplications('${customer.id}')">View Applications</button>
                                         <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="sendEmailToCustomer('${customer.id}')">Send Email</button>
                                         <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="logCallForCustomer('${customer.id}')">Log Call</button>
                                         <button class="dropdown-item" style="width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="addNoteToCustomer('${customer.id}')">Add Note</button>
+                                        <button class="dropdown-item" style="color:#e53e3e;width:100%;text-align:left;padding:8px 16px;border:none;background:none;cursor:pointer;" onclick="deleteCustomer('${customer.id}')">Delete</button>
                                     </div>
                                 </div>
                         </td>
@@ -539,24 +1343,18 @@
             }
         }
 
-function toggleCustomerDropdownMenu(btn) {
-    var menu = btn.parentElement.querySelector('.dropdown-menu');
-    // Hide other open menus
-    document.querySelectorAll('.dropdown-menu').forEach(function(m) { if (m !== menu) m.style.display = 'none'; });
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-}
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown-menu-wrapper')) {
-        document.querySelectorAll('.dropdown-menu').forEach(function(menu) { menu.style.display = 'none'; });
-    }
-});
-</script>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+        function toggleCustomerDropdownMenu(btn) {
+            var menu = btn.parentElement.querySelector('.dropdown-menu');
+            // Hide other open menus
+            document.querySelectorAll('.dropdown-menu').forEach(function(m) { if (m !== menu) m.style.display = 'none'; });
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-menu-wrapper')) {
+                document.querySelectorAll('.dropdown-menu').forEach(function(menu) { menu.style.display = 'none'; });
+            }
+        });
 
         function openAddCustomerModal() {
             const modalContent = `
@@ -761,75 +1559,7 @@ document.addEventListener('click', function(e) {
             updateStats();
         }
 
-        function viewCustomer(customerId) {
-            const customer = DataService.customers.get(customerId);
-            if (!customer) return;
-            const modalContent = `
-                <div class="customer-details">
-                    <div class="customer-header">
-                        <div class="customer-avatar-large">
-                            ${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}
-                        </div>
-                        <div class="customer-info">
-                            <h3>${customer.firstName} ${customer.lastName}</h3>
-                            <p>${customer.company || 'Individual Customer'}</p>
-                            <span class="badge badge-${customer.type ? customer.type.toLowerCase() : 'regular'}">${customer.type || 'Regular'}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="customer-sections">
-                        <div class="info-section">
-                            <h4>Contact Information</h4>
-                            <div class="info-grid">
-                                <div><strong>Email:</strong> ${customer.email}</div>
-                                <div><strong>Phone:</strong> ${customer.phone}</div>
-                                <div><strong>Address:</strong> ${customer.address || 'Not provided'}</div>
-                                <div><strong>City:</strong> ${customer.city || 'Not provided'}</div>
-                                <div><strong>State:</strong> ${customer.state || 'Not provided'}</div>
-                                <div><strong>ZIP:</strong> ${customer.zipCode || 'Not provided'}</div>
-                            </div>
-            }
-        }
-        window.viewCustomer = viewCustomer;
-                        </div>
-                        
-                        <div class="info-section">
-                            <h4>Customer Details</h4>
-                            <div class="info-grid">
-                                <div><strong>Date Added:</strong> ${formatDate(customer.dateAdded)}</div>
-                                <div><strong>Last Contact:</strong> ${formatDate(customer.lastContact)}</div>
-                                <div><strong>Lead Source:</strong> ${customer.source || 'Not specified'}</div>
-                                <div><strong>Total Purchases:</strong> ${customer.purchaseHistory ? customer.purchaseHistory.length : 0}</div>
-                            </div>
-                        </div>
-                        
-                        ${customer.notes ? `
-                            <div class="info-section">
-                                <h4>Notes</h4>
-                                <p>${customer.notes}</p>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            
-            const footerButtons = [
-                {
-                    text: 'Edit Customer',
-                    class: 'btn-primary',
-                    icon: 'fas fa-edit',
-                    attributes: `onclick="ModalUtils.closeModal('view-customer-modal'); ModalUtils.removeModal('view-customer-modal'); editCustomer('${customerId}')"`
-                },
-                {
-                    text: 'Close',
-                    class: 'btn-outline',
-                    attributes: 'data-modal-close'
-                }
-            ];
-            
-            ModalUtils.createModal('view-customer-modal', 'Customer Details', modalContent, footerButtons);
-            ModalUtils.openModal('view-customer-modal');
-        }
+
 
         function deleteCustomer(customerId) {
             const customer = DataService.customers.get(customerId);
@@ -935,118 +1665,6 @@ window.deleteCustomer = deleteCustomer;
             if (newCustomersElement) newCustomersElement.textContent = newCustomers.length;
             if (returningCustomersElement) returningCustomersElement.textContent = returningCustomers.length;
         }
-
-        // Utility function for date formatting
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        // Global functions for customer actions
-        window.viewCustomer = function(customerId) {
-            const customer = DataService.customers.get(customerId);
-            if (!customer) {
-                alert('Customer not found');
-                return;
-            }
-            
-            const modalContent = `
-                <div class="customer-details">
-                    <div class="customer-header">
-                        <div class="customer-avatar">
-                            ${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}
-                        </div>
-                        <div class="customer-info">
-                            <h3>${customer.firstName} ${customer.lastName}</h3>
-                            <p class="customer-type">${customer.type || 'Regular'} Customer</p>
-                        </div>
-                    </div>
-                    
-                    <div class="customer-details-grid">
-                        <div class="detail-section">
-                            <h4>Contact Information</h4>
-                            <div class="detail-item">
-                                <strong>Email:</strong> ${customer.email}
-                            </div>
-                            <div class="detail-item">
-                                <strong>Phone:</strong> ${customer.phone}
-                            </div>
-                            ${customer.company ? `<div class="detail-item"><strong>Company:</strong> ${customer.company}</div>` : ''}
-                        </div>
-                        
-                        <div class="detail-section">
-                            <h4>Address</h4>
-                            <div class="detail-item">
-                                ${customer.address ? `
-                                    ${customer.address.street || ''}<br>
-                                    ${customer.address.city || ''}, ${customer.address.state || ''} ${customer.address.zip || ''}
-                                ` : 'No address on file'}
-                            </div>
-                        </div>
-                        
-                        <div class="detail-section">
-                            <h4>Customer Details</h4>
-                            <div class="detail-item">
-                                <strong>Date Added:</strong> ${formatDate(customer.dateAdded)}
-                            </div>
-                            <div class="detail-item">
-                                <strong>Last Contact:</strong> ${formatDate(customer.lastContact)}
-                            </div>
-                            <div class="detail-item">
-                                <strong>Source:</strong> ${customer.source || 'Unknown'}
-                            </div>
-                        </div>
-                        
-                        ${customer.notes ? `
-                        <div class="detail-section">
-                            <h4>Notes</h4>
-                            <div class="detail-item">
-                                ${customer.notes}
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            
-            const footerButtons = [
-                {
-                    text: 'Close',
-                    class: 'btn-outline',
-                    attributes: 'data-modal-close'
-                },
-                {
-                    text: 'Edit Customer',
-                    class: 'btn-primary',
-                    icon: 'fas fa-edit',
-                    attributes: `onclick="ModalUtils.closeModal('view-customer-modal'); ModalUtils.removeModal('view-customer-modal'); editCustomer('${customerId}')"`
-                }
-            ];
-            
-            ModalUtils.createModal('view-customer-modal', 'Customer Details', modalContent, footerButtons);
-            ModalUtils.openModal('view-customer-modal');
-        };
-
-        window.addNoteToCustomer = function(customerId) {
-            alert('Add Note for customer ID: ' + customerId);
-        };
-
-        window.deleteCustomer = function(customerId) {
-            // Use the same logic as your main deleteCustomer function
-            const customer = DataService.customers.get(customerId);
-            if (!customer) return;
-            if (confirm(`Are you sure you want to delete ${customer.firstName} ${customer.lastName}? This action cannot be undone.`)) {
-                DataService.customers.remove(customerId);
-                ModalUtils.showSuccessMessage('Customer deleted successfully!');
-                loadCustomers();
-                updateStats();
-            }
-        };
     </script>
 </body>
 </html>

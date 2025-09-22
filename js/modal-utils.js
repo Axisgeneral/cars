@@ -6,7 +6,7 @@ const ModalUtils = {
     // Remove any existing modal with the same ID
     this.removeModal(id);
     const modalHTML = `
-            <div id="${id}" class="modal-overlay">
+            <div id="${id}" class="modal-overlay" style="display: none;">
                 <div class="modal">
                     <div class="modal-header">
                         <h3 class="modal-title">${title}</h3>
@@ -68,6 +68,7 @@ const ModalUtils = {
     openModal: function(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
+            modal.style.display = 'flex';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -78,6 +79,7 @@ const ModalUtils = {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('active');
+            modal.style.display = 'none';
             document.body.style.overflow = '';
         }
     },

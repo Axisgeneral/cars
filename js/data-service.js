@@ -2262,6 +2262,143 @@ const DataService = {
         }
     },
     
+    // Credit Applications Methods
+    creditApplications: {
+        getAll: function() {
+            return JSON.parse(localStorage.getItem('autocrm_credit_applications')) || [];
+        },
+        
+        get: function(id) {
+            const applications = this.getAll();
+            return applications.find(app => app.id === id) || null;
+        },
+        
+        add: function(application) {
+            const applications = this.getAll();
+            if (!application.id) {
+                application.id = Date.now().toString();
+            }
+            application.dateSubmitted = new Date().toISOString();
+            application.status = application.status || 'Pending';
+            applications.push(application);
+            this.save(applications);
+            return application;
+        },
+        
+        update: function(id, updatedApplication) {
+            const applications = this.getAll();
+            const index = applications.findIndex(app => app.id === id);
+            if (index !== -1) {
+                applications[index] = { ...applications[index], ...updatedApplication, updatedAt: new Date().toISOString() };
+                this.save(applications);
+                return applications[index];
+            }
+            return null;
+        },
+        
+        delete: function(id) {
+            const applications = this.getAll();
+            const filteredApplications = applications.filter(app => app.id !== id);
+            this.save(filteredApplications);
+            return filteredApplications.length < applications.length;
+        },
+        
+        save: function(applicationsData) {
+            localStorage.setItem('autocrm_credit_applications', JSON.stringify(applicationsData));
+        },
+        
+        // Get applications by customer ID
+        getByCustomerId: function(customerId) {
+            const applications = this.getAll();
+            return applications.filter(app => app.customerId === customerId);
+        },
+        
+        // Get applications by status
+        getByStatus: function(status) {
+            const applications = this.getAll();
+            return applications.filter(app => app.status === status);
+        },
+        
+        // Initialize with sample data if empty
+        init: function() {
+            if (this.getAll().length === 0) {
+                const sampleApplications = [
+                    {
+                        id: '1',
+                        customerId: '1',
+                        customerName: 'John Smith',
+                        customerEmail: 'john.smith@email.com',
+                        employer: 'Tech Solutions Inc',
+                        jobTitle: 'Software Engineer',
+                        employmentLength: '5-10',
+                        monthlyIncome: 8500,
+                        ssn: '123-45-6789',
+                        dateOfBirth: '1985-03-15',
+                        housingStatus: 'own',
+                        monthlyPayment: 2200,
+                        creditScore: 'excellent',
+                        downPayment: 5000,
+                        tradeVehicle: '2018 Honda Accord',
+                        bankruptcy: false,
+                        cosigner: false,
+                        additionalNotes: 'Excellent credit history, stable employment',
+                        status: 'Approved',
+                        dateSubmitted: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                        dateProcessed: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                        approvedAmount: 45000,
+                        interestRate: 3.5,
+                        processingNotes: 'Approved for up to $45,000 at 3.5% APR'
+                    },
+                    {
+                        id: '2',
+                        customerId: '2',
+                        customerName: 'Sarah Johnson',
+                        customerEmail: 'sarah.johnson@email.com',
+                        employer: 'Marketing Plus',
+                        jobTitle: 'Marketing Manager',
+                        employmentLength: '2-5',
+                        monthlyIncome: 6200,
+                        ssn: '987-65-4321',
+                        dateOfBirth: '1990-07-22',
+                        housingStatus: 'rent',
+                        monthlyPayment: 1800,
+                        creditScore: 'good',
+                        downPayment: 3000,
+                        tradeVehicle: '',
+                        bankruptcy: false,
+                        cosigner: false,
+                        additionalNotes: 'First-time car buyer, good credit score',
+                        status: 'Pending',
+                        dateSubmitted: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: '3',
+                        customerId: '3',
+                        customerName: 'Michael Brown',
+                        customerEmail: 'michael.brown@email.com',
+                        employer: 'Construction Co',
+                        jobTitle: 'Project Manager',
+                        employmentLength: '5-10',
+                        monthlyIncome: 7200,
+                        ssn: '456-78-9012',
+                        dateOfBirth: '1982-11-08',
+                        housingStatus: 'own',
+                        monthlyPayment: 1950,
+                        creditScore: 'fair',
+                        downPayment: 2500,
+                        tradeVehicle: '2016 Ford F-150',
+                        bankruptcy: false,
+                        cosigner: true,
+                        additionalNotes: 'Wife will co-sign, stable employment in construction',
+                        status: 'Under Review',
+                        dateSubmitted: new Date().toISOString()
+                    }
+                ];
+                this.save(sampleApplications);
+            }
+        }
+    },
+    
     // Tasks Methods (keeping localStorage for now)
     tasks: {
         // Remove method for backward compatibility
@@ -2691,7 +2828,7 @@ const DataService = {
                         relatedTo: 'Lead',
                         relatedId: '27',
                         createdAt: new Date().toISOString(),
-                        createdBy: 'Mike Johnson'
+                        createdBy: 'Thomas Morales'
                     }
                 ];
                 this.save(sampleTasks);
@@ -2699,7 +2836,7 @@ const DataService = {
         }
     },
     
-    // Reports Methods
+    // Reports Methods (keeping localStorage for now)
     reports: {
         getAll: function() {
             return JSON.parse(localStorage.getItem('autocrm_reports')) || [];
@@ -2710,12 +2847,16 @@ const DataService = {
             return reports.find(report => report.id === id) || null;
         },
         
+        save: function(reportsData) {
+            localStorage.setItem('autocrm_reports', JSON.stringify(reportsData));
+        },
+        
         add: function(report) {
             const reports = this.getAll();
             if (!report.id) {
                 report.id = Date.now().toString();
             }
-            report.dateCreated = new Date().toISOString();
+            report.createdAt = new Date().toISOString();
             reports.push(report);
             this.save(reports);
             return report;
@@ -2739,145 +2880,18 @@ const DataService = {
             return filteredReports.length < reports.length;
         },
         
-        save: function(reportsData) {
-            localStorage.setItem('autocrm_reports', JSON.stringify(reportsData));
-        },
-        
-        getByCategory: function(category) {
-            const reports = this.getAll();
-            return reports.filter(report => report.category === category);
-        },
-        
-        getCategories: function() {
-            const reports = this.getAll();
-            const categories = [...new Set(reports.map(report => report.category))].filter(Boolean);
-            return categories.sort();
-        },
-        
-        // Generate dynamic reports based on current data
-        generateSalesReport: function(dateRange = 'thisMonth') {
-            const deals = DataService.deals.getAll();
-            const customers = DataService.customers.getAll();
-            const inventory = DataService.inventory.getAll();
-            
-            // Filter deals based on date range
-            const now = new Date();
-            let startDate;
-            
-            switch(dateRange) {
-                case 'today':
-                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    break;
-                case 'thisWeek':
-                    startDate = new Date(now.setDate(now.getDate() - now.getDay()));
-                    break;
-                case 'thisMonth':
-                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                    break;
-                case 'thisYear':
-                    startDate = new Date(now.getFullYear(), 0, 1);
-                    break;
-                default:
-                    startDate = new Date(0); // All time
-            }
-            
-            const filteredDeals = deals.filter(deal => new Date(deal.dateAdded) >= startDate);
-            
-            const totalRevenue = filteredDeals.reduce((sum, deal) => sum + (deal.amount || 0), 0);
-            const totalDeals = filteredDeals.length;
-            const avgDealSize = totalDeals > 0 ? totalRevenue / totalDeals : 0;
-            
-            return {
-                id: 'dynamic_sales_' + Date.now(),
-                title: `Sales Report - ${dateRange}`,
-                category: 'Sales',
-                type: 'dynamic',
-                dateRange: dateRange,
-                data: {
-                    totalRevenue,
-                    totalDeals,
-                    avgDealSize,
-                    deals: filteredDeals
-                },
-                generatedAt: new Date().toISOString()
-            };
-        },
-        
-        generateInventoryReport: function() {
-            const inventory = DataService.inventory.getAll();
-            
-            const totalVehicles = inventory.length;
-            const availableVehicles = inventory.filter(v => v.status === 'Available').length;
-            const soldVehicles = inventory.filter(v => v.status === 'Sold').length;
-            const avgPrice = inventory.length > 0 ? inventory.reduce((sum, v) => sum + (v.price || 0), 0) / inventory.length : 0;
-            
-            const makeBreakdown = inventory.reduce((acc, vehicle) => {
-                acc[vehicle.make] = (acc[vehicle.make] || 0) + 1;
-                return acc;
-            }, {});
-            
-            return {
-                id: 'dynamic_inventory_' + Date.now(),
-                title: 'Current Inventory Report',
-                category: 'Inventory',
-                type: 'dynamic',
-                data: {
-                    totalVehicles,
-                    availableVehicles,
-                    soldVehicles,
-                    avgPrice,
-                    makeBreakdown,
-                    vehicles: inventory
-                },
-                generatedAt: new Date().toISOString()
-            };
-        },
-        
-        // Initialize with sample reports if empty
         init: function() {
             if (this.getAll().length === 0) {
                 const sampleReports = [
                     {
                         id: '1',
                         title: 'Monthly Sales Performance',
-                        description: 'Comprehensive analysis of sales performance for the current month including revenue, units sold, and conversion rates.',
+                        description: 'Comprehensive analysis of sales performance for the current month',
                         category: 'Sales',
                         type: 'scheduled',
                         frequency: 'Monthly',
                         lastGenerated: new Date().toISOString(),
-                        parameters: {
-                            dateRange: 'current-month',
-                            includeCharts: true,
-                            format: 'pdf'
-                        }
-                    },
-                    {
-                        id: '2',
-                        title: 'Inventory Aging Report',
-                        description: 'Analysis of vehicle inventory aging with recommendations for pricing adjustments and promotional strategies.',
-                        category: 'Inventory',
-                        type: 'on-demand',
-                        frequency: 'Weekly',
-                        lastGenerated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            agingThreshold: 60,
-                            includePhotos: false,
-                            sortBy: 'daysOnLot'
-                        }
-                    },
-                    {
-                        id: '3',
-                        title: 'Lead Conversion Analysis',
-                        description: 'Detailed breakdown of lead sources, conversion rates, and sales funnel performance.',
-                        category: 'Marketing',
-                        type: 'scheduled',
-                        frequency: 'Quarterly',
-                        lastGenerated: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                        parameters: {
-                            includeSourceBreakdown: true,
-                            compareToLastPeriod: true,
-                            format: 'excel'
-                        }
+                        createdAt: new Date().toISOString()
                     }
                 ];
                 this.save(sampleReports);
@@ -2887,16 +2901,14 @@ const DataService = {
     
     // Utility Methods
     utils: {
-        // Initialize all data stores with sample data if they don't exist
+        // Initialize all data stores
         initializeAllData: function() {
-            console.log('Initializing all data stores...');
-            
             try {
-                // Initialize each data store
                 DataService.customers.init();
                 DataService.inventory.init();
                 DataService.leads.init();
                 DataService.deals.init();
+                DataService.creditApplications.init();
                 DataService.tasks.init();
                 DataService.reports.init();
                 
@@ -2912,6 +2924,7 @@ const DataService = {
             localStorage.removeItem('autocrm_inventory');
             localStorage.removeItem('autocrm_leads');
             localStorage.removeItem('autocrm_deals');
+            localStorage.removeItem('autocrm_credit_applications');
             localStorage.removeItem('autocrm_tasks');
             localStorage.removeItem('autocrm_reports');
             console.log('All data cleared');
@@ -2924,6 +2937,7 @@ const DataService = {
                 inventory: DataService.inventory.getAll(),
                 leads: DataService.leads.getAll(),
                 deals: DataService.deals.getAll(),
+                creditApplications: DataService.creditApplications.getAll(),
                 tasks: DataService.tasks.getAll(),
                 reports: DataService.reports.getAll(),
                 exportDate: new Date().toISOString()
@@ -2936,9 +2950,11 @@ const DataService = {
             if (data.inventory) DataService.inventory.save(data.inventory);
             if (data.leads) DataService.leads.save(data.leads);
             if (data.deals) DataService.deals.save(data.deals);
+            if (data.creditApplications) DataService.creditApplications.save(data.creditApplications);
             if (data.tasks) DataService.tasks.save(data.tasks);
             if (data.reports) DataService.reports.save(data.reports);
             console.log('All data imported successfully');
         }
     }
 };
+  

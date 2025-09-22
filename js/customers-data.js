@@ -191,6 +191,30 @@ function initCustomersEventListeners() {
             deleteCustomerByName(name);
         });
     });
+
+    // Handle "Create New Deal" action in dropdown
+    const createDealActions = document.querySelectorAll('.dropdown-menu .dropdown-item');
+    createDealActions.forEach(btn => {
+        if (btn.textContent.trim() === 'Create New Deal') {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const row = this.closest('tr');
+                // Get customer ID from checkbox id (format: customer-<id>)
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                let customerId = null;
+                if (checkbox && checkbox.id.startsWith('customer-')) {
+                    customerId = checkbox.id.replace('customer-', '');
+                }
+                if (customerId) {
+                    createNewDealForCustomer(customerId);
+                } else {
+                    alert('Customer ID not found for creating deal.');
+                }
+            });
+        }
+    });
+}
+
 // Delete customer by name (used for dropdown menu)
 function deleteCustomerByName(name) {
     const customers = DataService.customers.getAll();
@@ -204,7 +228,6 @@ function deleteCustomerByName(name) {
         ModalUtils.showSuccessMessage('Customer deleted successfully!');
         populateCustomersTable();
     }
-}
 }
 
 // Apply Filters
@@ -526,6 +549,7 @@ function initCustomersImportExportListeners() {
 function openCustomersImportModal() {
     const modal = document.getElementById('import-customers-modal');
     if (modal) {
+        modal.style.display = 'flex';
         modal.classList.add('active');
         resetCustomersImportModal();
     }
@@ -536,6 +560,7 @@ function closeCustomersImportModal() {
     const modal = document.getElementById('import-customers-modal');
     if (modal) {
         modal.classList.remove('active');
+        modal.style.display = 'none';
         resetCustomersImportModal();
     }
 }
@@ -834,4 +859,249 @@ function exportCustomers() {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+}
+
+// Create New Deal for Customer
+function createNewDealForCustomer(customerId) {
+    // Get customer data
+    const customer = DataService.customers.get(customerId);
+    if (!customer) {
+        alert('Customer not found.');
+        return;
+    }
+    
+    // Open the deal modal with pre-populated customer information
+    openAddDealModalWithCustomer(customer);
+}
+
+// Open Add Deal Modal with Customer Pre-populated
+function openAddDealModalWithCustomer(customer) {
+    console.log('Opening Add Deal Modal with customer:', customer);
+    
+    // Get customers and vehicles for dropdowns
+    const customers = DataService.customers.getAll();
+    const vehicles = DataService.inventory.getAll();
+    
+    // Create customer options
+    const customerOptions = customers.map(c => 
+        `<option value="${c.id}" ${c.id === customer.id ? 'selected' : ''}>${c.firstName} ${c.lastName}</option>`
+    ).join('');
+    
+    // Create vehicle options
+    const vehicleOptions = vehicles.map(vehicle => 
+        `<option value="${vehicle.id}">${vehicle.year} ${vehicle.make} ${vehicle.model} - $${vehicle.price.toLocaleString()}</option>`
+    ).join('');
+    
+    // Create modal content
+    const modalContent = `
+        <form id="add-deal-form">
+            <div class="form-section">
+                <h4 class="form-section-title">Deal Information</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerId">Customer *</label>
+                        <select id="customerId" name="customerId" required>
+                            <option value="">Select Customer</option>
+                            ${customerOptions}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleId">Vehicle *</label>
+                        <select id="vehicleId" name="vehicleId" required>
+                            <option value="">Select Vehicle</option>
+                            ${vehicleOptions}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dealType">Deal Type *</label>
+                        <select id="dealType" name="dealType" required>
+                            <option value="">Select Type</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Lease">Lease</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status *</label>
+                        <select id="status" name="status" required>
+                            <option value="">Select Status</option>
+                            <option value="New" selected>New</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Pending Approval">Pending Approval</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 class="form-section-title">Financial Details</h4>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label for="salePrice">Sale Price *</label>
+                        <input type="number" id="salePrice" name="salePrice" required min="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="downPayment">Down Payment</label>
+                        <input type="number" id="downPayment" name="downPayment" min="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="tradeInValue">Trade-In Value</label>
+                        <input type="number" id="tradeInValue" name="tradeInValue" min="0" step="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="financingTerm">Financing Term (months)</label>
+                        <select id="financingTerm" name="financingTerm">
+                            <option value="">Select Term</option>
+                            <option value="12">12 months</option>
+                            <option value="24">24 months</option>
+                            <option value="36">36 months</option>
+                            <option value="48">48 months</option>
+                            <option value="60">60 months</option>
+                            <option value="72">72 months</option>
+                            <option value="84">84 months</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="interestRate">Interest Rate (%)</label>
+                        <input type="number" id="interestRate" name="interestRate" min="0" max="30" step="0.01">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 class="form-section-title">Additional Information</h4>
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Deal created from customer: ${customer.firstName} ${customer.lastName}"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salesperson">Salesperson *</label>
+                        <select id="salesperson" name="salesperson" required>
+                            <option value="">Select Salesperson</option>
+                            <option value="Thomas Morales" selected>Thomas Morales</option>
+                            <option value="Sales Rep 1">Sales Rep 1</option>
+                            <option value="Sales Rep 2">Sales Rep 2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dealDate">Deal Date *</label>
+                        <input type="date" id="dealDate" name="dealDate" required>
+                    </div>
+                </div>
+            </div>
+        </form>
+    `;
+    
+    // Create modal with ModalUtils
+    const modal = ModalUtils.createModal('add-deal-modal', 'New Deal - ' + customer.firstName + ' ' + customer.lastName, modalContent, [
+        { text: 'Cancel', class: 'btn-secondary', attributes: 'data-modal-close' },
+        { text: 'Save Deal', class: 'btn-primary', attributes: 'id="save-deal-btn"' }
+    ]);
+    
+    // Open the modal
+    ModalUtils.openModal('add-deal-modal');
+    
+    // Add event listener for save button
+    const saveBtn = document.getElementById('save-deal-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            saveDealFromCustomer(customer);
+        });
+    }
+    
+    // Set today's date as default for deal date
+    const dealDateInput = document.getElementById('dealDate');
+    if (dealDateInput) {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        dealDateInput.value = formattedDate;
+    }
+    
+    // Auto-populate vehicle price when vehicle is selected
+    const vehicleSelect = document.getElementById('vehicleId');
+    if (vehicleSelect) {
+        vehicleSelect.addEventListener('change', function() {
+            const selectedVehicleId = this.value;
+            if (selectedVehicleId) {
+                const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
+                if (selectedVehicle) {
+                    const salePriceInput = document.getElementById('salePrice');
+                    if (salePriceInput) {
+                        salePriceInput.value = selectedVehicle.price;
+                    }
+                }
+            }
+        });
+    }
+}
+
+// Save Deal from Customer
+function saveDealFromCustomer(customer) {
+    const form = document.getElementById('add-deal-form');
+    if (!form) return;
+    
+    // Validate form
+    const errors = ModalUtils.validateForm(form);
+    if (Object.keys(errors).length > 0) {
+        ModalUtils.displayFormErrors(errors);
+        return;
+    }
+    
+    // Get form data
+    const formData = ModalUtils.getFormData(form);
+    
+    // Get selected vehicle details
+    const selectedVehicle = DataService.inventory.get(formData.vehicleId);
+    if (!selectedVehicle) {
+        ModalUtils.showErrorMessage('Selected vehicle not found.');
+        return;
+    }
+    
+    // Create deal object
+    const deal = {
+        customerId: customer.id,
+        vehicleId: formData.vehicleId,
+        customerName: customer.firstName + ' ' + customer.lastName,
+        customerEmail: customer.email,
+        vehicleYear: selectedVehicle.year,
+        vehicleMake: selectedVehicle.make,
+        vehicleModel: selectedVehicle.model,
+        value: parseInt(formData.salePrice),
+        status: formData.status,
+        salesperson: formData.salesperson,
+        notes: formData.notes || `Deal created from customer: ${customer.firstName} ${customer.lastName}`,
+        dateCreated: new Date().toISOString(),
+        expectedCloseDate: new Date(formData.dealDate).toISOString(),
+        dealType: formData.dealType,
+        downPayment: formData.downPayment ? parseInt(formData.downPayment) : 0,
+        tradeInValue: formData.tradeInValue ? parseInt(formData.tradeInValue) : 0,
+        financingTerm: formData.financingTerm || null,
+        interestRate: formData.interestRate ? parseFloat(formData.interestRate) : null
+    };
+    
+    // Save deal
+    try {
+        DataService.deals.add(deal);
+        ModalUtils.showSuccessMessage('Deal created successfully!');
+        ModalUtils.closeModal('add-deal-modal');
+        
+        // Optionally redirect to deals page or refresh current page
+        setTimeout(() => {
+            if (confirm('Deal created successfully! Would you like to go to the Deals page to view it?')) {
+                window.location.href = 'deals.html';
+            }
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error saving deal:', error);
+        ModalUtils.showErrorMessage('Error creating deal. Please try again.');
+    }
 }
